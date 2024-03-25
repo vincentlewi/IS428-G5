@@ -39,6 +39,7 @@ const CsvToJsonExample: React.FC = () => {
 
     for (let i = 1; i < lines.length; i++) {
       const obj: any = {};
+      
       const currentline = lines[i].split(",");
 
       for (let j = 0; j < 5; j++) {
