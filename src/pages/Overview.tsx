@@ -1,5 +1,5 @@
 import './Overview.css'
-import Nav from '@/components/Nav'
+import Nav from '@/components/ui/nav'
 import { Button } from "@/components/ui/button"
 import Test from '@/components/d3/test'
 
