@@ -25,6 +25,7 @@ export default function Test() {
             cx={x}
             cy={y}
             r="3"
+            key={`${x}-${y}`}
             />
         ))}
         </svg>
