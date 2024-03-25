@@ -1,5 +1,4 @@
-import * as d3 from 'd3'
-import { useState, useMemo } from 'react'
+import { useState, useEffect } from 'react'
 
 export default function Test() {
     const generateDataset = () => (
@@ -11,26 +10,22 @@ export default function Test() {
     const [dataset, setDataset] = useState(
         generateDataset()
     )
-
-    const Axis = () => {
-        const ticks = useMemo(() => {
-        const xScale = d3.scaleLinear()
-            .domain([0, 100])
-            .range([10, 290])
-        return xScale.ticks()
-            .map(value => ({
-            value,
-            xOffset: xScale(value)
-            }))
-    }, [])}
+    
+    useEffect(() => {
+        const interval = setInterval(() => {
+        setDataset(generateDataset())
+        }, 500)
+        return () => clearInterval(interval)
+    }, [])
 
     return (
         <svg viewBox="0 0 100 50">
-        {dataset.map(([x, y], i) => (
+        {dataset.map(([x, y]) => (
             <circle
             cx={x}
             cy={y}
             r="3"
+            key={`${x}-${y}`}
             />
         ))}
         </svg>
