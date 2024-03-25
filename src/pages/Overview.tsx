@@ -1,20 +1,34 @@
-import './Overview.css'
-import Nav from '@/components/ui/nav'
-import { Button } from "@/components/ui/button"
-import Test from '@/components/d3/test'
-
+import React, { useEffect, useState } from "react";
+import "./Overview.css";
+import Nav from "@/components/ui/nav";
+import { Button } from "@/components/ui/button";
+import Test from "@/components/d3/test";
+import * as d3 from "d3";
 
 export default function Overview() {
+  const [data, setData] = useState([]);
+  const [selectedYear, setSelectedYear] = useState(null);
+
+  useEffect(() => {
+    d3.csv("hdb_scaled.csv").then((loadedData) => {
+      console.log("CSV data loaded:", loadedData);
+      const years = Array.from(new Set(loadedData.map((d) => +d.year))).sort();
+      setSelectedYear(years[0]);
+      setData(loadedData);
+    });
+  }, []);
+
   return (
     <>
-      <Nav activePage='overview'/>
-      <div className = "overview">
+      <Nav activePage="overview" />
+      <div className="overview">
         <h1>Finding Home is Difficult</h1>
-        <p>"Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. </p>
-        <p>Take a look at the choropleth below. Hover on any area, and you will see that houses are EXPENSIVE.</p>
+        <p>Lorem ipsum...</p>
         <Button variant="outline">Button</Button>
-        <Test />
+        {data.length > 0 && selectedYear !== null ? (
+          <Test data={data} selectedYear={selectedYear} />
+        ) : null}
       </div>
     </>
-  )
+  );
 }
