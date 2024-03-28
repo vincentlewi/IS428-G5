@@ -24,4 +24,6 @@ dist-ssr
 *.sw?
 
 # Research
+datasets
 catboost_info
+feature_importances
