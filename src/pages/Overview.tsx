@@ -1,9 +1,9 @@
 import './Overview.css'
 import Nav from '@/components/ui/nav'
 import { Button } from "@/components/ui/button"
-import Test from '@/components/d3/test'
-import CustomContainer from '@/components/ui/customContainer'
-import ScrollIntoView from 'react-scroll-into-view'
+import Map from '@/components/d3/map';
+import CustomContainer from '@/components/ui/customContainer';
+import ScrollIntoView from 'react-scroll-into-view';
 import { ArrowBigDown } from 'lucide-react';
 import { Wave } from 'react-animated-text';
 import { useNavigate } from 'react-router-dom';
@@ -151,7 +151,7 @@ export default function Overview() {
         <p>Take a look at the choropleth below. Hover on any area, and you will see that houses are EXPENSIVE.</p>
         <Button variant="outline">Button</Button>
         <Test />
-      </div> */}
+      </div>} */}
     </>
   )
 }
