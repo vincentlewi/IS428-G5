@@ -11,32 +11,70 @@ interface DataEntry {
   year: string;
   maturity: string;
   flat_type: string;
-  adjusted_price: number; // Assuming this is a number
-  // Add other properties from your CSV data as needed
+  adjusted_price: number;
+  town_classification: string;
+  resale_price: string;
+  average_household_income: string;
 }
+
 interface MedianAdjustedPriceEntry {
-  year: Date; // Using Date type as we will parse the year for D3's time scale
+  year: Date;
   mature: number;
   nonMature: number;
 }
-type MedianAdjustedPrices = MedianAdjustedPriceEntry[];
+
+interface RatioDataEntry {
+  year: Date;
+  flat_type: string;
+  ratio: number;
+}
+
+interface IncomeDataEntry {
+  year: string;
+  flat_type: string;
+  average_household_income: number; // Ensure this is number after loading and conversion
+}
 
 export default function Overview() {
   const [data, setData] = useState<DataEntry[]>([]);
   const [years, setYears] = useState<string[]>([]);
-  const [maturityEstates, setMaturityEstates] = useState<string[]>([
-    "All",
-    "Mature",
-    "Non-Mature",
-  ]);
+  const [maturityEstates, setMaturityEstates] = useState<string[]>([]);
   const [flatTypes, setFlatTypes] = useState<string[]>([]);
-  const [selectedYear, setSelectedYear] = useState<string>("all");
-  const [selectedMaturity, setSelectedMaturity] = useState<string>("All");
-  const [selectedFlatTypes, setSelectedFlatTypes] = useState<string[]>([]);
+  const [selectedFilter, setSelectedFilter] = useState<{
+    year: string;
+    maturity: string;
+    flatTypes: string[];
+  }>({ year: "all", maturity: "All", flatTypes: [] });
+
+  const [medianAdjustedPrices, setMedianAdjustedPrices] = useState<
+    MedianAdjustedPriceEntry[]
+  >([]);
+  const [ratioData, setRatioData] = useState<RatioDataEntry[]>([]);
+  const [hdbData, setHdbData] = useState<DataEntry[]>([]);
+  const [incomeData, setIncomeData] = useState<IncomeDataEntry[]>([]);
 
   useEffect(() => {
-    d3.csv("../../datasets/hdb_scaled.csv")
-      .then((loadedData: DataEntry[]) => {
+    const loadData = async () => {
+      try {
+        const [hdbData, incomeData] = await Promise.all([
+          d3.csv("../../datasets/hdb_scaled.csv"),
+          d3.csv("../../datasets/average_income_by_household.csv"),
+        ]);
+
+        const loadedData: DataEntry[] = hdbData.map((d) => ({
+          ...d,
+          year: d.year,
+          maturity: d.maturity,
+          flat_type: d.flat_type,
+          adjusted_price: +d.adjusted_price,
+          town_classification: d.town_classification,
+          resale_price: d.resale_price,
+          average_household_income:
+            incomeData.find(
+              (i) => i.year === d.year && i.flat_type === d.flat_type
+            )?.average_household_income || "0",
+        }));
+
         const uniqueYears: string[] = [
           "all",
           ...new Set(loadedData.map((d) => d.year)),
@@ -51,33 +89,98 @@ export default function Overview() {
         ].sort();
 
         setYears(uniqueYears);
-        // Assuming 'maturity' and 'flat_type' are the correct property names in your CSV
         setMaturityEstates(uniqueMaturities);
         setFlatTypes(uniqueFlatTypes);
         setData(loadedData);
-      })
-      .catch((error) => {
-        console.error("Error loading CSV:", error);
-      });
-  }, []);
-  useEffect(() => {
-    // Only attempt to calculate if the initial data is loaded
-    if (data.length > 0) {
-      const processedData = calculateMedianAdjustedPrices(
-        data
-          .filter((d) => selectedYear === "all" || d.year === selectedYear)
-          .filter(
-            (d) => selectedMaturity === "All" || d.maturity === selectedMaturity
-          )
-          .filter(
-            (d) =>
-              selectedFlatTypes.length === 0 ||
-              selectedFlatTypes.includes(d.flat_type)
-          )
-      );
-      setMedianAdjustedPrices(processedData);
-    }
-  }, [data, selectedYear, selectedMaturity, selectedFlatTypes]); // Update dependencies array here too
+
+        const processedData = calculateMedianAdjustedPrices(
+          filterData(loadedData, selectedFilter)
+        );
+        setMedianAdjustedPrices(processedData);
+
+        // Convert string values to appropriate types
+        const hdbProcessed = hdbData.map((d) => ({
+          ...d,
+          year: d.year,
+          flat_type: d.flat_type,
+          resale_price: +d.resale_price,
+        }));
+
+        const incomeProcessed = incomeData.map((d) => ({
+          ...d,
+          year: d.year,
+          flat_type: d.flat_type.trim(), // Ensuring flat_type consistency
+          average_household_income: +d.average_household_income,
+        }));
+
+        // Aggregate HDB data for average resale price by flat type and year
+        const avgResalePriceByYearAndType = d3.rollups(
+          hdbProcessed,
+          (v) => d3.mean(v, (d) => d.resale_price),
+          (d) => `${d.year}-${d.flat_type}`
+        );
+
+        // // Calculate the ratio of average resale price to average household income
+        // const ratioData = avgResalePriceByYearAndType
+        //   .map(([key, avgResalePrice]) => {
+        //     const [year, flat_type] = key.split("-");
+        //     const incomeKey = key; // Matching key for income data
+        //     const average_household_income = incomeProcessed.find(
+        //       (d) => `${d.year}-${d.flat_type}` === incomeKey
+        //     )?.average_household_income;
+
+        //     return average_household_income
+        //       ? {
+        //           year: d3.timeParse("%Y")(year), // Ensuring year is parsed to a Date object for d3
+        //           flat_type,
+        //           ratio: avgResalePrice / average_household_income,
+        //         }
+        //       : null;
+        //   })
+        //   .filter((d) => d); // Filter out entries without corresponding income data
+        // When processing ratioData in Overview.tsx
+        const ratioData: RatioDataEntry[] = avgResalePriceByYearAndType
+          .map(([key, avgResalePrice]) => {
+            const [year, flat_type] = key.split("-");
+            const incomeKey = key; // Matching key for income data
+            const average_household_income = incomeProcessed.find(
+              (d) => `${d.year}-${d.flat_type}` === incomeKey
+            )?.average_household_income;
+
+            return average_household_income
+              ? {
+                  year: d3.timeParse("%Y")(year) as Date, // Cast to Date to satisfy type expectation
+                  flat_type,
+                  ratio: avgResalePrice / average_household_income,
+                }
+              : null;
+          })
+          .filter((d): d is RatioDataEntry => d !== null); // Type guard to filter out nulls and satisfy TypeScript
+
+        // Update state with the prepared ratioData
+        const validRatioData = ratioData.filter(
+          (d): d is RatioDataEntry => d !== undefined
+        );
+        setRatioData(validRatioData);
+
+        setRatioData(ratioData);
+      } catch (error) {
+        console.error("Error loading data: ", error);
+      }
+    };
+
+    loadData();
+  }, [selectedFilter]);
+
+  const filterData = (data: DataEntry[], filter: typeof selectedFilter) => {
+    return data.filter(
+      (d) =>
+        (filter.year === "all" || d.year === filter.year) &&
+        // (filter.maturity === "All" || d.maturity === filter.maturity) &&
+        (filter.flatTypes.length === 0 ||
+          filter.flatTypes.includes(d.flat_type))
+    );
+  };
 
   const calculateMedianAdjustedPrices = (
     filteredData: DataEntry[]
@@ -103,43 +206,29 @@ export default function Overview() {
           : 0;
 
       return {
-        year: parseYear(year), // Make sure this parsing matches the date format in your dataset
+        year: parseYear(year),
         mature: matureMedian,
         nonMature: nonMatureMedian,
       };
     });
   };
 
-  const [medianAdjustedPrices, setMedianAdjustedPrices] = useState<
-    MedianAdjustedPriceEntry[]
-  >([]);
-
-  const handleYearChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
-    setSelectedYear(event.target.value);
-  };
-
-  const handleFlatTypeChange = (
-    event: React.ChangeEvent<HTMLSelectElement>
+  const handleFilterChange = (
+    event: React.ChangeEvent<HTMLSelectElement>,
+    filterType: "year" | "flatTypes"
   ) => {
-    // Get all selected options and map them to their values
-    const values = Array.from(
-      event.target.selectedOptions,
-      (option) => option.value
-    );
-    setSelectedFlatTypes(values);
+    const value =
+      filterType === "flatTypes"
+        ? Array.from(event.target.selectedOptions, (option) => option.value)
+        : event.target.value;
+
+    setSelectedFilter((prevFilter) => ({
+      ...prevFilter,
+      [filterType]: value,
+    }));
   };
 
-  // Dynamically filter the data based on the selected year, maturity, and flat type
-  const filteredData = data
-    .filter((d) => selectedYear === "all" || d.year === selectedYear)
-    .filter(
-      (d) => selectedMaturity === "All" || d.maturity === selectedMaturity
-    )
-    .filter(
-      (d) =>
-        selectedFlatTypes.length === 0 ||
-        selectedFlatTypes.includes(d.flat_type)
-    );
+  const filteredData = filterData(data, selectedFilter);
 
   return (
     <>
@@ -152,8 +241,8 @@ export default function Overview() {
           <label htmlFor="year-select">Select Year: </label>
           <select
             id="year-select"
-            value={selectedYear}
-            onChange={handleYearChange}
+            value={selectedFilter.year}
+            onChange={(e) => handleFilterChange(e, "year")}
           >
             {years.map((year) => (
               <option key={year} value={year}>
@@ -169,9 +258,9 @@ export default function Overview() {
           <select
             multiple
             id="flat-type-select"
-            value={selectedFlatTypes}
-            onChange={handleFlatTypeChange}
-            size={flatTypes.length} // This determines how many options are shown at once
+            value={selectedFilter.flatTypes}
+            onChange={(e) => handleFilterChange(e, "flatTypes")}
+            size={flatTypes.length}
           >
             {flatTypes.map((type) => (
               <option key={type} value={type}>
@@ -180,19 +269,17 @@ export default function Overview() {
             ))}
           </select>
         </div>
-        <Resale_Flat_Hdb
-          data={filteredData}
-          selectedYear={selectedYear}
-          selectedMaturity={selectedMaturity}
-          selectedFlatTypes={selectedFlatTypes} // Ensure this prop is correctly handled in the child component
-        />
+
+        <Resale_Flat_Hdb data={filteredData} selectedFilter={selectedFilter} />
       </div>
 
       <MedianMaturityPriceChart
         data={medianAdjustedPrices}
-        selectedYear={selectedYear}
-        selectedMaturity={selectedMaturity}
-        selectedFlatTypes={selectedFlatTypes}
+        selectedFilter={selectedFilter}
+      />
+      <OwnershipTimeChart
+        data={ratioData}
+        selectedFilter={selectedFilter} // Change to pass the entire selectedFilter object
       />
     </>
   );

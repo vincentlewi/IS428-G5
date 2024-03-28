@@ -1,26 +1,28 @@
 import React, { useEffect, useRef } from "react";
 import * as d3 from "d3";
 
-interface DataPoint {
-  town: string;
+interface DataEntry {
   year: string;
   maturity: string;
   flat_type: string;
-  // You can add more fields from your dataset as needed
+  adjusted_price: number;
+  town_classification: string;
+  resale_price: string;
+  average_household_income: string;
 }
 
 interface ResaleFlatHdbProps {
-  data: DataPoint[];
-  selectedYear: string;
-  selectedMaturity: string;
-  selectedFlatTypes: string[];
+  data: DataEntry[];
+  selectedFilter: {
+    year: string;
+    maturity: string;
+    flatTypes: string[];
+  };
 }
 
 const Resale_Flat_Hdb: React.FC<ResaleFlatHdbProps> = ({
   data,
-  selectedYear,
-  selectedMaturity,
-  selectedFlatTypes,
+  selectedFilter,
 }) => {
   const chartRef = useRef(null);
 
@@ -36,33 +38,35 @@ const Resale_Flat_Hdb: React.FC<ResaleFlatHdbProps> = ({
         .append("g")
         .attr("transform", "translate(60,50)");
 
-      updateChart(svg, data, selectedYear, selectedMaturity, selectedFlatTypes);
+      updateChart(svg, data, selectedFilter);
     }
-  }, [data, selectedYear, selectedMaturity, selectedFlatTypes]);
+  }, [data, selectedFilter]);
 
   function updateChart(
     svg: d3.Selection<SVGGElement, unknown, null, undefined>,
-    data: DataPoint[],
-    selectedYear: string,
-    selectedMaturity: string,
-    selectedFlatType: string
+    data: DataEntry[],
+    selectedFilter: ResaleFlatHdbProps["selectedFilter"]
   ) {
-    const margin = { top: 50, right: 30, bottom: 70, left: 100 }, // Increase left margin here
+    const margin = { top: 50, right: 30, bottom: 70, left: 100 },
       width = 1000 - margin.left - margin.right,
       height = 500 - margin.top - margin.bottom;
 
     svg.selectAll("*").remove();
 
-    // Filter data based on the selected filters
+    // Adjusted filter data based on the selectedFilter object
     let processedData = data
-      .filter((d) => selectedYear === "all" || d.year === selectedYear)
       .filter(
-        (d) => selectedMaturity === "All" || d.maturity === selectedMaturity
+        (d) => selectedFilter.year === "all" || d.year === selectedFilter.year
       )
       .filter(
         (d) =>
-          selectedFlatTypes.length === 0 ||
-          selectedFlatTypes.includes(d.flat_type)
+          selectedFilter.maturity === "All" ||
+          d.maturity === selectedFilter.maturity
+      )
+      .filter(
+        (d) =>
+          selectedFilter.flatTypes.length === 0 ||
+          selectedFilter.flatTypes.includes(d.flat_type)
       );
 
     // Rollup and sort data, then take top 5
@@ -152,25 +156,26 @@ const Resale_Flat_Hdb: React.FC<ResaleFlatHdbProps> = ({
       .attr("text-anchor", "middle")
       .style("font-size", "20px")
       .style("text-decoration", "underline")
-      .text(
-        generateChartTitle(selectedYear, selectedMaturity, selectedFlatType)
-      );
+      .text(generateChartTitle(selectedFilter));
   }
 
+  // Adjust the generateChartTitle function to correctly utilize selectedFilter
   function generateChartTitle(
-    selectedYear: string,
-    selectedMaturity: string,
-    selectedFlatType: string
+    selectedFilter: ResaleFlatHdbProps["selectedFilter"]
   ): string {
     let title = "Top 5 Flats Sold";
-    if (selectedYear !== "all") {
-      title += ` in ${selectedYear}`;
+    if (selectedFilter.year !== "all") {
+      title += ` in ${selectedFilter.year}`;
     }
-    if (selectedMaturity !== "All") {
-      title += ` - ${selectedMaturity} Estates`;
+    if (selectedFilter.maturity !== "All") {
+      title += ` - ${selectedFilter.maturity} Estates`;
     }
-    if (selectedFlatType !== "all") {
-      title += ` - ${selectedFlatType}`;
+    if (
+      !selectedFilter.flatTypes.includes("all") &&
+      selectedFilter.flatTypes.length > 0
+    ) {
+      const flatTypes = selectedFilter.flatTypes.join(", ");
+      title += ` - ${flatTypes}`;
     }
     return title;
   }
