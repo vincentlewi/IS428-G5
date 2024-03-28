@@ -14,7 +14,7 @@ interface DataEntry {
 interface ResaleFlatHdbProps {
   data: DataEntry[];
   selectedFilter: {
-    year: string;
+    year: string[];
     maturity: string;
     flatTypes: string[];
   };
@@ -56,7 +56,9 @@ const Resale_Flat_Hdb: React.FC<ResaleFlatHdbProps> = ({
     // Adjusted filter data based on the selectedFilter object
     let processedData = data
       .filter(
-        (d) => selectedFilter.year === "all" || d.year === selectedFilter.year
+        (d) =>
+          selectedFilter.year.includes("all") ||
+          selectedFilter.year.includes(d.year)
       )
       .filter(
         (d) =>
@@ -65,6 +67,7 @@ const Resale_Flat_Hdb: React.FC<ResaleFlatHdbProps> = ({
       )
       .filter(
         (d) =>
+          selectedFilter.flatTypes.includes("all") ||
           selectedFilter.flatTypes.length === 0 ||
           selectedFilter.flatTypes.includes(d.flat_type)
       );
@@ -164,8 +167,12 @@ const Resale_Flat_Hdb: React.FC<ResaleFlatHdbProps> = ({
     selectedFilter: ResaleFlatHdbProps["selectedFilter"]
   ): string {
     let title = "Top 5 Flats Sold";
-    if (selectedFilter.year !== "all") {
-      title += ` in ${selectedFilter.year}`;
+    if (!selectedFilter.year.includes("all")) {
+      if (selectedFilter.year.length > 1) {
+        title += ` in Multiple Years`; // Simple indication of multiple selections
+      } else if (selectedFilter.year.length === 1) {
+        title += ` in ${selectedFilter.year[0]}`; // Single year selected
+      }
     }
     if (selectedFilter.maturity !== "All") {
       title += ` - ${selectedFilter.maturity} Estates`;

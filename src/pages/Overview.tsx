@@ -41,10 +41,10 @@ export default function Overview() {
   const [maturityEstates, setMaturityEstates] = useState<string[]>([]);
   const [flatTypes, setFlatTypes] = useState<string[]>([]);
   const [selectedFilter, setSelectedFilter] = useState<{
-    year: string;
+    year: string[];
     maturity: string;
     flatTypes: string[];
-  }>({ year: "all", maturity: "All", flatTypes: [] });
+  }>({ year: ["all"], maturity: "All", flatTypes: [] });
 
   const [medianAdjustedPrices, setMedianAdjustedPrices] = useState<
     MedianAdjustedPriceEntry[]
@@ -120,25 +120,6 @@ export default function Overview() {
           (d) => `${d.year}-${d.flat_type}`
         );
 
-        // // Calculate the ratio of average resale price to average household income
-        // const ratioData = avgResalePriceByYearAndType
-        //   .map(([key, avgResalePrice]) => {
-        //     const [year, flat_type] = key.split("-");
-        //     const incomeKey = key; // Matching key for income data
-        //     const average_household_income = incomeProcessed.find(
-        //       (d) => `${d.year}-${d.flat_type}` === incomeKey
-        //     )?.average_household_income;
-
-        //     return average_household_income
-        //       ? {
-        //           year: d3.timeParse("%Y")(year), // Ensuring year is parsed to a Date object for d3
-        //           flat_type,
-        //           ratio: avgResalePrice / average_household_income,
-        //         }
-        //       : null;
-        //   })
-        //   .filter((d) => d); // Filter out entries without corresponding income data
-        // When processing ratioData in Overview.tsx
         const ratioData: RatioDataEntry[] = avgResalePriceByYearAndType
           .map(([key, avgResalePrice]) => {
             const [year, flat_type] = key.split("-");
@@ -175,9 +156,9 @@ export default function Overview() {
   const filterData = (data: DataEntry[], filter: typeof selectedFilter) => {
     return data.filter(
       (d) =>
-        (filter.year === "all" || d.year === filter.year) &&
-        // (filter.maturity === "All" || d.maturity === filter.maturity) &&
-        (filter.flatTypes.length === 0 ||
+        (filter.year.includes("all") || filter.year.includes(d.year)) &&
+        (filter.flatTypes.includes("all") ||
+          filter.flatTypes.length === 0 || // You might not need this condition if "all" is always added
           filter.flatTypes.includes(d.flat_type))
     );
   };
@@ -212,15 +193,21 @@ export default function Overview() {
       };
     });
   };
-
   const handleFilterChange = (
     event: React.ChangeEvent<HTMLSelectElement>,
     filterType: "year" | "flatTypes"
   ) => {
-    const value =
-      filterType === "flatTypes"
-        ? Array.from(event.target.selectedOptions, (option) => option.value)
-        : event.target.value;
+    let value = Array.from(
+      event.target.selectedOptions,
+      (option) => option.value
+    );
+
+    // Special handling for "all" selection in flatTypes
+    if (filterType === "flatTypes") {
+      if (value.includes("all")) {
+        value = ["all"]; // Reset to "all" only, or handle as needed
+      }
+    }
 
     setSelectedFilter((prevFilter) => ({
       ...prevFilter,
@@ -236,13 +223,14 @@ export default function Overview() {
       <div className="overview">
         <h1>Finding Home is Difficult</h1>
 
-        {/* Year Selector */}
         <div className="filter-selector">
           <label htmlFor="year-select">Select Year: </label>
           <select
+            multiple // Added to enable multiple selections
             id="year-select"
             value={selectedFilter.year}
             onChange={(e) => handleFilterChange(e, "year")}
+            size={years.length} // Adjust as needed
           >
             {years.map((year) => (
               <option key={year} value={year}>
@@ -262,6 +250,7 @@ export default function Overview() {
             onChange={(e) => handleFilterChange(e, "flatTypes")}
             size={flatTypes.length}
           >
+            <option value="all">All</option>
             {flatTypes.map((type) => (
               <option key={type} value={type}>
                 {type}

@@ -5,7 +5,7 @@ import { RatioDataEntry } from "../pages/Overview"; // Adjust the import path as
 interface OwnershipTimeChartProps {
   data: RatioDataEntry[];
   selectedFilter: {
-    year: string;
+    year: string[];
     flatTypes: string[]; // Ensure this matches the structure in Overview.tsx
   };
 }
@@ -35,22 +35,11 @@ const OwnershipTimeChart: React.FC<OwnershipTimeChartProps> = ({
         .append("g")
         .attr("transform", `translate(${margin.left},${margin.top})`);
 
-      // // Process data based on filters (year and flat type)
-      // const filteredData = data.filter((d) => {
-      //   const yearMatches =
-      //     selectedYear === "all" ||
-      //     d.year.getFullYear().toString() === selectedYear;
-      //   // Safely check if selectedFlatType is defined and includes the current item's flat_type
-      //   const flatTypeMatches =
-      //     !selectedFlatType ||
-      //     selectedFlatType.includes("all") ||
-      //     selectedFlatType.includes(d.flat_type);
-      //   return yearMatches && flatTypeMatches;
-      // });
       const filteredData = data.filter((d) => {
+        const yearAsString = d.year.getFullYear().toString();
         const yearMatches =
-          selectedFilter.year === "all" ||
-          d.year.getFullYear().toString() === selectedFilter.year;
+          selectedFilter.year.includes("all") ||
+          selectedFilter.year.includes(yearAsString);
         const flatTypeMatches =
           selectedFilter.flatTypes.includes("all") ||
           selectedFilter.flatTypes.length === 0 ||

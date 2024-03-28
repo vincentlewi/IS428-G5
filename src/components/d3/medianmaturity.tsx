@@ -4,6 +4,10 @@ import { MedianAdjustedPriceEntry } from "../pages/Overview"; // Adjust the impo
 
 interface Props {
   data: MedianAdjustedPriceEntry[];
+  selectedFilter: {
+    year: string[];
+    flatTypes: string[]; // Ensure this matches the structure in Overview.tsx
+  };
 }
 
 const MedianMaturityPriceChart: React.FC<Props> = ({ data }) => {
