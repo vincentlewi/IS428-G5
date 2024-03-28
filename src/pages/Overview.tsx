@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import Resale_Flat_Hdb from "@/components/d3/Resale_Flat_Hdb";
 import OwnershipTimeChart from "@/components/d3/OwnershipTimeChart";
 import MedianMaturityPriceChart from "@/components/d3/medianmaturity";
+import MapVisualization from "@/components/d3/MapVisualization";
 import * as d3 from "d3";
 
 interface DataEntry {
@@ -270,6 +271,7 @@ export default function Overview() {
         data={ratioData}
         selectedFilter={selectedFilter} // Change to pass the entire selectedFilter object
       />
+      <MapVisualization />
     </>
   );
 }
