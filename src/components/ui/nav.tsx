@@ -15,7 +15,7 @@ export default function Nav(props: NavProps) {
       <div className="flex h-5 items-center space-x-4">
         <a href="/" className={`text-gray-800 ${activePage === 'overview' ? 'font-semibold' : ''}`}>Overview</a>
         <Separator orientation="vertical" />
-        <a href="/recommend" className={`text-gray-800 ${activePage === 'recommend' ? 'font-semibold' : ''}`}>Find your Ideal Home</a>
+        <a href="/dashboard" className={`text-gray-800 ${activePage === 'dashboard' ? 'font-semibold' : ''}`}>Find your Ideal Home</a>
       </div>
       <div></div>
     </nav>
