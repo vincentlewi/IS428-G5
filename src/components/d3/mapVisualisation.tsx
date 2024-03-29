@@ -62,7 +62,7 @@ const SingaporeMap = () => {
     // Fetch GeoJSON for Singapore's boundary
     const fetchGeoJson = async () => {
       try {
-        const response = await fetch('../../../datasets/singapore-planning-areas-topojson.json');
+        const response = await fetch('../../../src/assets/datasets/singapore-planning-areas-topojson.json');
         if (!response.ok) throw new Error('Network response was not ok');
         const data: FeatureCollection = await response.json();
         setSingaporeGeoJSON(data);
@@ -74,7 +74,7 @@ const SingaporeMap = () => {
     // Fetch JSON for HDB locations
     const fetchHdbLocations = async () => {
       try {
-        const response = await fetch('../../../datasets/hdb.json');
+        const response = await fetch('../../../src/assets/datasets/hdb.json');
         if (!response.ok) throw new Error('Network response was not ok');
         const data = await response.json();
         setHdbLocations(data);
@@ -86,7 +86,7 @@ const SingaporeMap = () => {
     // Fetch JSON for Private locations
     const fetchPrivateLocations = async () => {
         try {
-          const response = await fetch('../../../datasets/private.json');
+          const response = await fetch('../../../src/assets/datasets/private.json');
           if (!response.ok) throw new Error('Network response was not ok');
           const data = await response.json();
           setPrivateLocations(data);
@@ -98,7 +98,7 @@ const SingaporeMap = () => {
     // Fetch JSON for Bus locations
     const fetchBusLocations = async () => {
         try {
-          const response = await fetch('../../../datasets/bus.json');
+          const response = await fetch('../../../src/assets/datasets/bus.json');
           if (!response.ok) throw new Error('Network response was not ok');
           const data = await response.json();
           setBusLocations(data);
@@ -109,7 +109,7 @@ const SingaporeMap = () => {
 
     const fetchHawkerLocations = async () => {
         try {
-            const response = await fetch('../../../datasets/hawker.json');
+            const response = await fetch('../../../src/assets/datasets/hawker.json');
             if (!response.ok) throw new Error('Network response was not ok');
             const data = await response.json();
             setHawkerLocations(data);
@@ -119,7 +119,7 @@ const SingaporeMap = () => {
         };
     const fetchLrtLocations = async () => {
         try {
-            const response = await fetch('../../../datasets/lrt.json');
+            const response = await fetch('../../../src/assets/datasets/lrt.json');
             if (!response.ok) throw new Error('Network response was not ok');
             const data = await response.json();
             setLrtLocations(data);
@@ -130,7 +130,7 @@ const SingaporeMap = () => {
     
     const fetchMallsLocations = async () => {
         try {
-            const response = await fetch('../../../datasets/malls.json');
+            const response = await fetch('../../../src/assets/datasets/malls.json');
             if (!response.ok) throw new Error('Network response was not ok');
             const data = await response.json();
             setMallsLocations(data);
@@ -141,7 +141,7 @@ const SingaporeMap = () => {
 
     const fetchMrtLocations = async () => {
         try {
-            const response = await fetch('../../../datasets/mrt.json');
+            const response = await fetch('../../../src/assets/datasets/mrt.json');
             if (!response.ok) throw new Error('Network response was not ok');
             const data = await response.json();
             setMrtLocations(data);
@@ -152,7 +152,7 @@ const SingaporeMap = () => {
 
     const fetchParkLocations = async () => {
         try {
-            const response = await fetch('../../../datasets/parks.json');
+            const response = await fetch('../../../src/assets/datasets/parks.json');
             if (!response.ok) throw new Error('Network response was not ok');
             const data = await response.json();
             setParkLocations(data);
@@ -163,7 +163,7 @@ const SingaporeMap = () => {
 
     const fetchSchoolLocations = async () => {
         try {
-            const response = await fetch('../../../datasets/schools.json');
+            const response = await fetch('../../../src/assets/datasets/schools.json');
             if (!response.ok) throw new Error('Network response was not ok');
             const data = await response.json();
             setSchoolLocations(data);
@@ -174,7 +174,7 @@ const SingaporeMap = () => {
 
     const fetchSupermarketLocations = async () => {
         try {
-            const response = await fetch('../../../datasets/supermarkets.json');
+            const response = await fetch('../../../src/assets/datasets/supermarkets.json');
             if (!response.ok) throw new Error('Network response was not ok');
             const data = await response.json();
             setSupermarketLocations(data);
