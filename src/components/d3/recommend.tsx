@@ -27,7 +27,7 @@ export function Recommend( preferences : Preferences , filter: Filter ) {
 
   useEffect(() => {
     // Load CSV data and compute scores for each house
-    d3.csv('public/datasets/hdb/hdb_available_cleaned.csv').then(data => {
+    d3.csv('/datasets/hdb/hdb_available_cleaned.csv').then(data => {
       const scoredHouses = data.map(house => {
         if (+house['resale_price'] < filter.min_price || 
             +house['resale_price'] > filter.max_price || 
