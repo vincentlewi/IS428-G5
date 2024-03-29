@@ -3,7 +3,7 @@ import Nav from '@/components/ui/nav'
 import { Button } from "@/components/ui/button"
 import Map from '@/components/d3/map'
 import Test from '@/components/d3/test'
-import SingaporeMap from '@/components/d3/map'
+import SingaporeMap from '@/components/d3/mapVisualisation'
 
 import { Recommend } from '@/components/d3/recommend'
 

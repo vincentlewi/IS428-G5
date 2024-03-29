@@ -94,9 +94,16 @@ export default function Map({ width, height }: MapProps) {
 }
 import { useEffect, useRef, useState } from 'react';
 import * as d3 from 'd3';
-import { symbol, symbolCircle, symbolCross, symbolDiamond, symbolSquare, symbolStar, symbolTriangle, symbolWye } from 'd3';
+import { Checkbox } from "@/components/ui/checkbox"
 import { FeatureCollection } from 'geojson';
-import busIcon from '../../assets/bus.svg'
+import busIcon from "../../assets/bus.svg";
+import mrtIcon from "../../assets/mrt.svg";
+import hawkerIcon from "../../assets/hawker.svg";
+import supermarketIcon from "../../assets/supermarket.svg";
+import mallIcon from "../../assets/mall.svg";
+import parkIcon from "../../assets/park.svg";
+import schoolIcon from "../../assets/school.svg";
+
 
 const SingaporeMap = () => {
   const d3Container = useRef<HTMLDivElement>(null);
@@ -260,13 +267,8 @@ const SingaporeMap = () => {
 
   }, []);
 
-  const createSymbol = (type, size) => {
-    return symbol().type(type).size(size)();
-  };
-
-
   useEffect(() => {
-    if (d3Container.current && singaporeGeoJSON && hdbLocations && privateLocations) {
+    if (d3Container.current && singaporeGeoJSON && hdbLocations && privateLocations && hawkerLocations && busLocations && lrtLocations && supermarketLocations && schoolsLocations && mallsLocations && mrtLocations && parksLocations) {
       const width = 1600;
       const height = 1200;
 
@@ -320,140 +322,161 @@ const SingaporeMap = () => {
         .attr('r', '2')
         .style('fill', 'blue');
 
-    //   svg.selectAll('.bus-location')
-    //     .data(busLocations)
-    //     .join('path')
-    //     .attr('class', 'bus-location')
-    //     .attr('d', createSymbol(symbolCircle, 7)) // Change the size as needed
-    //     .attr('transform', d => `translate(${projection([d.LONGITUDE, d.LATITUDE])})`)
-    //     .style('fill', 'green');
-
-    //   svg.selectAll('.bus-icon')
-    //     .data(busLocations)
-    //     .enter()
-    //     .append('image')
-    //     .attr('class', 'bus-icon')
-    //     .attr('href', '../../assets/bus.svg') // Set the path to your JPG icon file
-    //     .attr('width', 10) // Set the icon width
-    //     .attr('height', 10) // Set the icon height
-    //     .attr('x', d => {
-    //     const [x, y] = projection([d.LONGITUDE, d.LATITUDE]);
-    //     return x - (10 / 2); // Adjust the x-position for centering
-    //     })
-    //     .attr('y', d => {
-    //     const [x, y] = projection([d.LONGITUDE, d.LATITUDE]);
-    //     return y - (10 / 2); // Adjust the y-position for centering
-    //     })
-    //     .attr('preserveAspectRatio', 'xMidYMid slice'); // This ensures the image is centered and cropped to fit
-  
-    const busImage = new Image();
-    busImage.src = '../../assets/bus.svg';
-    busImage.onload = () => {
-
       svg.selectAll('.bus-icon')
         .data(busLocations)
         .enter()
         .append('image')
-        .attr('class', 'bus-icon')
-        .attr('href', busImage.src)
-        .attr('width', 15) // Set the icon width
-        .attr('height', 15) // Set the icon height
+        .attr('href', busIcon) // URL to your image
+        .attr('width', 6)
+        .attr('height', 6)
         .attr('x', d => {
-        const [x, y] = projection([d.LONGITUDE, d.LATITUDE]);
-        return x - (10 / 2); // Adjust the x-position for centering
+          const [x, y] = projection([d.LONGITUDE, d.LATITUDE]);
+          return x - (6 / 2); // Center the image on the x coordinate
         })
         .attr('y', d => {
-        const [x, y] = projection([d.LONGITUDE, d.LATITUDE]);
-        return y - (10 / 2); // Adjust the y-position for centering
+          const [x, y] = projection([d.LONGITUDE, d.LATITUDE]);
+          return y - (6 / 2); // Center the image on the y coordinate
         })
-        .attr('preserveAspectRatio', 'xMidYMid slice')
-      };
-
-      svg.selectAll('.hawker-location')
-        .data(hawkerLocations)
-        .join('path')
-        .attr('class', 'hawker-location')
-        .attr('d', createSymbol(symbolCircle, 7)) // Change the size as needed
-        .attr('transform', d => `translate(${projection([d.LONGITUDE, d.LATITUDE])})`)
-        .style('fill', 'orange');
-
-
-      svg.selectAll('.lrt-location') // Use a different class for these circles
-        .data(lrtLocations)
-        .join('circle')
-        .attr('class', 'lrt-location') // Apply the class here
-        .attr('cx', d => {
-            const coords = projection([d.LONGITUDE, d.LATITUDE]);
-            return coords ? coords[0] : 0;
-        })
-        .attr('cy', d => {
-            const coords = projection([d.LONGITUDE, d.LATITUDE]);
-            return coords ? coords[1] : 0;
-        })
-        .attr('r', '1')
-        .style('fill', 'lightblue');
-
-      svg.selectAll('.malls-location') // Use a different class for these circles
-        .data(mallsLocations)
-        .join('circle')
-        .attr('class', 'malls-location') // Apply the class here
-        .attr('cx', d => {
-            const coords = projection([d.LONGITUDE, d.LATITUDE]);
-            return coords ? coords[0] : 0;
-        })
-        .attr('cy', d => {
-            const coords = projection([d.LONGITUDE, d.LATITUDE]);
-            return coords ? coords[1] : 0;
-        })
-        .attr('r', '1')
-        .style('fill', 'pink');
-
-      svg.selectAll('.mrt-location') // Use a different class for these circles
-        .data(mrtLocations)
-        .join('circle')
-        .attr('class', 'mrt-location') // Apply the class here
-        .attr('cx', d => {
-            const coords = projection([d.LONGITUDE, d.LATITUDE]);
-            return coords ? coords[0] : 0;
-        })
-        .attr('cy', d => {
-            const coords = projection([d.LONGITUDE, d.LATITUDE]);
-            return coords ? coords[1] : 0;
-        })
-        .attr('r', '2')
-        .style('fill', 'white');
+        .attr('class', 'dot')
+        .attr('onerror', "console.log('Error loading this image:', this.href.baseVal)")
         
-      svg.selectAll('.parks-location')
+
+        svg.selectAll('.hawker-icon')
+        .data(hawkerLocations)
+        .enter()
+        .append('image')
+        .attr('href', hawkerIcon) // URL to your image
+        .attr('width', 8)
+        .attr('height', 8)
+        .attr('x', d => {
+          const [x, y] = projection([d.LONGITUDE, d.LATITUDE]);
+          return x - (8 / 2); // Center the image on the x coordinate
+        })
+        .attr('y', d => {
+          const [x, y] = projection([d.LONGITUDE, d.LATITUDE]);
+          return y - (8 / 2); // Center the image on the y coordinate
+        })
+        .attr('class', 'dot')
+        .attr('onerror', "console.log('Error loading this image:', this.href.baseVal)")
+
+
+      svg.selectAll('.lrt-icon')
+        .data(lrtLocations)
+        .enter()
+        .append('image')
+        .attr('href', mrtIcon) // URL to your image
+        .attr('width', 8)
+        .attr('height', 8)
+        .attr('x', d => {
+          const [x, y] = projection([d.LONGITUDE, d.LATITUDE]);
+          return x - (8 / 2); // Center the image on the x coordinate
+        })
+        .attr('y', d => {
+          const [x, y] = projection([d.LONGITUDE, d.LATITUDE]);
+          return y - (8 / 2); // Center the image on the y coordinate
+        })
+        .attr('class', 'dot')
+        .attr('onerror', "console.log('Error loading this image:', this.href.baseVal)")
+
+        svg.selectAll('.mall-icon')
+        .data(mallsLocations)
+        .enter()
+        .append('image')
+        .attr('href', mallIcon) // URL to your image
+        .attr('width', 8)
+        .attr('height', 8)
+        .attr('x', d => {
+          const [x, y] = projection([d.LONGITUDE, d.LATITUDE]);
+          return x - (8 / 2); // Center the image on the x coordinate
+        })
+        .attr('y', d => {
+          const [x, y] = projection([d.LONGITUDE, d.LATITUDE]);
+          return y - (8 / 2); // Center the image on the y coordinate
+        })
+        .attr('class', 'dot')
+        .attr('onerror', "console.log('Error loading this image:', this.href.baseVal)")
+
+      svg.selectAll('.mrt-icon')
+        .data(mrtLocations)
+        .enter()
+        .append('image')
+        .attr('href', mrtIcon) // URL to your image
+        .attr('width', 8)
+        .attr('height', 8)
+        .attr('x', d => {
+          const [x, y] = projection([d.LONGITUDE, d.LATITUDE]);
+          return x - (8 / 2); // Center the image on the x coordinate
+        })
+        .attr('y', d => {
+          const [x, y] = projection([d.LONGITUDE, d.LATITUDE]);
+          return y - (8 / 2); // Center the image on the y coordinate
+        })
+        .attr('class', 'dot')
+        .attr('onerror', "console.log('Error loading this image:', this.href.baseVal)")
+        
+      svg.selectAll('.park-icon')
         .data(parksLocations)
-        .join('path')
-        .attr('class', 'parks-location')
-        .attr('d', createSymbol(symbolCircle,7)) // Change the size as needed
-        .attr('transform', d => `translate(${projection([d.LONGITUDE, d.LATITUDE])})`)
-        .style('fill', 'lightgreen');
+        .enter()
+        .append('image')
+        .attr('href', parkIcon) // URL to your image
+        .attr('width', 8)
+        .attr('height', 8)
+        .attr('x', d => {
+          const [x, y] = projection([d.LONGITUDE, d.LATITUDE]);
+          return x - (8 / 2); // Center the image on the x coordinate
+        })
+        .attr('y', d => {
+          const [x, y] = projection([d.LONGITUDE, d.LATITUDE]);
+          return y - (8 / 2); // Center the image on the y coordinate
+        })
+        .attr('class', 'dot')
+        .attr('onerror', "console.log('Error loading this image:', this.href.baseVal)")
 
-      svg.selectAll('.schools-location')
+      svg.selectAll('.school-icon')
         .data(schoolsLocations)
-        .join('path')
-        .attr('class', 'schools-location')
-        .attr('d', createSymbol(symbolCircle,7)) // Change the size as needed
-        .attr('transform', d => `translate(${projection([d.LONGITUDE, d.LATITUDE])})`)
-        .style('fill', 'cyan');
+        .enter()
+        .append('image')
+        .attr('href', schoolIcon) // URL to your image
+        .attr('width', 8)
+        .attr('height', 8)
+        .attr('x', d => {
+          const [x, y] = projection([d.LONGITUDE, d.LATITUDE]);
+          return x - (8 / 2); // Center the image on the x coordinate
+        })
+        .attr('y', d => {
+          const [x, y] = projection([d.LONGITUDE, d.LATITUDE]);
+          return y - (8 / 2); // Center the image on the y coordinate
+        })
+        .attr('class', 'dot')
+        .attr('onerror', "console.log('Error loading this image:', this.href.baseVal)")
 
-      svg.selectAll('.supermarkets-location')
+      svg.selectAll('.supermarket-icon')
         .data(supermarketLocations)
-        .join('path')
-        .attr('class', 'supermarkets-location')
-        .attr('d', createSymbol(symbolCircle, 7)) // Change the size as needed
-        .attr('transform', d => `translate(${projection([d.LONGITUDE, d.LATITUDE])})`)
-        .style('fill', 'purple');
+        .enter()
+        .append('image')
+        .attr('href', supermarketIcon) // URL to your image
+        .attr('width', 8)
+        .attr('height', 8)
+        .attr('x', d => {
+          const [x, y] = projection([d.LONGITUDE, d.LATITUDE]);
+          return x - (8 / 2); // Center the image on the x coordinate
+        })
+        .attr('y', d => {
+          const [x, y] = projection([d.LONGITUDE, d.LATITUDE]);
+          return y - (8 / 2); // Center the image on the y coordinate
+        })
+        .attr('class', 'dot')
+        .attr('onerror', "console.log('Error loading this image:', this.href.baseVal)")
 
-
+        return () => {
+          svg.selectAll('*').remove();
+        }
     }
   }, [singaporeGeoJSON, hdbLocations, privateLocations, busLocations, hawkerLocations,lrtLocations, mallsLocations, mrtLocations,parksLocations, schoolsLocations, supermarketLocations]);
 
   return (
     <div>
-      <div ref={d3Container} />
+      <div ref={d3Container} style ={{width: '100%', height: '100%'}}/>
     </div>
   );
 };
