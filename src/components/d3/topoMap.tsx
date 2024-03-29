@@ -1,7 +1,7 @@
 import * as d3 from 'd3';
 import { feature,  } from 'topojson-client';
 import { FeatureCollection, Geometry, GeoJsonProperties } from 'geojson';
-import sg from '@/assets/datasets/map/sgtopo.json'
+import sg from '@/assets/map/sgtopo.json'
 import { Topology, Objects } from 'topojson-specification';
 
 type MapProps = {
