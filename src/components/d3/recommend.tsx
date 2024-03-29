@@ -1,6 +1,5 @@
 import * as d3 from 'd3';
 import { useState, useEffect } from 'react';
-import hdb from '@/assets/datasets/hdb/hdb_available_cleaned.csv';
 
 interface Preferences {
   bus: number,
@@ -28,7 +27,7 @@ export function Recommend( preferences : Preferences , filter: Filter ) {
 
   useEffect(() => {
     // Load CSV data and compute scores for each house
-    d3.csv(hdb).then(data => {
+    d3.csv('public/datasets/hdb/hdb_available_cleaned.csv').then(data => {
       const scoredHouses = data.map(house => {
         if (+house['resale_price'] < filter.min_price || 
             +house['resale_price'] > filter.max_price || 
@@ -73,7 +72,7 @@ export function Recommend( preferences : Preferences , filter: Filter ) {
       // Update state with top 3 houses
       if (topCheapestHouses[0].score == 0) {
         // return exception
-        return { error: "No houses found with the given filter" }
+        setTopHouses([false])
       } else {
         setTopHouses(topCheapestHouses);
       }

@@ -19,7 +19,7 @@ const filter = {
   min_price: 0,
   max_price: 1500000,
   min_remaining_lease: 0,
-  region: 'Wesst',
+  region: 'West',
   flat_type: '3 ROOM'
 }
 
