@@ -1,97 +1,3 @@
-import * as d3 from 'd3'
-import { FeatureCollection, Geometry, GeoJsonProperties } from 'geojson'
-import sg from '@/assets/map/sg.json'
-import { useState, useRef } from 'react'
-
-type MapProps = {
-  width: number
-  height: number
-}
-
-export default function Map({ width, height }: MapProps) {
-  const data = sg as FeatureCollection<Geometry, GeoJsonProperties>
-  const projection = d3
-    .geoMercator()
-    .fitSize([width, height], data)
-  const geoPathGenerator = d3.geoPath().projection(projection)
-
-  const svgRef = useRef<SVGSVGElement>(null)
-  const [lastClicked, setLastClicked] = useState(null)
-  const onClickFeature = (feature: any) => {
-    // Check if the same feature is clicked twice to reset
-    if (feature === lastClicked) {
-      resetZoom()
-    } else {
-      zoomIn(feature)
-    }
-
-    // Update the last clicked feature
-    setLastClicked(feature === lastClicked ? null : feature)
-  }
-
-  const zoomIn = (feature: any) => {
-    const bounds = geoPathGenerator.bounds(feature),
-      dx = bounds[1][0] - bounds[0][0],
-      dy = bounds[1][1] - bounds[0][1],
-      x = (bounds[0][0] + bounds[1][0]) / 2,
-      y = (bounds[0][1] + bounds[1][1]) / 2,
-      scale = Math.max(1, Math.min(8, 0.9 / Math.max(dx / width, dy / height))),
-      translate = [width / 2 - scale * x, height / 2 - scale * y]
-
-    d3.select(svgRef.current)
-      .selectAll('path')
-      .transition()
-      .duration(750)
-      .attr('transform', `translate(${translate}) scale(${scale})`)
-  }
-
-  const resetZoom = () => {
-    d3.select(svgRef.current)
-      .selectAll('path')
-      .transition()
-      .duration(750)
-      .attr('transform', '')
-  }
-
-  const handleMapContainerClick = (event: React.MouseEvent) => {
-    // If the clicked element is the map container itself, reset zoom.
-    if (event.target === event.currentTarget) {
-      resetZoom()
-      // Clear the last clicked feature state as well
-      setLastClicked(null)
-    }
-  }
-
-  const allSvgPaths = data.features  
-  .map((shape) => {
-    const pathData = geoPathGenerator(shape)
-    // Ensure pathData does not include "NaN" before creating the path element
-    if (pathData && !pathData.includes("NaN")) {
-      const [areaColor, setAreaColor] = useState<string>("grey")
-      const shapeRef = useRef<SVGPathElement>(null)
-      return (
-        <path
-          ref={shapeRef}
-          key={shape.properties?.PLN_AREA_N}
-          d={pathData}
-          stroke="lightGrey"
-          strokeWidth={0.5}
-          fill={shape === lastClicked ? "darkerGrey" : areaColor}
-          cursor="pointer"
-          onMouseOver={() => {setAreaColor("darkerGrey")}}
-          onMouseLeave={() => {setAreaColor("grey")}}
-          onClick={() => onClickFeature(shape)}
-        />
-      )
-    }
-  }).filter(Boolean) // Removes any undefined paths that result from including "NaN"
-
-  return (
-    <svg ref={svgRef} width={width} height={height} onClick={handleMapContainerClick}>
-      {allSvgPaths}
-    </svg>
-  )
-}
 import { useEffect, useRef, useState } from 'react';
 import * as d3 from 'd3';
 import { Checkbox } from "@/components/ui/checkbox"
@@ -103,6 +9,7 @@ import supermarketIcon from "../../assets/supermarket.svg";
 import mallIcon from "../../assets/mall.svg";
 import parkIcon from "../../assets/park.svg";
 import schoolIcon from "../../assets/school.svg";
+import { SchoolIcon } from 'lucide-react';
 
 type Amenities = {
   hdb: boolean;
@@ -120,6 +27,7 @@ type Amenities = {
 
 const SingaporeMap = () => {
   const d3Container = useRef<HTMLDivElement>(null);
+  const legendContainer = useRef<HTMLDivElement>(null);
   const [singaporeGeoJSON, setSingaporeGeoJSON] = useState<FeatureCollection | null>(null);
   const [hdbLocations, setHdbLocations] = useState<any[]>([]);
   const [privateLocations, setPrivateLocations] = useState<any[]>([]);
@@ -300,14 +208,14 @@ const SingaporeMap = () => {
   const handleAmenityChange = (amenity: keyof Amenities) => {
     setSelectedAmenities(prev => {
       const newState = { ...prev, [amenity]: !prev[amenity] };
-      console.log(newState); // Debugging line
       return newState;
     });
   };
   
-
+  
   
   const drawMap = () => {
+    d3.select(d3Container.current).selectAll("*").remove();
     if (d3Container.current && singaporeGeoJSON && hdbLocations && privateLocations && hawkerLocations && busLocations && lrtLocations && supermarketLocations && schoolsLocations && mallsLocations && mrtLocations && parksLocations) {
       const width = 1600;
       const height = 1200;
@@ -316,12 +224,29 @@ const SingaporeMap = () => {
       const svg = d3.select(d3Container.current)
         .append('svg')
         .attr('width', width)
-        .attr('height', height);
+        .attr('height', height)
 
       // Initialize projection and path
-      const projection = d3.geoMercator()
-        .fitSize([width, height], singaporeGeoJSON);
+      const projection = d3.geoMercator().fitSize([width, height], singaporeGeoJSON);
       const path = d3.geoPath().projection(projection);
+      const tooltip = d3.select("body").append("div")
+        .attr("class", "tooltip")
+        .attr("id", "tooltip")
+        .style("position", "absolute")
+        .style("text-align", "center")
+        .style("width", "auto")
+        .style("min-width", "80px") // Minimum width, adjust as needed
+        .style("height", "auto")
+        .style("padding", "10px")
+        .style("font", "14px Arial, sans-serif") // Larger font size for better readability
+        .style("background", "rgba(255, 255, 255, 0.8)") // Semi-transparent white
+        .style("border", "1px solid #ddd") // Light grey border
+        .style("border-radius", "8px")
+        .style("pointer-events", "none")
+        .style("color", "#333") // Dark grey text for contrast
+        .style("box-shadow", "0px 0px 10px rgba(0,0,0,0.2)") // Subtle shadow for depth
+        .style("visibility", "hidden"); // Initially hidden
+
 
       // Draw the map
       svg.selectAll('.singapore-map')
@@ -346,8 +271,24 @@ const SingaporeMap = () => {
         })
         .attr('r', '2')
         .style('fill', 'red')
-        .style('visibility', selectedAmenities.hdb ? 'visible' : 'hidden');
+        .style('visibility', selectedAmenities.hdb ? 'visible' : 'hidden')
+        .on('mouseover', (event, d) => {
+          tooltip
+            .style("visibility", "visible")
+            .html(d.QUERY) // assuming d.NAME is where the place's name is stored
+            .style("top", (event.pageY + 10) + "px")
+            .style("left", (event.pageX + 10) + "px");
+        })
+        .on('mousemove', (event) => {
+          tooltip
+            .style("top", (event.pageY + 10) + "px")
+            .style("left", (event.pageX + 10) + "px");
+        })
+        .on('mouseout', () => {
+          tooltip.style("visibility", "hidden");
+        })
       }
+      
       if (selectedAmenities.private) {
       svg.selectAll('.private-location') // Use a different class for these circles
         .data(privateLocations)
@@ -363,7 +304,22 @@ const SingaporeMap = () => {
         })
         .attr('r', '2')
         .style('fill', 'blue')
-        .style('visibility', selectedAmenities.private ? 'visible' : 'hidden');
+        .style('visibility', selectedAmenities.private ? 'visible' : 'hidden')
+        .on('mouseover', (event, d) => {
+          tooltip
+            .style("visibility", "visible")
+            .html(d.QUERY) // assuming d.NAME is where the place's name is stored
+            .style("top", (event.pageY + 10) + "px")
+            .style("left", (event.pageX + 10) + "px");
+        })
+        .on('mousemove', (event) => {
+          tooltip
+            .style("top", (event.pageY + 10) + "px")
+            .style("left", (event.pageX + 10) + "px");
+        })
+        .on('mouseout', () => {
+          tooltip.style("visibility", "hidden");
+        })
      }
 
       if (selectedAmenities.bus) {
@@ -375,16 +331,31 @@ const SingaporeMap = () => {
         .attr('width', 6)
         .attr('height', 6)
         .attr('x', d => {
-          const [x, y] = projection([d.LONGITUDE, d.LATITUDE]);
-          return x - (6 / 2); // Center the image on the x coordinate
+          const coords = projection([d.LONGITUDE, d.LATITUDE]);
+          return coords ? coords[0] - (6 / 2)  : 0; // Center the image on the x coordinate
         })
         .attr('y', d => {
-          const [x, y] = projection([d.LONGITUDE, d.LATITUDE]);
-          return y - (6 / 2); // Center the image on the y coordinate
+          const coords = projection([d.LONGITUDE, d.LATITUDE]);
+          return coords ? coords[1] - (6 / 2)  : 0;// Center the image on the y coordinate
         })
         .attr('class', 'dot')
         .attr('onerror', "console.log('Error loading this image:', this.href.baseVal)")
-        .style('visibility', selectedAmenities.bus ? 'visible' : 'hidden');
+        .style('visibility', selectedAmenities.bus ? 'visible' : 'hidden')
+        .on('mouseover', (event, d) => {
+          tooltip
+            .style("visibility", "visible")
+            .html(d.QUERY) // assuming d.NAME is where the place's name is stored
+            .style("top", (event.pageY + 10) + "px")
+            .style("left", (event.pageX + 10) + "px");
+        })
+        .on('mousemove', (event) => {
+          tooltip
+            .style("top", (event.pageY + 10) + "px")
+            .style("left", (event.pageX + 10) + "px");
+        })
+        .on('mouseout', () => {
+          tooltip.style("visibility", "hidden");
+        })
       }
         
       if (selectedAmenities.hawker) {
@@ -393,19 +364,34 @@ const SingaporeMap = () => {
         .enter()
         .append('image')
         .attr('href', hawkerIcon) // URL to your image
-        .attr('width', 8)
-        .attr('height', 8)
+        .attr('width', 10)
+        .attr('height', 10)
         .attr('x', d => {
-          const [x, y] = projection([d.LONGITUDE, d.LATITUDE]);
-          return x - (8 / 2); // Center the image on the x coordinate
+          const coords = projection([d.LONGITUDE, d.LATITUDE]);
+          return coords ? coords[0] - (6 / 2)  : 0; // Center the image on the x coordinate
         })
         .attr('y', d => {
-          const [x, y] = projection([d.LONGITUDE, d.LATITUDE]);
-          return y - (8 / 2); // Center the image on the y coordinate
+          const coords = projection([d.LONGITUDE, d.LATITUDE]);
+          return coords ? coords[1] - (6 / 2)  : 0;// Center the image on the y coordinate
         })
         .attr('class', 'dot')
         .attr('onerror', "console.log('Error loading this image:', this.href.baseVal)")
-        .style('visibility', selectedAmenities.hawker ? 'visible' : 'hidden');
+        .style('visibility', selectedAmenities.hawker ? 'visible' : 'hidden')
+        .on('mouseover', (event, d) => {
+          tooltip
+            .style("visibility", "visible")
+            .html(d.QUERY) // assuming d.NAME is where the place's name is stored
+            .style("top", (event.pageY + 10) + "px")
+            .style("left", (event.pageX + 10) + "px");
+        })
+        .on('mousemove', (event) => {
+          tooltip
+            .style("top", (event.pageY + 10) + "px")
+            .style("left", (event.pageX + 10) + "px");
+        })
+        .on('mouseout', () => {
+          tooltip.style("visibility", "hidden");
+        })
       }
       if (selectedAmenities.lrt) {
       svg.selectAll('.lrt-icon')
@@ -413,19 +399,34 @@ const SingaporeMap = () => {
         .enter()
         .append('image')
         .attr('href', mrtIcon) // URL to your image
-        .attr('width', 8)
-        .attr('height', 8)
+        .attr('width', 10)
+        .attr('height', 10)
         .attr('x', d => {
-          const [x, y] = projection([d.LONGITUDE, d.LATITUDE]);
-          return x - (8 / 2); // Center the image on the x coordinate
+          const coords = projection([d.LONGITUDE, d.LATITUDE]);
+          return coords ? coords[0] - (6 / 2)  : 0; // Center the image on the x coordinate
         })
         .attr('y', d => {
-          const [x, y] = projection([d.LONGITUDE, d.LATITUDE]);
-          return y - (8 / 2); // Center the image on the y coordinate
+          const coords = projection([d.LONGITUDE, d.LATITUDE]);
+          return coords ? coords[1] - (6 / 2)  : 0;// Center the image on the y coordinate
         })
         .attr('class', 'dot')
         .attr('onerror', "console.log('Error loading this image:', this.href.baseVal)")
-        .style('visibility', selectedAmenities.lrt ? 'visible' : 'hidden');
+        .style('visibility', selectedAmenities.lrt ? 'visible' : 'hidden')
+        .on('mouseover', (event, d) => {
+          tooltip
+            .style("visibility", "visible")
+            .html(d.QUERY) // assuming d.NAME is where the place's name is stored
+            .style("top", (event.pageY + 10) + "px")
+            .style("left", (event.pageX + 10) + "px");
+        })
+        .on('mousemove', (event) => {
+          tooltip
+            .style("top", (event.pageY + 10) + "px")
+            .style("left", (event.pageX + 10) + "px");
+        })
+        .on('mouseout', () => {
+          tooltip.style("visibility", "hidden");
+        })
       }
 
       if (selectedAmenities.mall) {
@@ -434,19 +435,34 @@ const SingaporeMap = () => {
         .enter()
         .append('image')
         .attr('href', mallIcon) // URL to your image
-        .attr('width', 8)
-        .attr('height', 8)
+        .attr('width', 10)
+        .attr('height', 10)
         .attr('x', d => {
-          const [x, y] = projection([d.LONGITUDE, d.LATITUDE]);
-          return x - (8 / 2); // Center the image on the x coordinate
+          const coords = projection([d.LONGITUDE, d.LATITUDE]);
+          return coords ? coords[0] - (6 / 2)  : 0; // Center the image on the x coordinate
         })
         .attr('y', d => {
-          const [x, y] = projection([d.LONGITUDE, d.LATITUDE]);
-          return y - (8 / 2); // Center the image on the y coordinate
+          const coords = projection([d.LONGITUDE, d.LATITUDE]);
+          return coords ? coords[1] - (6 / 2)  : 0;// Center the image on the y coordinate
         })
         .attr('class', 'dot')
         .attr('onerror', "console.log('Error loading this image:', this.href.baseVal)")
-        .style('visibility', selectedAmenities.mall ? 'visible' : 'hidden');
+        .style('visibility', selectedAmenities.mall ? 'visible' : 'hidden')
+        .on('mouseover', (event, d) => {
+          tooltip
+            .style("visibility", "visible")
+            .html(d.QUERY) // assuming d.NAME is where the place's name is stored
+            .style("top", (event.pageY + 10) + "px")
+            .style("left", (event.pageX + 10) + "px");
+        })
+        .on('mousemove', (event) => {
+          tooltip
+            .style("top", (event.pageY + 10) + "px")
+            .style("left", (event.pageX + 10) + "px");
+        })
+        .on('mouseout', () => {
+          tooltip.style("visibility", "hidden");
+        })
       }
 
       if (selectedAmenities.mrt) {
@@ -455,19 +471,34 @@ const SingaporeMap = () => {
         .enter()
         .append('image')
         .attr('href', mrtIcon) // URL to your image
-        .attr('width', 8)
-        .attr('height', 8)
+        .attr('width', 10)
+        .attr('height', 10)
         .attr('x', d => {
-          const [x, y] = projection([d.LONGITUDE, d.LATITUDE]);
-          return x - (8 / 2); // Center the image on the x coordinate
+          const coords = projection([d.LONGITUDE, d.LATITUDE]);
+          return coords ? coords[0] - (6 / 2)  : 0; // Center the image on the x coordinate
         })
         .attr('y', d => {
-          const [x, y] = projection([d.LONGITUDE, d.LATITUDE]);
-          return y - (8 / 2); // Center the image on the y coordinate
+          const coords = projection([d.LONGITUDE, d.LATITUDE]);
+          return coords ? coords[1] - (6 / 2)  : 0;// Center the image on the y coordinate
         })
         .attr('class', 'dot')
         .attr('onerror', "console.log('Error loading this image:', this.href.baseVal)")
-        .style('visibility', selectedAmenities.mrt ? 'visible' : 'hidden');
+        .style('visibility', selectedAmenities.mrt ? 'visible' : 'hidden')
+        .on('mouseover', (event, d) => {
+          tooltip
+            .style("visibility", "visible")
+            .html(d.QUERY) // assuming d.NAME is where the place's name is stored
+            .style("top", (event.pageY + 10) + "px")
+            .style("left", (event.pageX + 10) + "px");
+        })
+        .on('mousemove', (event) => {
+          tooltip
+            .style("top", (event.pageY + 10) + "px")
+            .style("left", (event.pageX + 10) + "px");
+        })
+        .on('mouseout', () => {
+          tooltip.style("visibility", "hidden");
+        })
       }
 
       if (selectedAmenities.park) {
@@ -476,19 +507,34 @@ const SingaporeMap = () => {
         .enter()
         .append('image')
         .attr('href', parkIcon) // URL to your image
-        .attr('width', 8)
-        .attr('height', 8)
+        .attr('width', 10)
+        .attr('height', 10)
         .attr('x', d => {
-          const [x, y] = projection([d.LONGITUDE, d.LATITUDE]);
-          return x - (8 / 2); // Center the image on the x coordinate
+          const coords = projection([d.LONGITUDE, d.LATITUDE]);
+          return coords ? coords[0] - (6 / 2)  : 0; // Center the image on the x coordinate
         })
         .attr('y', d => {
-          const [x, y] = projection([d.LONGITUDE, d.LATITUDE]);
-          return y - (8 / 2); // Center the image on the y coordinate
+          const coords = projection([d.LONGITUDE, d.LATITUDE]);
+          return coords ? coords[1] - (6 / 2)  : 0;// Center the image on the y coordinate
         })
         .attr('class', 'dot')
         .attr('onerror', "console.log('Error loading this image:', this.href.baseVal)")
-        .style('visibility', selectedAmenities.park ? 'visible' : 'hidden');
+        .style('visibility', selectedAmenities.park ? 'visible' : 'hidden')
+        .on('mouseover', (event, d) => {
+          tooltip
+            .style("visibility", "visible")
+            .html(d.QUERY) // assuming d.NAME is where the place's name is stored
+            .style("top", (event.pageY + 10) + "px")
+            .style("left", (event.pageX + 10) + "px");
+        })
+        .on('mousemove', (event) => {
+          tooltip
+            .style("top", (event.pageY + 10) + "px")
+            .style("left", (event.pageX + 10) + "px");
+        })
+        .on('mouseout', () => {
+          tooltip.style("visibility", "hidden");
+        })
       }
 
       if (selectedAmenities.school) {
@@ -497,19 +543,34 @@ const SingaporeMap = () => {
         .enter()
         .append('image')
         .attr('href', schoolIcon) // URL to your image
-        .attr('width', 8)
-        .attr('height', 8)
+        .attr('width', 10)
+        .attr('height', 10)
         .attr('x', d => {
-          const [x, y] = projection([d.LONGITUDE, d.LATITUDE]);
-          return x - (8 / 2); // Center the image on the x coordinate
+          const coords = projection([d.LONGITUDE, d.LATITUDE]);
+          return coords ? coords[0] - (6 / 2)  : 0; // Center the image on the x coordinate
         })
         .attr('y', d => {
-          const [x, y] = projection([d.LONGITUDE, d.LATITUDE]);
-          return y - (8 / 2); // Center the image on the y coordinate
+          const coords = projection([d.LONGITUDE, d.LATITUDE]);
+          return coords ? coords[1] - (6 / 2)  : 0;// Center the image on the y coordinate
         })
         .attr('class', 'dot')
         .attr('onerror', "console.log('Error loading this image:', this.href.baseVal)")
-        .style('visibility', selectedAmenities.school ? 'visible' : 'hidden');
+        .style('visibility', selectedAmenities.school ? 'visible' : 'hidden')
+        .on('mouseover', (event, d) => {
+          tooltip
+            .style("visibility", "visible")
+            .html(d.QUERY) // assuming d.NAME is where the place's name is stored
+            .style("top", (event.pageY + 10) + "px")
+            .style("left", (event.pageX + 10) + "px");
+        })
+        .on('mousemove', (event) => {
+          tooltip
+            .style("top", (event.pageY + 10) + "px")
+            .style("left", (event.pageX + 10) + "px");
+        })
+        .on('mouseout', () => {
+          tooltip.style("visibility", "hidden");
+        })
       }
 
       if (selectedAmenities.supermarket) {
@@ -518,26 +579,101 @@ const SingaporeMap = () => {
         .enter()
         .append('image')
         .attr('href', supermarketIcon) // URL to your image
-        .attr('width', 8)
-        .attr('height', 8)
+        .attr('width', 10)
+        .attr('height', 10)
         .attr('x', d => {
-          const [x, y] = projection([d.LONGITUDE, d.LATITUDE]);
-          return x - (8 / 2); // Center the image on the x coordinate
+          const coords = projection([d.LONGITUDE, d.LATITUDE]);
+          return coords ? coords[0] - (6 / 2)  : 0; // Center the image on the x coordinate
         })
         .attr('y', d => {
-          const [x, y] = projection([d.LONGITUDE, d.LATITUDE]);
-          return y - (8 / 2); // Center the image on the y coordinate
+          const coords = projection([d.LONGITUDE, d.LATITUDE]);
+          return coords ? coords[1] - (6 / 2)  : 0;// Center the image on the y coordinate
         })
         .attr('class', 'dot')
         .attr('onerror', "console.log('Error loading this image:', this.href.baseVal)")
-        .style('visibility', selectedAmenities.supermarket ? 'visible' : 'hidden');
+        .style('visibility', selectedAmenities.supermarket ? 'visible' : 'hidden')
+        .on('mouseover', (event, d) => {
+          tooltip
+            .style("visibility", "visible")
+            .html(d.QUERY) // assuming d.NAME is where the place's name is stored
+            .style("top", (event.pageY + 10) + "px")
+            .style("left", (event.pageX + 10) + "px");
+        })
+        .on('mousemove', (event) => {
+          tooltip
+            .style("top", (event.pageY + 10) + "px")
+            .style("left", (event.pageX + 10) + "px");
+        })
+        .on('mouseout', () => {
+          tooltip.style("visibility", "hidden");
+        })
       }
+
+
 
         return () => {
           svg.selectAll('*').remove();
         }
     }
   }
+
+  const legendItems = [
+    { color: 'red', text: 'HDB', type: 'circle' },
+    { color: 'blue', text: 'Private', type: 'circle' },
+    { color: 'green', text: 'Park', icon: parkIcon, type: 'icon' },
+    { color: 'green', text: 'Bus Stop', icon: busIcon, type: 'icon'},
+    { color: 'green', text: 'Hawker', icon: hawkerIcon, type: 'icon'},
+    { color: 'green', text: 'MRT & LRT', icon: mrtIcon, type: 'icon'},
+    { color: 'green', text: 'School', icon: schoolIcon, type: 'icon'},
+    { color: 'green', text: 'Malls', icon: mallIcon, type: 'icon'},
+    { color: 'green', text: 'Supermarket', icon: supermarketIcon, type: 'icon'},
+    
+  ];
+  const drawLegend = () => {
+    d3.select(legendContainer.current).selectAll("*").remove();
+    const svgLegend = d3.select(legendContainer.current)
+          .append('svg')
+          .attr('width', 200)
+          .attr('height', legendItems.length * 25 + 20);
+    if (legendContainer.current) {
+      // Example legend items
+
+      const legend = svgLegend.selectAll('.legend-item')
+        .data(legendItems)
+        .enter()
+        .append('g')
+        .attr('class', 'legend-item')
+        .attr('transform', (d, i) => `translate(10, ${i * 25})`);
+
+      // Append circle for circle type items
+      legend.filter(d => d.type === 'circle').append('circle')
+      .attr('cx', 9) // Center of the circle in the legend item
+      .attr('cy', 9) // Center of the circle in the legend item
+      .attr('r', 9) // Radius of the circle
+      .attr('fill', d => d.color);
+
+      // Append icon images for icon type items
+      legend.filter(d => d.type === 'icon').append('image')
+        .attr('href', d => d.icon ?? '')
+        .attr('width', 18)
+        .attr('height', 18)
+        .attr('x', 0)
+        .attr('y', 0); // Adjust positioning as needed
+
+      // Append text labels for all items
+      legend.append('text')
+        .attr('x', 24)
+        .attr('y', 9)
+        .attr('dy', '.35em')
+        .text(d => d.text);
+    }
+    return () => {
+      svgLegend.selectAll('*').remove();
+    }
+      
+    }
+    
+  
   // [singaporeGeoJSON, hdbLocations, privateLocations, busLocations, hawkerLocations,lrtLocations, mallsLocations, mrtLocations,parksLocations, schoolsLocations, supermarketLocations]
   useEffect(() => {
     drawMap();
@@ -546,12 +682,18 @@ const SingaporeMap = () => {
   useEffect(() => {
     if (d3Container.current && singaporeGeoJSON && hdbLocations && privateLocations && hawkerLocations && busLocations && lrtLocations && supermarketLocations && schoolsLocations && mallsLocations && mrtLocations && parksLocations) {
       drawMap();
+      drawLegend();
     }
   }, [d3Container.current && singaporeGeoJSON && hdbLocations && privateLocations && hawkerLocations && busLocations && lrtLocations && supermarketLocations && schoolsLocations && mallsLocations && mrtLocations && parksLocations]);
   
   return (
     <div>
-      {/* Render a checkbox for each amenity using your custom Checkbox component */}
+        <div>
+          {/* Your map and other components here */}
+          <div id="tooltip" style={{ position: 'absolute', visibility: 'hidden', padding: '10px', backgroundColor: 'white', border: '1px solid black', borderRadius: '5px', pointerEvents: 'none' }}></div>
+        </div>
+
+      <div ref={d3Container} key={mapKey} style={{ width: '100%', height: '100%' }} />
       {Object.entries(selectedAmenities).map(([amenity, isChecked]) => (
         <div key={amenity} className="items-top flex space-x-2">
           <Checkbox
@@ -565,9 +707,10 @@ const SingaporeMap = () => {
           >
             Show {amenity}
           </label>
+          <div ref={legendContainer} style={{ flexBasis: '20%', padding: '20px' }} />
         </div>
       ))}
-      <div ref={d3Container} key={mapKey} style={{ width: '100%', height: '100%' }} />
+      
     </div>
     
     );

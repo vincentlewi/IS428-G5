@@ -2,7 +2,6 @@ import './Overview.css'
 import Nav from '@/components/ui/nav'
 import { Button } from "@/components/ui/button"
 import Map from '@/components/d3/map'
-import Test from '@/components/d3/test'
 import SingaporeMap from '@/components/d3/mapVisualisation'
 
 import { Recommend } from '@/components/d3/recommend'
@@ -37,7 +36,6 @@ export default function Overview() {
         <p>Take a look at the choropleth below. Hover on any area, and you will see that houses are EXPENSIVE.</p>
         <Button variant="outline">Button</Button>
         <Map width={600} height={400}/>
-        <Test />
         <SingaporeMap/>
       </div>
     </>
