@@ -104,6 +104,19 @@ import mallIcon from "../../assets/mall.svg";
 import parkIcon from "../../assets/park.svg";
 import schoolIcon from "../../assets/school.svg";
 
+type Amenities = {
+  hdb: boolean;
+  private: boolean;
+  bus: boolean;
+  hawker: boolean;
+  lrt: boolean;
+  mall: boolean;
+  mrt: boolean;
+  park: boolean;
+  school: boolean;
+  supermarket: boolean;
+};
+
 
 const SingaporeMap = () => {
   const d3Container = useRef<HTMLDivElement>(null);
@@ -118,8 +131,25 @@ const SingaporeMap = () => {
   const [parksLocations, setParkLocations] = useState<any[]>([]);
   const [schoolsLocations, setSchoolLocations] = useState<any[]>([]);
   const [supermarketLocations, setSupermarketLocations] = useState<any[]>([]);
+  
 
 
+  // Then initialize your state with this type
+  const [selectedAmenities, setSelectedAmenities] = useState<Amenities>({
+    hdb: true,
+    private: true,
+    bus: false,
+    hawker: false,
+    lrt: false,
+    mall: false,
+    mrt: false,
+    park: false,
+    school: false,
+    supermarket: false,
+  });
+
+  const mapKey = JSON.stringify(selectedAmenities);
+  
 
   useEffect(() => {
     // Fetch GeoJSON for Singapore's boundary
@@ -266,8 +296,18 @@ const SingaporeMap = () => {
       };
 
   }, []);
+  
+  const handleAmenityChange = (amenity: keyof Amenities) => {
+    setSelectedAmenities(prev => {
+      const newState = { ...prev, [amenity]: !prev[amenity] };
+      console.log(newState); // Debugging line
+      return newState;
+    });
+  };
+  
 
-  useEffect(() => {
+  
+  const drawMap = () => {
     if (d3Container.current && singaporeGeoJSON && hdbLocations && privateLocations && hawkerLocations && busLocations && lrtLocations && supermarketLocations && schoolsLocations && mallsLocations && mrtLocations && parksLocations) {
       const width = 1600;
       const height = 1200;
@@ -291,7 +331,7 @@ const SingaporeMap = () => {
         .style('fill', 'lightgrey')
         .style('stroke', 'black');
 
-      // Plot HDB locations as red circles
+      if (selectedAmenities.hdb) {
       svg.selectAll('.hdb-location') // Use a class to target these circles
         .data(hdbLocations)
         .join('circle')
@@ -305,8 +345,10 @@ const SingaporeMap = () => {
           return coords ? coords[1] : 0;
         })
         .attr('r', '2')
-        .style('fill', 'red');
-
+        .style('fill', 'red')
+        .style('visibility', selectedAmenities.hdb ? 'visible' : 'hidden');
+      }
+      if (selectedAmenities.private) {
       svg.selectAll('.private-location') // Use a different class for these circles
         .data(privateLocations)
         .join('circle')
@@ -320,8 +362,11 @@ const SingaporeMap = () => {
           return coords ? coords[1] : 0;
         })
         .attr('r', '2')
-        .style('fill', 'blue');
+        .style('fill', 'blue')
+        .style('visibility', selectedAmenities.private ? 'visible' : 'hidden');
+     }
 
+      if (selectedAmenities.bus) {
       svg.selectAll('.bus-icon')
         .data(busLocations)
         .enter()
@@ -339,8 +384,10 @@ const SingaporeMap = () => {
         })
         .attr('class', 'dot')
         .attr('onerror', "console.log('Error loading this image:', this.href.baseVal)")
+        .style('visibility', selectedAmenities.bus ? 'visible' : 'hidden');
+      }
         
-
+      if (selectedAmenities.hawker) {
         svg.selectAll('.hawker-icon')
         .data(hawkerLocations)
         .enter()
@@ -358,8 +405,9 @@ const SingaporeMap = () => {
         })
         .attr('class', 'dot')
         .attr('onerror', "console.log('Error loading this image:', this.href.baseVal)")
-
-
+        .style('visibility', selectedAmenities.hawker ? 'visible' : 'hidden');
+      }
+      if (selectedAmenities.lrt) {
       svg.selectAll('.lrt-icon')
         .data(lrtLocations)
         .enter()
@@ -377,7 +425,10 @@ const SingaporeMap = () => {
         })
         .attr('class', 'dot')
         .attr('onerror', "console.log('Error loading this image:', this.href.baseVal)")
+        .style('visibility', selectedAmenities.lrt ? 'visible' : 'hidden');
+      }
 
+      if (selectedAmenities.mall) {
         svg.selectAll('.mall-icon')
         .data(mallsLocations)
         .enter()
@@ -395,7 +446,10 @@ const SingaporeMap = () => {
         })
         .attr('class', 'dot')
         .attr('onerror', "console.log('Error loading this image:', this.href.baseVal)")
+        .style('visibility', selectedAmenities.mall ? 'visible' : 'hidden');
+      }
 
+      if (selectedAmenities.mrt) {
       svg.selectAll('.mrt-icon')
         .data(mrtLocations)
         .enter()
@@ -413,7 +467,10 @@ const SingaporeMap = () => {
         })
         .attr('class', 'dot')
         .attr('onerror', "console.log('Error loading this image:', this.href.baseVal)")
-        
+        .style('visibility', selectedAmenities.mrt ? 'visible' : 'hidden');
+      }
+
+      if (selectedAmenities.park) {
       svg.selectAll('.park-icon')
         .data(parksLocations)
         .enter()
@@ -431,7 +488,10 @@ const SingaporeMap = () => {
         })
         .attr('class', 'dot')
         .attr('onerror', "console.log('Error loading this image:', this.href.baseVal)")
+        .style('visibility', selectedAmenities.park ? 'visible' : 'hidden');
+      }
 
+      if (selectedAmenities.school) {
       svg.selectAll('.school-icon')
         .data(schoolsLocations)
         .enter()
@@ -449,7 +509,10 @@ const SingaporeMap = () => {
         })
         .attr('class', 'dot')
         .attr('onerror', "console.log('Error loading this image:', this.href.baseVal)")
+        .style('visibility', selectedAmenities.school ? 'visible' : 'hidden');
+      }
 
+      if (selectedAmenities.supermarket) {
       svg.selectAll('.supermarket-icon')
         .data(supermarketLocations)
         .enter()
@@ -467,18 +530,47 @@ const SingaporeMap = () => {
         })
         .attr('class', 'dot')
         .attr('onerror', "console.log('Error loading this image:', this.href.baseVal)")
+        .style('visibility', selectedAmenities.supermarket ? 'visible' : 'hidden');
+      }
 
         return () => {
           svg.selectAll('*').remove();
         }
     }
-  }, [singaporeGeoJSON, hdbLocations, privateLocations, busLocations, hawkerLocations,lrtLocations, mallsLocations, mrtLocations,parksLocations, schoolsLocations, supermarketLocations]);
+  }
+  // [singaporeGeoJSON, hdbLocations, privateLocations, busLocations, hawkerLocations,lrtLocations, mallsLocations, mrtLocations,parksLocations, schoolsLocations, supermarketLocations]
+  useEffect(() => {
+    drawMap();
+  }, [selectedAmenities]); // Add other dependencies as needed
 
+  useEffect(() => {
+    if (d3Container.current && singaporeGeoJSON && hdbLocations && privateLocations && hawkerLocations && busLocations && lrtLocations && supermarketLocations && schoolsLocations && mallsLocations && mrtLocations && parksLocations) {
+      drawMap();
+    }
+  }, [d3Container.current && singaporeGeoJSON && hdbLocations && privateLocations && hawkerLocations && busLocations && lrtLocations && supermarketLocations && schoolsLocations && mallsLocations && mrtLocations && parksLocations]);
+  
   return (
     <div>
-      <div ref={d3Container} style ={{width: '100%', height: '100%'}}/>
+      {/* Render a checkbox for each amenity using your custom Checkbox component */}
+      {Object.entries(selectedAmenities).map(([amenity, isChecked]) => (
+        <div key={amenity} className="items-top flex space-x-2">
+          <Checkbox
+            id={amenity}
+            checked={isChecked}
+            onCheckedChange={() => handleAmenityChange(amenity as keyof Amenities)}
+          />
+          <label
+            htmlFor={amenity}
+            className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+          >
+            Show {amenity}
+          </label>
+        </div>
+      ))}
+      <div ref={d3Container} key={mapKey} style={{ width: '100%', height: '100%' }} />
     </div>
-  );
-};
+    
+    );
+  };
 
 export default SingaporeMap;
