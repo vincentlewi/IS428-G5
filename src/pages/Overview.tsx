@@ -8,7 +8,26 @@ import { ArrowBigDown } from 'lucide-react';
 import { Wave } from 'react-animated-text';
 import { useNavigate } from 'react-router-dom';
 
+import { Recommend } from '@/components/d3/recommend'
 
+const preferences = {
+  bus: 4,
+  school: 1,
+  mall: 2,
+  supermarket: 1,
+  cbd: 0,
+  hawker: 1,
+  park: 1,
+  mrt: 2
+}
+
+const filter = {
+  min_price: 0,
+  max_price: 1500000,
+  min_remaining_lease: 0,
+  region: 'West',
+  flat_type: '3 ROOM'
+}
 
 export default function Overview() {
   const navigate = useNavigate();
@@ -17,6 +36,7 @@ export default function Overview() {
     navigate('./recommend');
   }
 
+  console.log(Recommend(preferences, filter))
   return (
     <>
       <Nav activePage='overview'/>

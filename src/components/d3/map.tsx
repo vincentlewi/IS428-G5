@@ -1,6 +1,6 @@
 import * as d3 from 'd3'
 import { FeatureCollection, Geometry, GeoJsonProperties } from 'geojson'
-import sg from '@/assets/datasets/map/sg.json'
+import sg from '@/assets/map/sg.json'
 import { useState, useRef } from 'react'
 
 type MapProps = {
