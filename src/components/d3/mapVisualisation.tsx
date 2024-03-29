@@ -9,7 +9,6 @@ import supermarketIcon from "../../assets/supermarket.svg";
 import mallIcon from "../../assets/mall.svg";
 import parkIcon from "../../assets/park.svg";
 import schoolIcon from "../../assets/school.svg";
-import { SchoolIcon } from 'lucide-react';
 
 type Amenities = {
   hdb: boolean;
@@ -643,7 +642,7 @@ const SingaporeMap = () => {
         .enter()
         .append('g')
         .attr('class', 'legend-item')
-        .attr('transform', (d, i) => `translate(10, ${i * 25})`);
+        .attr('transform', (_, i) => `translate(10, ${i * 25})`);
 
       // Append circle for circle type items
       legend.filter(d => d.type === 'circle').append('circle')
