@@ -1,15 +1,40 @@
 import * as d3 from 'd3'
 import { FeatureCollection, Geometry, GeoJsonProperties } from 'geojson'
+import { useState, useRef, useEffect } from 'react'
 import sg from '@/assets/map/sg.json'
-import { useState, useRef } from 'react'
+import busIcon from "@/assets/bus.svg";
+import mrtlrtIcon from "@/assets/mrtlrt.svg";
+import hawkerIcon from "@/assets/hawker.svg";
+import supermarketIcon from "@/assets/supermarket.svg";
+import mallIcon from "@/assets/mall.svg";
+import parkIcon from "@/assets/park.svg";
+import schoolIcon from "@/assets/school.svg";
+import busLocations from "@/assets/datasets/bus.json";
+import hawkerLocations from "@/assets/datasets/hawker.json";
+import mallsLocations from "@/assets/datasets/malls.json";
+import mrtlrtLocations from "@/assets/datasets/mrtlrt.json";  
+import parksLocations from "@/assets/datasets/parks.json";
+import schoolsLocations from "@/assets/datasets/schools.json";
+import supermarketLocations from "@/assets/datasets/schools.json";
 
 type MapProps = {
   width: number
   height: number
   points: { LATITUDE: string, LONGITUDE: string, address: string, town: string, flat_type: string }[]
+  selectedAmenity: string
 }
 
-export default function Map({ width, height, points }: MapProps) {
+const amenities = {
+  'bus': { locations: busLocations, icon: busIcon},
+  'hawker': { locations: hawkerLocations, icon: hawkerIcon},
+  'mall': { locations: mallsLocations, icon: mallIcon},
+  'mrtlrt': { locations: mrtlrtLocations, icon: mrtlrtIcon},
+  'park': { locations: parksLocations, icon: parkIcon},
+  'school': { locations: schoolsLocations, icon: schoolIcon},
+  'supermarket': { locations: supermarketLocations, icon: supermarketIcon},
+}
+
+export default function Map({ width, height, points, selectedAmenity }: MapProps) {
   const data = sg as FeatureCollection<Geometry, GeoJsonProperties>
   const projection = d3
     .geoMercator()
@@ -41,7 +66,7 @@ export default function Map({ width, height, points }: MapProps) {
       translate = [width / 2 - scale * x, height / 2 - scale * y]
 
     d3.select(gRef.current)
-      .selectAll('path, circle')
+      .selectAll('path, circle, image')
       .transition()
       .duration(750)
       .attr('transform', `translate(${translate}) scale(${scale})`)
@@ -49,7 +74,7 @@ export default function Map({ width, height, points }: MapProps) {
 
   const resetZoom = () => {
     d3.select(gRef.current)
-      .selectAll('path, circle')
+      .selectAll('path, circle, image')
       .transition()
       .duration(750)
       .attr('transform', '')
@@ -88,28 +113,65 @@ export default function Map({ width, height, points }: MapProps) {
     }
   }).filter(Boolean) // Removes any undefined paths that result from including "NaN"
 
-  const svgPoints = points.map(point => {
-    const projected = projection([parseFloat(point.LONGITUDE), parseFloat(point.LATITUDE)]);
-    // You can customize these attributes
-    const circleAttributes = {
-      cx: projected[0],
-      cy: projected[1],
-      r: 4, // Example radius
-      fill: 'red', // Example fill color
-    };
-    return (
-      <circle
-        key={point.address}
-        {...circleAttributes}
-        // Add more attributes & event listeners as needed
-      />
-    );
-  });
+  // Recommended HDB Points
+  const [svgPoints, setSvgPoints] = useState<JSX.Element[]>([])
+  useEffect(() => {
+    if (points) {
+      const newPoints = points.map(point => {
+        const projected = projection([parseFloat(point.LONGITUDE), parseFloat(point.LATITUDE)]);
+        // You can customize these attributes
+        const circleAttributes: React.SVGProps<SVGCircleElement> = {
+          cx: projected[0],
+          cy: projected[1],
+          r: 4, // Example radius
+          fill: 'red', // Example fill color
+          style: { pointerEvents: 'none' } as React.CSSProperties,
+          key: `${point.address} ${point.town} ${point.flat_type}`,
+        };
+        return (
+          <circle
+            {...circleAttributes}
+            // Add more attributes & event listeners as needed
+          />
+        );
+      });
+      setSvgPoints(newPoints);
+    }
+  }, [points])
+
+  // Selected Amenity Points
+  const [svgAmenity, setSvgAmenity] = useState<JSX.Element[]>([])
+  useEffect(() => {
+    if (selectedAmenity) {
+      const newPoints = amenities[selectedAmenity].locations.map(amenity => {
+        const projected = projection([+amenity.LONGITUDE, +amenity.LATITUDE]);
+        // Customize these attributes as needed
+        const imageAttributes = {
+          href: amenities[selectedAmenity].icon,
+          width: 5,
+          height: 5,
+          x: projected[0] - 2.5, // Centering the icon
+          y: projected[1] - 2.5, // Centering the icon
+          style: { pointerEvents: 'none' } as React.CSSProperties,
+        };
+        return (
+          <image
+            key={`${amenity.QUERY} ${amenity.LATITUDE},${amenity.LONGITUDE}`}
+            {...imageAttributes}
+          />
+        );
+      });
+      setSvgAmenity(newPoints);
+    } else {
+      setSvgAmenity([])
+    }
+  }, [selectedAmenity])
 
   return (
     <svg ref={svgRef} width={width} height={height} onClick={handleMapContainerClick}>
       <g ref={gRef}>
         {allSvgPaths}
+        {svgAmenity}
         {svgPoints}
       </g>
     </svg>

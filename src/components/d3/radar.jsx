@@ -31,7 +31,7 @@ const DiscoveryRadar = ({ options = { variables: [], sets: [] } }) => {
   
 
   const transformedData = options.sets.map((item) => ({
-    key: item.address,
+    key: `${item.address} ${item.town} ${item.flat_type}`,
     label: item.town,
     values: {
       BusStops: ((Math.log(+item['bus_within_0.5'] + 1) / 2.772588722239781) - 0.500000) / (1.403677-0.5), 

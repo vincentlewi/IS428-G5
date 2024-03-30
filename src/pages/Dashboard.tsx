@@ -16,6 +16,7 @@ import { Recommend } from '@/components/d3/recommend'
 import { MultiSlider } from '@/components/ui/multiSlider'
 import { Slider } from '@/components/ui/slider'
 import DiscoveryRadar from '@/components/d3/radar'
+import SelectAmenity from '@/components/filters/selectAmenity'
 
 const default_filter = {
   min_price: 0,
@@ -50,11 +51,12 @@ export default function Dashboard() {
     }
     fetchData()
   }, [filter, preferences])
-  console.log(topHouses)
+
+  const [selectedAmenity, setSelectedAmenity] = useState('')
+  console.log(selectedAmenity)
   return (
     <>
       <Nav activePage='dashboard'/>
-      {topHouses[0]?.resale_price}
       <div className='flex align-middle justify-center items-center gap-4'>
         <Card>
           <CardHeader>
@@ -75,7 +77,7 @@ export default function Dashboard() {
           <CardFooter>
           </CardFooter>
         </Card>        
-        <Map width={600} height={600} points={topHouses}/>
+        <Map width={600} height={600} points={topHouses} selectedAmenity={selectedAmenity}/>
         <Card>
           <CardHeader>
             <CardTitle>Preferences here</CardTitle>
@@ -94,7 +96,8 @@ export default function Dashboard() {
           </CardContent>
           <CardFooter>
           </CardFooter>
-        </Card> 
+        </Card>
+        <SelectAmenity setSelectedAmenity={setSelectedAmenity}/>
       </div>
       <div className='flex align-middle justify-center items-center gap-4'> 
         <DiscoveryRadar options={{variables: [], sets:topHouses}}/>
