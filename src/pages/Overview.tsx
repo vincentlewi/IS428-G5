@@ -3,6 +3,7 @@ import Nav from '@/components/ui/nav'
 import { Button } from "@/components/ui/button"
 import Map from '@/components/d3/map'
 import SingaporeMap from '@/components/d3/mapVisualisation'
+import MultilineChart from '@/components/d3/multilineChart'
 
 import { Recommend } from '@/components/d3/recommend'
 
@@ -37,6 +38,7 @@ export default function Overview() {
         <Button variant="outline">Button</Button>
         <Map width={600} height={400}/>
         <SingaporeMap/>
+        <MultilineChart />
       </div>
     </>
   )
