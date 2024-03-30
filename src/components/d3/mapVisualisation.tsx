@@ -2,13 +2,24 @@ import { useEffect, useRef, useState } from 'react';
 import * as d3 from 'd3';
 import { Checkbox } from "@/components/ui/checkbox"
 import { FeatureCollection } from 'geojson';
-import busIcon from "../../assets/bus.svg";
-import mrtIcon from "../../assets/mrt.svg";
-import hawkerIcon from "../../assets/hawker.svg";
-import supermarketIcon from "../../assets/supermarket.svg";
-import mallIcon from "../../assets/mall.svg";
-import parkIcon from "../../assets/park.svg";
-import schoolIcon from "../../assets/school.svg";
+import busIcon from "@/assets/bus.svg";
+import mrtIcon from "@/assets/mrt.svg";
+import hawkerIcon from "@/assets/hawker.svg";
+import supermarketIcon from "@/assets/supermarket.svg";
+import mallIcon from "@/assets/mall.svg";
+import parkIcon from "@/assets/park.svg";
+import schoolIcon from "@/assets/school.svg";
+import singaporeGeoJSON from "@/assets/datasets/singapore-planning-areas-topojson.json";
+import hdbLocations from "@/assets/datasets/hdb.json";
+import privateLocations from "@/assets/datasets/private.json";
+import busLocations from "@/assets/datasets/bus.json";
+import hawkerLocations from "@/assets/datasets/hawker.json";
+import lrtLocations from "@/assets/datasets/lrt.json";
+import mallsLocations from "@/assets/datasets/malls.json";
+import mrtLocations from "@/assets/datasets/mrt.json";  
+import parksLocations from "@/assets/datasets/parks.json";
+import schoolsLocations from "@/assets/datasets/schools.json";
+import supermarketLocations from "@/assets/datasets/schools.json";
 
 type Amenities = {
   hdb: boolean;
@@ -27,18 +38,7 @@ type Amenities = {
 const SingaporeMap = () => {
   const d3Container = useRef<HTMLDivElement>(null);
   const legendContainer = useRef<HTMLDivElement>(null);
-  const [singaporeGeoJSON, setSingaporeGeoJSON] = useState<FeatureCollection | null>(null);
-  const [hdbLocations, setHdbLocations] = useState<any[]>([]);
-  const [privateLocations, setPrivateLocations] = useState<any[]>([]);
-  const [busLocations, setBusLocations] = useState<any[]>([]);
-  const [hawkerLocations, setHawkerLocations] = useState<any[]>([]);
-  const [lrtLocations, setLrtLocations] = useState<any[]>([]);
-  const [mallsLocations, setMallsLocations] = useState<any[]>([]);
-  const [mrtLocations, setMrtLocations] = useState<any[]>([]);
-  const [parksLocations, setParkLocations] = useState<any[]>([]);
-  const [schoolsLocations, setSchoolLocations] = useState<any[]>([]);
-  const [supermarketLocations, setSupermarketLocations] = useState<any[]>([]);
-  
+
 
 
   // Then initialize your state with this type
@@ -59,148 +59,12 @@ const SingaporeMap = () => {
   
 
   useEffect(() => {
-    // Fetch GeoJSON for Singapore's boundary
-    const fetchGeoJson = async () => {
-      try {
-        const response = await fetch('../../../src/assets/datasets/singapore-planning-areas-topojson.json');
-        if (!response.ok) throw new Error('Network response was not ok');
-        const data: FeatureCollection = await response.json();
-        setSingaporeGeoJSON(data);
-      } catch (error) {
-        console.error('Error loading GeoJSON:', error);
-      }
-    };
-
-    // Fetch JSON for HDB locations
-    const fetchHdbLocations = async () => {
-      try {
-        const response = await fetch('../../../src/assets/datasets/hdb.json');
-        if (!response.ok) throw new Error('Network response was not ok');
-        const data = await response.json();
-        setHdbLocations(data);
-      } catch (error) {
-        console.error('Error loading HDB locations:', error);
-      }
-    };
-
-    // Fetch JSON for Private locations
-    const fetchPrivateLocations = async () => {
-        try {
-          const response = await fetch('../../../src/assets/datasets/private.json');
-          if (!response.ok) throw new Error('Network response was not ok');
-          const data = await response.json();
-          setPrivateLocations(data);
-        } catch (error) {
-          console.error('Error loading HDB locations:', error);
-        }
-      };
-
-    // Fetch JSON for Bus locations
-    const fetchBusLocations = async () => {
-        try {
-          const response = await fetch('../../../src/assets/datasets/bus.json');
-          if (!response.ok) throw new Error('Network response was not ok');
-          const data = await response.json();
-          setBusLocations(data);
-        } catch (error) {
-          console.error('Error loading HDB locations:', error);
-        }
-      };
-
-    const fetchHawkerLocations = async () => {
-        try {
-            const response = await fetch('../../../src/assets/datasets/hawker.json');
-            if (!response.ok) throw new Error('Network response was not ok');
-            const data = await response.json();
-            setHawkerLocations(data);
-        } catch (error) {
-            console.error('Error loading HDB locations:', error);
-        }
-        };
-    const fetchLrtLocations = async () => {
-        try {
-            const response = await fetch('../../../src/assets/datasets/lrt.json');
-            if (!response.ok) throw new Error('Network response was not ok');
-            const data = await response.json();
-            setLrtLocations(data);
-        } catch (error) {
-            console.error('Error loading HDB locations:', error);
-        }
-        };
-    
-    const fetchMallsLocations = async () => {
-        try {
-            const response = await fetch('../../../src/assets/datasets/malls.json');
-            if (!response.ok) throw new Error('Network response was not ok');
-            const data = await response.json();
-            setMallsLocations(data);
-        } catch (error) {
-            console.error('Error loading HDB locations:', error);
-        }
-        };
-
-    const fetchMrtLocations = async () => {
-        try {
-            const response = await fetch('../../../src/assets/datasets/mrt.json');
-            if (!response.ok) throw new Error('Network response was not ok');
-            const data = await response.json();
-            setMrtLocations(data);
-        } catch (error) {
-            console.error('Error loading HDB locations:', error);
-        }
-        };
-
-    const fetchParkLocations = async () => {
-        try {
-            const response = await fetch('../../../src/assets/datasets/parks.json');
-            if (!response.ok) throw new Error('Network response was not ok');
-            const data = await response.json();
-            setParkLocations(data);
-        } catch (error) {
-            console.error('Error loading HDB locations:', error);
-        }
-        };
-
-    const fetchSchoolLocations = async () => {
-        try {
-            const response = await fetch('../../../src/assets/datasets/schools.json');
-            if (!response.ok) throw new Error('Network response was not ok');
-            const data = await response.json();
-            setSchoolLocations(data);
-        } catch (error) {
-            console.error('Error loading HDB locations:', error);
-        }
-        };
-
-    const fetchSupermarketLocations = async () => {
-        try {
-            const response = await fetch('../../../src/assets/datasets/supermarkets.json');
-            if (!response.ok) throw new Error('Network response was not ok');
-            const data = await response.json();
-            setSupermarketLocations(data);
-        } catch (error) {
-            console.error('Error loading HDB locations:', error);
-        }
-        };
-
-
-    fetchGeoJson();
-    fetchHdbLocations();
-    fetchPrivateLocations();
-    fetchBusLocations();
-    fetchHawkerLocations();
-    fetchLrtLocations();
-    fetchMallsLocations();
-    fetchMrtLocations();
-    fetchParkLocations();
-    fetchSchoolLocations();
-    fetchSupermarketLocations();
 
     return () => {
         if (d3Container.current) {
           d3.select(d3Container.current).select('svg').remove();
         }
-      };
+      }
 
   }, []);
   
