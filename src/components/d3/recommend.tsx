@@ -22,6 +22,7 @@ interface Filter {
 
 export async function Recommend( filter: Filter, preferences : Preferences) {
   // Load CSV data and compute scores for each house
+  console.log(preferences)
   let data = await d3.csv('/datasets/hdb/hdb_available_cleaned.csv')
   data = data.filter((house) => !(+house['resale_price'] < filter.min_price || 
                                   +house['resale_price'] > filter.max_price || 
@@ -56,8 +57,8 @@ export async function Recommend( filter: Filter, preferences : Preferences) {
   if (scoredHouses.length === 0) {
     return([false])
   } else {
-    let topScoringHouses = scoredHouses.sort((a, b) => a.score - b.score)
-    if (topScoringHouses[0].score > 0) {
+    let topScoringHouses = scoredHouses.sort((a, b) => b.score - a.score)
+    if (topScoringHouses[0].score != 0) {
       topScoringHouses = topScoringHouses.slice(0, 3);
     }
     const topCheapestHouses = topScoringHouses.sort((a, b) => a.price_per_sqm - b.price_per_sqm).slice(0, 3);

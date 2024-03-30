@@ -2,9 +2,11 @@ import * as React from "react"
 import * as SliderPrimitive from "@radix-ui/react-slider"
 
 interface SliderProps {
+  filterKey: string;
   defaultValue: number[];
   min: number;
   max: number;
+  step: number;
   filter: {
     min_price: number;
     max_price: number;
@@ -24,15 +26,16 @@ interface SliderProps {
 const Slider = React.forwardRef<
   React.ElementRef<typeof SliderPrimitive.Root>,
   React.ComponentPropsWithoutRef<typeof SliderPrimitive.Root>
->(({filter, setFilter, min, max, defaultValue}: SliderProps, ref) => {  
+>(({filterKey, defaultValue, min, max, step, filter, setFilter,}: SliderProps, ref) => {  
   return(
     <SliderPrimitive.Root
       ref={ref}
       className="relative flex w-full touch-none select-none items-center"
       min={min}
       max={max}
+      step={step}
       defaultValue={defaultValue}
-      onValueChange={(e) => setFilter({...filter, min_remaining_lease: e[0]})}    
+      onValueChange={(e) => setFilter({...filter, [filterKey]: e[0]})}    
     >
       <SliderPrimitive.Track className="relative h-2 w-full grow overflow-hidden rounded-full bg-secondary">
         <SliderPrimitive.Range className="absolute h-full bg-primary" />
