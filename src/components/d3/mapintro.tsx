@@ -91,12 +91,17 @@ const MapIntro: React.FC<MapIntroProps> = ({ dataUrl, topojsonUrl }) => {
     // Set up D3 tip
     const tip = d3Tip()
       .attr("class", "d3-tip")
-      .html((event, d) => {
-        const price = d.properties.meanPerSqmPrice;
-        return price
-          ? `${d.properties.PLN_AREA_N}<br>${price.toFixed(2)} S$/sqm`
-          : `${d.properties.PLN_AREA_N}<br>(No data)`;
-      });
+      .html(
+        (
+          event: any,
+          d: { properties: { meanPerSqmPrice?: number; PLN_AREA_N: string } }
+        ) => {
+          const price = d.properties.meanPerSqmPrice;
+          return price
+            ? `${d.properties.PLN_AREA_N}<br>${price.toFixed(2)} S$/sqm`
+            : `${d.properties.PLN_AREA_N}<br>(No data)`;
+        }
+      );
 
     // Select the SVG element and clear previous contents
     const svg = d3.select(svgElement).html("");
