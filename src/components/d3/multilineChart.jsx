@@ -1,37 +1,13 @@
 import { useEffect, useRef, useState } from 'react';
 import * as d3 from 'd3';
+import input_data from "@/assets/datasets/catboost_aggregated.json"
 
 export default function multilineChart() {
-  // interface FeatureDataPoint {
-  //   year: string;
-  //   Importances: number;
-  // }
-
-  // interface FeatureGroup {
-  //   key: string;
-  //   value: FeatureDataPoint[];
-  // }
 
   const d3Container = useRef(null);
-  const [dataset, setDataset] = useState([]);
 
-  useEffect(() => {
-    const fetchDataset = async () => {
-      try {
-        const response = await fetch('../../../src/assets/datasets/catboost_aggregated.json');
-        if (!response.ok) {
-          throw new Error('Network response was not ok');
-        }
-        const json = await response.json();
-        const groupedData = Array.from(d3.group(json, d => d["Features"]), ([key, value]) => ({ key, value }));
-        setDataset(groupedData);
-      } catch (error) {
-        console.error('Error loading dataset:', error);
-      }
-    };
+  const dataset = Array.from(d3.group(input_data, d => d["Features"]), ([key, value]) => ({ key, value }));
 
-    fetchDataset();
-  }, []);
 
   useEffect(() => {
     if (dataset.length > 0 && d3Container.current) {
