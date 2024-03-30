@@ -50,7 +50,7 @@ export default function Dashboard() {
     }
     fetchData()
   }, [filter, preferences])
-  // console.log(topHouses)
+  console.log(topHouses)
   return (
     <>
       <Nav activePage='dashboard'/>
@@ -75,7 +75,7 @@ export default function Dashboard() {
           <CardFooter>
           </CardFooter>
         </Card>        
-        <Map width={600} height={600}/>
+        <Map width={600} height={600} points={topHouses}/>
         <Card>
           <CardHeader>
             <CardTitle>Preferences here</CardTitle>
@@ -96,38 +96,38 @@ export default function Dashboard() {
           </CardFooter>
         </Card> 
       </div>
-      <div className='flex align-middle justify-center items-center gap-4'>        
-      {topHouses[0]
-      ? topHouses.map((house, index) => (
-          <Card key={index}>
-            <CardHeader>
-              <CardTitle>{house.town}</CardTitle>
-              <CardDescription>{house.flat_type} HDB at {house.address}</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <p>Score: {+house.score}</p>
-              <p>Median Price: S${Math.round(house.resale_price)}</p>
-              <p>Remaining Lease: {+house.remaining_lease} years</p>
-              <p>Price per Square Meters: S${Math.round(house.price_per_sqm)}</p>
-              <br />
-              <p>Bus within 500m: {+house['bus_within_0.5']}</p>
-              <p>School within 2km: {+house['school_within_2.0']}</p>
-              <p>Mall within 2km: {+house['mall_within_2.0']}</p>
-              <p>Supermarkets within 500m: {+house['supermarket_within_0.5']}</p>
-              <p>Distance to CBD: {+house['cbd_distance']}</p>
-              <p>Distance to Hawker: {+house['hawker_distance']}</p>
-              <p>Distance to Park: {+house['park_distance']}</p>
-              <p>Distance to MRT/LRT: {+house['mrtlrt_distance']}</p>
-            </CardContent>
-            <CardFooter>
-              <Button>More Details</Button>
-            </CardFooter>
-          </Card>
-        ))
-      : <p>Sorry, we couldn't find any house to recommend.</p>
-      }
+      <div className='flex align-middle justify-center items-center gap-4'> 
+        <DiscoveryRadar options={{variables: [], sets:topHouses}}/>
+        {topHouses[0]
+        ? topHouses.map((house, index) => (
+            <Card key={index}>
+              <CardHeader>
+                <CardTitle>{house.town}</CardTitle>
+                <CardDescription>{house.flat_type} HDB at {house.address}</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <p>Score: {+house.score}</p>
+                <p>Median Price: S${Math.round(house.resale_price)}</p>
+                <p>Remaining Lease: {+house.remaining_lease} years</p>
+                <p>Price per Square Meters: S${Math.round(house.price_per_sqm)}</p>
+                <br />
+                <p>Bus within 500m: {+house['bus_within_0.5']}</p>
+                <p>School within 2km: {+house['school_within_2.0']}</p>
+                <p>Mall within 2km: {+house['mall_within_2.0']}</p>
+                <p>Supermarkets within 500m: {+house['supermarket_within_0.5']}</p>
+                <p>Distance to CBD: {+house['cbd_distance']}</p>
+                <p>Distance to Hawker: {+house['hawker_distance']}</p>
+                <p>Distance to Park: {+house['park_distance']}</p>
+                <p>Distance to MRT/LRT: {+house['mrtlrt_distance']}</p>
+              </CardContent>
+              <CardFooter>
+                <Button>More Details</Button>
+              </CardFooter>
+            </Card>
+          ))
+        : <p>Sorry, we couldn't find any house to recommend.</p>
+        }
       </div>
-      <DiscoveryRadar options={{variables: [], sets:topHouses}}/>
     </>
   )
 }

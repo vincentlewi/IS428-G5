@@ -6,9 +6,10 @@ import { useState, useRef } from 'react'
 type MapProps = {
   width: number
   height: number
+  points: { LATITUDE: string, LONGITUDE: string, address: string, town: string, flat_type: string }[]
 }
 
-export default function Map({ width, height }: MapProps) {
+export default function Map({ width, height, points }: MapProps) {
   const data = sg as FeatureCollection<Geometry, GeoJsonProperties>
   const projection = d3
     .geoMercator()
@@ -16,6 +17,7 @@ export default function Map({ width, height }: MapProps) {
   const geoPathGenerator = d3.geoPath().projection(projection)
 
   const svgRef = useRef<SVGSVGElement>(null)
+  const gRef = useRef<SVGGElement>(null);
   const [lastClicked, setLastClicked] = useState(null)
   const onClickFeature = (feature: any) => {
     // Check if the same feature is clicked twice to reset
@@ -38,16 +40,16 @@ export default function Map({ width, height }: MapProps) {
       scale = Math.max(1, Math.min(8, 0.9 / Math.max(dx / width, dy / height))),
       translate = [width / 2 - scale * x, height / 2 - scale * y]
 
-    d3.select(svgRef.current)
-      .selectAll('path')
+    d3.select(gRef.current)
+      .selectAll('path, circle')
       .transition()
       .duration(750)
       .attr('transform', `translate(${translate}) scale(${scale})`)
   }
 
   const resetZoom = () => {
-    d3.select(svgRef.current)
-      .selectAll('path')
+    d3.select(gRef.current)
+      .selectAll('path, circle')
       .transition()
       .duration(750)
       .attr('transform', '')
@@ -86,9 +88,30 @@ export default function Map({ width, height }: MapProps) {
     }
   }).filter(Boolean) // Removes any undefined paths that result from including "NaN"
 
+  const svgPoints = points.map(point => {
+    const projected = projection([parseFloat(point.LONGITUDE), parseFloat(point.LATITUDE)]);
+    // You can customize these attributes
+    const circleAttributes = {
+      cx: projected[0],
+      cy: projected[1],
+      r: 4, // Example radius
+      fill: 'red', // Example fill color
+    };
+    return (
+      <circle
+        key={point.address}
+        {...circleAttributes}
+        // Add more attributes & event listeners as needed
+      />
+    );
+  });
+
   return (
     <svg ref={svgRef} width={width} height={height} onClick={handleMapContainerClick}>
-      {allSvgPaths}
+      <g ref={gRef}>
+        {allSvgPaths}
+        {svgPoints}
+      </g>
     </svg>
   )
 }
