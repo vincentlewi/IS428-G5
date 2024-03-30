@@ -5,6 +5,7 @@ import Map from '@/components/d3/map'
 import SingaporeMap from '@/components/d3/mapVisualisation'
 import MultilineChart from '@/components/d3/multilineChart.jsx'
 import { Recommend } from '@/components/d3/recommend'
+import Treemap from '@/components/d3/treemap'
 
 const preferences = {
   bus: 4,
@@ -25,6 +26,8 @@ const filter = {
   flat_type: '3 ROOM'
 }
 
+
+
 export default function Overview() {
   console.log(Recommend(preferences, filter))
   return (
@@ -38,6 +41,7 @@ export default function Overview() {
         <Map width={600} height={400}/>
         <SingaporeMap/>
         <MultilineChart />
+        <Treemap/>
       </div>
     </>
   )
