@@ -17,7 +17,6 @@ import { MultiSlider } from '@/components/ui/multiSlider'
 import { Slider } from '@/components/ui/slider'
 import DiscoveryRadar from '@/components/d3/radar'
 
-
 export default function Dashboard() {
   const default_filter = {
     min_price: 0,

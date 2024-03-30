@@ -32,7 +32,6 @@ export async function Recommend( filter: Filter, preferences : Preferences) {
 
   const scoredHouses = data.map(house => {    
     const log_bus = Math.log(+house['bus_within_0.5'] + 1);
-
     const log_school = Math.log(+house['school_within_2.0'] + 1);
     const log_mall = Math.log(+house['mall_within_2.0'] + 1);
     const log_supermarket = Math.log(+house['supermarket_within_0.5'] + 1);
