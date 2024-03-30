@@ -243,14 +243,8 @@ const MapIntro: React.FC<MapIntroProps> = ({ dataUrl, topojsonUrl }) => {
       const townName = feature.properties.PLN_AREA_N;
       const townData = aggregatedTownData[townName];
       if (townData) {
-        // console.log(townData);
         feature.properties.meanPerSqmPrice = townData.meanPerSqmPrice;
-        // console.log(
-        //   `${townName} (${year}): ${townData.meanPerSqmPrice.toFixed(2)} S$/sqm`
-        // );
-        // console.log(townData);
       } else {
-        // console.log(`${townName} (${year}): No data found.`);
       }
       return feature;
     });
