@@ -20,7 +20,7 @@ export default function Dashboard() {
   const default_filter = {
     min_price: 0,
     max_price: 1e6,
-    min_remaining_lease: 0,
+    min_remaining_lease: 50,
     region: 'All',
     flat_type: 'All'
   }  
@@ -48,7 +48,7 @@ export default function Dashboard() {
     fetchData()
   }, [filter, preferences])
 
-  console.log(topHouses)
+  // console.log(topHouses)
   return (
     <>
       <Nav activePage='dashboard'/>
@@ -67,7 +67,7 @@ export default function Dashboard() {
             <DropdownFilter filterKey={'flat_type'} placeholder={'All'} items={['All', '1 ROOM', '2 ROOM', '3 ROOM', '4 ROOM', '5 ROOM', 'EXECUTIVE', 'MULTI-GENERATION']} filter={filter} setFilter={setFilter}/>
             Price Ranges:
             <MultiSlider defaultValue={[0, 5e6]} min={0} max={5e6} filter={filter} setFilter={setFilter}/>
-            Minimum Remaining Lease:
+            Minimum Remaining Lease: {filter.min_remaining_lease}
             <Slider defaultValue={[50]} min={0} max={99} filter={filter} setFilter={setFilter}/>
           </CardContent>
           <CardFooter>
@@ -81,7 +81,7 @@ export default function Dashboard() {
           <Card key={index}>
             <CardHeader>
               <CardTitle>{house.town}</CardTitle>
-              <CardDescription>{house.flat_type} in {house.address}</CardDescription>
+              <CardDescription>{house.flat_type} HDB at {house.address}</CardDescription>
             </CardHeader>
             <CardContent>
               <p>Median Price: S${Math.round(house.resale_price)}</p>
