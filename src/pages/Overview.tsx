@@ -1,21 +1,436 @@
 import "./Overview.css";
+import React, { useEffect, useState } from "react";
 import Nav from "@/components/ui/nav";
 import { Button } from "@/components/ui/button";
+import Map from "@/components/d3/map";
 import CustomContainer from "@/components/ui/customContainer";
 import ScrollIntoView from "react-scroll-into-view";
 import { ArrowBigDown } from "lucide-react";
 import { Wave } from "react-animated-text";
 import { useNavigate } from "react-router-dom";
-import MapIntro from "@/components/d3/mapintro";
+// import OwnershipTimeChart from "@/components/d3/OwnershipTimeChart";
+import Resale_Flat_Hdb from "@/components/d3/Resale_Flat_Hdb";
+import MedianMaturityPriceChart from "@/components/d3/medianmaturity";
+import * as d3 from "d3";
+// import { Recommend } from "@/components/d3/recommend";
+
+interface HDBData {
+  town: string;
+  flat_type: string;
+  floor_area: number;
+  resale_price: number;
+  year: string;
+  adjusted_price: number;
+  price_per_sqm: number;
+  adjusted_price_per_sqm: number;
+  town_classification: string;
+}
+
+interface DataEntry {
+  year: string;
+  maturity: string;
+  flat_type: string;
+  adjusted_price: number;
+  town_classification: string;
+  resale_price: string;
+  average_household_income: string;
+}
+
+interface IncomeData {
+  year: string;
+  flat_type: string;
+  average_household_income: number;
+}
+
+interface MedianAdjustedPriceEntry {
+  year: string;
+  flat_type: string;
+  town_classification: string;
+  resale_price: number;
+  adjusted_price: number;
+  price_per_sqm: number;
+  adjusted_price_per_sqm: number;
+}
+
+interface MaturityPrice {
+  year: string;
+  mature: Array<number>;
+  nonMature: Array<number>;
+}
+
+interface RatioDataEntry {
+  year: string;
+  flat_type: string;
+  ratio: number;
+}
+
+interface IncomeDataEntry {
+  year: string;
+  flat_type: string;
+  average_household_income: number; // Ensure this is number after loading and conversion
+}
+
+interface Filter {
+  year: Array<string>;
+  flatTypes: Array<string>;
+}
+
+const preferences = {
+  bus: 4,
+  school: 1,
+  mall: 2,
+  supermarket: 1,
+  cbd: 0,
+  hawker: 1,
+  park: 1,
+  mrt: 2,
+};
+
+const filter = {
+  min_price: 0,
+  max_price: 1500000,
+  min_remaining_lease: 0,
+  region: "West",
+  flat_type: "3 ROOM",
+};
 
 export default function Overview() {
+  const [years, setYears] = useState<string[]>(["All"]);
+  const [flatTypes, setFlatTypes] = useState<string[]>(["All"]);
+  const [selectedFilter, setSelectedFilter] = useState<Filter>({
+    year: years,
+    flatTypes: flatTypes,
+  });
+  const [maturityPrice, setMaturityPrice] = useState<MaturityPrice[]>([
+    {
+      year: "",
+      mature: [],
+      nonMature: [],
+    },
+  ]);
+  const [medianAdjustedPrices, setMedianAdjustedPrices] = useState<
+    MedianAdjustedPriceEntry[]
+  >([
+    {
+      year: "",
+      flat_type: "",
+      resale_price: 0,
+      town_classification: "",
+      adjusted_price: 0,
+      price_per_sqm: 0,
+      adjusted_price_per_sqm: 0,
+    },
+  ]);
+  const [ratioData, setRatioData] = useState<RatioDataEntry[]>([]);
+  const [hdbData, setHdbData] = useState<HDBData[]>([]);
+  const [incomeData, setIncomeData] = useState<IncomeData[]>([]);
+  const [filteredHDBData, setFilteredHDBData] = useState<HDBData[]>([]);
+
+  // Upon initial load, fetch the data
+  useEffect(() => {
+    // Load HDB data from CSV files
+    d3.csv("/datasets/hdb/hdb_scaled.csv").then((data) => {
+      setHdbData(
+        data.map((d) => ({
+          town: d["town"],
+          flat_type: d["flat_type"],
+          floor_area: +d["floor_area"],
+          resale_price: +d["resale_price"],
+          year: d["year"],
+          adjusted_price: +d["adjusted_price"],
+          price_per_sqm: +d["price_per_sqm"],
+          adjusted_price_per_sqm: +d["adjusted_price_per_sqm"],
+          town_classification: d["town_classification"],
+        }))
+      );
+    });
+
+    // Load income data from CSV files
+    d3.csv("/datasets/income/average_income_by_household.csv").then((data) => {
+      setIncomeData(
+        data.map((d) => ({
+          year: d["year"],
+          flat_type: d["flat_type"],
+          average_household_income: +d["average_household_income"],
+        }))
+      );
+    });
+
+    // Load the median price data from the CSV file
+    d3.csv("/datasets/hdb/median_price.csv").then((data) => {
+      setMedianAdjustedPrices(
+        data.map((d) => ({
+          year: d["year"],
+          flat_type: d["flat_type"],
+          town_classification: d["town_classification"],
+          resale_price: +d["resale_price"],
+          adjusted_price: +d["adjusted_price"],
+          price_per_sqm: +d["price_per_sqm"],
+          adjusted_price_per_sqm: +d["adjusted_price_per_sqm"],
+        }))
+      );
+    });
+
+    // Set the unique years
+    const uniqueYears: string[] = Array.from(
+      new Set(hdbData.map((d) => d.year))
+    );
+    uniqueYears.sort();
+    uniqueYears.unshift("All");
+    setYears(uniqueYears);
+
+    // Set the unique flat types
+    const uniqueFlatTypes: string[] = Array.from(
+      new Set(hdbData.map((d) => d.flat_type))
+    );
+    uniqueFlatTypes.sort();
+    uniqueFlatTypes.unshift("All");
+    setFlatTypes(uniqueFlatTypes);
+
+    // Set the unique maturity estates
+    // const uniqueMaturities : string[] = Array.from(new Set(hdbData.map(d => d.town_classification)));
+    // uniqueMaturities.sort();
+    // uniqueMaturities.unshift("All");
+    // setMaturityEstates(uniqueMaturities);
+  }, []);
+
+  // console.log(hdbData);
+  // console.log(incomeData);
+  // console.log(medianAdjustedPrices);
+  // console.log(years);
+  // console.log(flatTypes);
+  // console.log(maturityEstates);
+
+  const handleFilterChange = (
+    event: React.ChangeEvent<HTMLSelectElement>,
+    filterType: "year" | "flatTypes"
+  ) => {
+    let value = Array.from(
+      event.target.selectedOptions,
+      (option) => option.value
+    );
+
+    // Special handling for "all" selection in flatTypes
+    if (filterType === "flatTypes") {
+      if (value.includes("All")) {
+        value = ["All"]; // Reset to "all" only, or handle as needed
+      }
+    }
+
+    setSelectedFilter((prevFilter) => ({
+      ...prevFilter,
+      [filterType]: value,
+    }));
+  };
+
+  function filterData(
+    data: (HDBData | IncomeData | MedianAdjustedPriceEntry)[],
+    filter: Filter
+  ) {
+    return data.filter(
+      (d) =>
+        (filter.year.includes("All") || filter.year.includes(d.year)) &&
+        (filter.flatTypes.includes("All") ||
+          filter.flatTypes.length === 0 || // You might not need this condition if "all" is always added
+          filter.flatTypes.includes(d.flat_type))
+    );
+  }
+
+  useEffect(() => {
+    const filterHDB = filterData(hdbData, selectedFilter);
+    setFilteredHDBData(filterHDB);
+    const filteredIncomeData = filterData(incomeData, selectedFilter);
+    const filteredMedianAdjustedPrices = filterData(
+      medianAdjustedPrices,
+      selectedFilter
+    );
+
+    setMedianAdjustedPrices(filteredMedianAdjustedPrices);
+
+    function calculateAverageResalePrice(data: HDBData[]) {
+      return d3
+        .rollups(
+          data,
+          (meanPrice) => {
+            d3.mean(meanPrice, (d) => (d as HDBData).resale_price);
+          },
+          (d) => [d.year, d.flat_type]
+        )
+        .map(([keys, value]) => ({
+          year: keys[0],
+          flat_type: keys[1],
+          mean: value,
+        }));
+    }
+
+    const avgResalePriceByYearAndType =
+      calculateAverageResalePrice(filteredHDBData);
+
+    function calculateRatioIncomePrice(
+      avgPrice: { year: string; flat_type: string; mean: number }[],
+      incomeData: IncomeData[]
+    ) {
+      return avgPrice
+        .map((d) => {
+          const income = incomeData.find(
+            (i) => i.year === d.year && i.flat_type === d.flat_type
+          );
+          if (income) {
+            return {
+              year: income.year,
+              flat_type: income.flat_type,
+              ratio: d.mean / income.average_household_income,
+            };
+          }
+          return null;
+        })
+        .filter((d) => d !== null);
+    }
+
+    const ratioData = calculateRatioIncomePrice(
+      avgResalePriceByYearAndType,
+      filteredIncomeData
+    );
+
+    const validRatioData = ratioData.filter(
+      (d): d is RatioDataEntry => d !== undefined
+    );
+    setRatioData(validRatioData);
+
+    setRatioData(ratioData);
+  }, [selectedFilter]);
+
+  // Load when filter input is changed
+  // useEffect(() => {
+  //   const processedData = calculateMedianAdjustedPrices(
+  //     filterData(loadedData, selectedFilter)
+  //   );
+  //   setMedianAdjustedPrices(processedData);
+
+  //   // Convert string values to appropriate types
+  //   const hdbProcessed = hdbData.map((d) => ({
+  //     ...d,
+  //     year: d.year,
+  //     flat_type: d.flat_type,
+  //     resale_price: +d.resale_price,
+  //   }));
+
+  //   const incomeProcessed = incomeData.map((d) => ({
+  //     ...d,
+  //     year: d.year,
+  //     flat_type: d.flat_type.trim(), // Ensuring flat_type consistency
+  //     average_household_income: +d.average_household_income,
+  //   }));
+
+  //   // Aggregate HDB data for average resale price by flat type and year
+  //   const avgResalePriceByYearAndType = d3.rollups(
+  //     hdbProcessed,
+  //     (v) => d3.mean(v, (d) => d.resale_price),
+  //     (d) => `${d.year}-${d.flat_type}`
+  //   );
+
+  //   const ratioData: RatioDataEntry[] = avgResalePriceByYearAndType
+  //     .map(([key, avgResalePrice]) => {
+  //       const [year, flat_type] = key.split("-");
+  //       const incomeKey = key; // Matching key for income data
+  //       const average_household_income = incomeProcessed.find(
+  //         (d) => `${d.year}-${d.flat_type}` === incomeKey
+  //       )?.average_household_income;
+
+  //       return average_household_income
+  //         ? {
+  //             year: d3.timeParse("%Y")(year) as Date, // Cast to Date to satisfy type expectation
+  //             flat_type,
+  //             ratio: avgResalePrice / average_household_income,
+  //           }
+  //         : null;
+  //     })
+  //     .filter((d): d is RatioDataEntry => d !== null); // Type guard to filter out nulls and satisfy TypeScript
+
+  //     // Update state with the prepared ratioData
+  //     const validRatioData = ratioData.filter(
+  //       (d): d is RatioDataEntry => d !== undefined
+  //     );
+  //     setRatioData(validRatioData);
+
+  //     setRatioData(ratioData);
+  //   } catch (error) {
+  //     console.error("Error loading data: ", error);
+  //   }
+  // };
+
+  // loadData();
+  // }, [selectedFilter]);
+
+  // const filterData = (data: DataEntry[], filter: typeof selectedFilter) => {
+  //   return data.filter(
+  //     (d) =>
+  //       (filter.year.includes("all") || filter.year.includes(d.year)) &&
+  //       (filter.flatTypes.includes("all") ||
+  //         filter.flatTypes.length === 0 || // You might not need this condition if "all" is always added
+  //         filter.flatTypes.includes(d.flat_type))
+  //   );
+  // };
+
+  // const calculateMedianAdjustedPrices = (
+  //   filteredData: DataEntry{}
+  // ): MedianAdjustedPriceEntry[] => {
+  //   const parseYear = d3.timeParse("%Y");
+  //   const groupedByYear = d3.groups(filteredData, (d) => d.year);
+
+  //   return groupedByYear.map(([year, entries]) => {
+  //     const matureEntries = entries.filter(
+  //       (e) => e.town_classification === "Mature"
+  //     );
+  //     const nonMatureEntries = entries.filter(
+  //       (e) => e.town_classification === "Non-Mature"
+  //     );
+
+  //     const matureMedian =
+  //       matureEntries.length > 0
+  //         ? d3.median(matureEntries, (e) => e.adjusted_price)
+  //         : 0;
+  //     const nonMatureMedian =
+  //       nonMatureEntries.length > 0
+  //         ? d3.median(nonMatureEntries, (e) => e.adjusted_price)
+  //         : 0;
+
+  //     return {
+  //       year: parseYear(year),
+  //       mature: matureMedian,
+  //       nonMature: nonMatureMedian,
+  //     };
+  //   });
+  // };
+  // const handleFilterChange = (
+  //   event: React.ChangeEvent<HTMLSelectElement>,
+  //   filterType: "year" | "flatTypes"
+  // ) => {
+  //   let value = Array.from(
+  //     event.target.selectedOptions,
+  //     (option) => option.value
+  //   );
+
+  //   // Special handling for "all" selection in flatTypes
+  //   if (filterType === "flatTypes") {
+  //     if (value.includes("all")) {
+  //       value = ["all"]; // Reset to "all" only, or handle as needed
+  //     }
+  //   }
+
+  //   setSelectedFilter((prevFilter) => ({
+  //     ...prevFilter,
+  //     [filterType]: value,
+  //   }));
+  // };
+
+  // const filteredData = filterData(data, selectedFilter);
+
   const navigate = useNavigate();
 
   const handleDashboardButton = () => {
     navigate("./recommend");
   };
-  const dataUrl = "../src/assets/datasets/hdb/hdb_intro_map.json"; // Update this with the actual path
-  const topojsonUrl = "../src/assets/datasets/map/singapore_intro_map.json"; // Update this with the actual path
 
   return (
     <>
@@ -30,11 +445,8 @@ export default function Overview() {
               <p className="font-bold text-5xl pb-5">Housing in Singapore</p>
               <p className="text-3xl">Finding the right home in Singapore</p>
             </div>
-            <div className="flex justify-content content-center">
-              <img
-                src="https://hecksrealty.com/wp-content/uploads/2020/02/SingaporeDistrictCode-MapDemarcation624x350-1.png"
-                className="w-4/5"
-              />
+            <div className="flex justify-content content-center pl-5">
+              <Map width={500} height={500} />
             </div>
           </div>
           <div className="absolute bottom-20 text-center align-center">
@@ -66,10 +478,11 @@ export default function Overview() {
         <div className="flex justify-center">
           <div className="w-3/4">
             <p className="text-3xl font-bold pb-5">The Singapore Scene</p>
-            {/* helo ini map ya */}
-            <div className="float-right pl-20">
-              <MapIntro dataUrl={dataUrl} topojsonUrl={topojsonUrl} />
-            </div>
+            <img
+              src="https://helpcodenow.files.wordpress.com/2019/06/map_white_bg.png"
+              width="600"
+              className="float-right pl-20"
+            />
             <p className="text-lg text-justify pt-5 pb-10">
               In Singapore, the general trend has been that resale prices are
               higher in mature estates, particularly in central areas, as
@@ -274,13 +687,51 @@ export default function Overview() {
         </div>
       </CustomContainer>
 
-      {/* <div className = "overview">
-        <h1 id="section">Finding Home is Difficult</h1>
-        <p>"Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. </p>
-        <p>Take a look at the choropleth below. Hover on any area, and you will see that houses are EXPENSIVE.</p>
-        <Button variant="outline">Button</Button>
-        <Test />
-      </div>} */}
+      <div className="filter-selector">
+        <label htmlFor="year-select">Select Year: </label>
+        <select
+          multiple // Added to enable multiple selections
+          id="year-select"
+          value={selectedFilter.year}
+          onChange={(e) => handleFilterChange(e, "year")}
+          size={years.length} // Adjust as needed
+        >
+          {years.map((year) => (
+            <option key={year} value={year}>
+              {year}
+            </option>
+          ))}
+        </select>
+      </div>
+
+      {/* Flat Type Selector */}
+      <div className="filter-selector">
+        <label htmlFor="flat-type-select">Flat Type: </label>
+        <select
+          multiple
+          id="flat-type-select"
+          value={selectedFilter.flatTypes}
+          onChange={(e) => handleFilterChange(e, "flatTypes")}
+          size={flatTypes.length}
+        >
+          <option value="all">All</option>
+          {flatTypes.map((type) => (
+            <option key={type} value={type}>
+              {type}
+            </option>
+          ))}
+        </select>
+      </div>
+
+      <Resale_Flat_Hdb data={filteredHDBData} selectedFilter={selectedFilter} />
+      <MedianMaturityPriceChart
+        data={medianAdjustedPrices}
+        selectedFilter={selectedFilter}
+      />
+      {/* <OwnershipTimeChart
+        data={ratioData}
+        selectedFilter={selectedFilter} // Change to pass the entire selectedFilter object
+      /> */}
     </>
   );
 }
