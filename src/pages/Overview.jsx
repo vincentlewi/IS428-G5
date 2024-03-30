@@ -3,8 +3,7 @@ import Nav from '@/components/ui/nav'
 import { Button } from "@/components/ui/button"
 import Map from '@/components/d3/map'
 import SingaporeMap from '@/components/d3/mapVisualisation'
-import MultilineChart from '@/components/d3/multilineChart'
-
+import MultilineChart from '@/components/d3/multilineChart.jsx'
 import { Recommend } from '@/components/d3/recommend'
 
 const preferences = {
