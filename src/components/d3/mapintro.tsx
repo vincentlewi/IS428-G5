@@ -106,9 +106,9 @@ const MapIntro: React.FC<MapIntroProps> = ({ dataUrl, topojsonUrl }) => {
     const pathGenerator = d3.geoPath().projection(projection);
 
     const colorScale = d3
-      .scaleLinear()
-      .domain([0, maxPrice]) // Set the domain from the minimum value (0) to the maximum value of your data
-      .range(["#F3EDC8", "#BF3131"]); //
+      .scaleSequential()
+      .domain([0, maxPrice])
+      .interpolator(d3.interpolate("#F3EDC8", "#BF3131")); //
     // Draw the map
     svg
       .selectAll(".region")
@@ -185,16 +185,20 @@ const MapIntro: React.FC<MapIntroProps> = ({ dataUrl, topojsonUrl }) => {
     });
   }, [geoData, currentYear]); // Depend on geoData and currentYear
 
-  function useInterval(callback, delay) {
-    const savedCallback = useRef();
+  function useInterval(callback: () => void, delay: number | null) {
+    const savedCallback = useRef<() => void>();
 
+    // Remember the latest callback.
     useEffect(() => {
       savedCallback.current = callback;
     }, [callback]);
 
+    // Set up the interval.
     useEffect(() => {
       function tick() {
-        savedCallback.current();
+        if (savedCallback.current) {
+          savedCallback.current();
+        }
       }
       if (delay !== null) {
         let id = setInterval(tick, delay);
