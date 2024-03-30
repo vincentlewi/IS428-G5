@@ -43,7 +43,6 @@ export default function Overview() {
         <SingaporeMap/>
         <MultilineChart />
         <Treemap/>
-        <DiscoveryRadar/>
       </div>
     </>
   )
