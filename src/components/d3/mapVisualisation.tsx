@@ -89,8 +89,13 @@ const SingaporeMap = () => {
         .attr('width', width)
         .attr('height', height)
 
+        const singaporeGeoJSONWithGeometries = {
+          ...singaporeGeoJSON,
+          geometries: singaporeGeoJSON.features.map((feature: any) => feature.geometry),
+        };
+
       // Initialize projection and path
-      const projection = d3.geoMercator().fitSize([width, height], singaporeGeoJSON);
+      const projection = d3.geoMercator().fitSize([width, height], singaporeGeoJSONWithGeometries);
       const path = d3.geoPath().projection(projection);
       const tooltip = d3.select("body").append("div")
         .attr("class", "tooltip")
@@ -115,7 +120,7 @@ const SingaporeMap = () => {
       svg.selectAll('.singapore-map')
         .data(singaporeGeoJSON?.features ?? [])
         .join('path')
-        .attr('d', path)
+        .attr('d', (d: any) => path(d.geometry)) // Add the 'geometry' property to the 'path' function
         .style('fill', 'lightgrey')
         .style('stroke', 'black');
 
