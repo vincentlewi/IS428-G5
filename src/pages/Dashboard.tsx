@@ -15,6 +15,7 @@ import { useEffect, useState } from 'react'
 import { Recommend } from '@/components/d3/recommend'
 import { MultiSlider } from '@/components/ui/multiSlider'
 import { Slider } from '@/components/ui/slider'
+import DiscoveryRadar from '@/components/d3/radar'
 
 const default_filter = {
   min_price: 0,
@@ -126,6 +127,7 @@ export default function Dashboard() {
       : <p>Sorry, we couldn't find any house to recommend.</p>
       }
       </div>
+      <DiscoveryRadar options={{variables: [], sets:topHouses}}/>
     </>
   )
 }

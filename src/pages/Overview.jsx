@@ -6,6 +6,7 @@ import SingaporeMap from '@/components/d3/mapVisualisation'
 import MultilineChart from '@/components/d3/multilineChart.jsx'
 import { Recommend } from '@/components/d3/recommend'
 import Treemap from '@/components/d3/treemap'
+import DiscoveryRadar from '@/components/d3/radar'
 
 const preferences = {
   bus: 4,
