@@ -1,4 +1,5 @@
-import './Overview.css'
+import "./Overview.css";
+import React, { useEffect, useState } from "react";
 import Nav from '@/components/ui/nav'
 import { Button } from "@/components/ui/button"
 import Map from '@/components/d3/map';
@@ -7,8 +8,72 @@ import ScrollIntoView from 'react-scroll-into-view';
 import { ArrowBigDown } from 'lucide-react';
 import { Wave } from 'react-animated-text';
 import { useNavigate } from 'react-router-dom';
+import OwnershipTimeChart from '@/components/d3/OwnershipTimeChart';
+import Resale_Flat_Hdb from '@/components/d3/Resale_Flat_Hdb';
+import MedianMaturityPriceChart from '@/components/d3/medianmaturity';
+import * as d3 from "d3";
+import { Recommend } from '@/components/d3/recommend';
 
-import { Recommend } from '@/components/d3/recommend'
+interface HDBData {
+  town: string;
+  flat_type: string;
+  floor_area: number;
+  resale_price: number;
+  year: string;
+  adjusted_price: number;
+  price_per_sqm: number;
+  adjusted_price_per_sqm: number;
+  town_classification: string;
+}
+
+interface DataEntry {
+  year: string;
+  maturity: string;
+  flat_type: string;
+  adjusted_price: number;
+  town_classification: string;
+  resale_price: string;
+  average_household_income: string;
+}
+
+interface IncomeData {
+  year: string;
+  flat_type: string;
+  average_household_income: number;
+}
+
+interface MedianAdjustedPriceEntry {
+  year: string;
+  flat_type: string;
+  town_classification: string;
+  resale_price: number;
+  adjusted_price: number;
+  price_per_sqm: number;
+  adjusted_price_per_sqm: number;
+}
+
+interface MaturityPrice {
+  year: string;
+  mature: Array<number>;
+  nonMature: Array<number>;
+}
+
+interface RatioDataEntry {
+  year: string;
+  flat_type: string;
+  ratio: number;
+}
+
+interface IncomeDataEntry {
+  year: string;
+  flat_type: string;
+  average_household_income: number; // Ensure this is number after loading and conversion
+}
+
+interface Filter {
+  year: Array<string>;
+  flatTypes: Array<string>;
+}
 
 const preferences = {
   bus: 4,
@@ -30,13 +95,181 @@ const filter = {
 }
 
 export default function Overview() {
+
+  
+  const [years, setYears] = useState<string[]>(['All']);
+  const [flatTypes, setFlatTypes] = useState<string[]>(['All']);
+  const [selectedFilter, setSelectedFilter] = useState<Filter>({ 
+    year: years, 
+    flatTypes: flatTypes });
+  const [maturityPrice, setMaturityPrice] = useState<MaturityPrice[]>([{
+    year: '',
+    mature: [],
+    nonMature: []
+  }])
+  const [medianAdjustedPrices, setMedianAdjustedPrices] = useState<MedianAdjustedPriceEntry[]>([{
+    year: '',
+    flat_type:'',
+    resale_price: 0,
+    town_classification: '',
+    adjusted_price: 0,
+    price_per_sqm: 0,
+    adjusted_price_per_sqm: 0
+  }]);
+  const [ratioData, setRatioData] = useState<RatioDataEntry[]>([]);
+  const [hdbData, setHdbData] = useState<HDBData[]>([]);
+  const [incomeData, setIncomeData] = useState<IncomeData[]>([]);
+  const [filteredHDBData, setFilteredHDBData] = useState<HDBData[]>([]);
+  const [filteredIncomeData, setFilteredIncomeData] = useState<IncomeData[]>([]);
+  const [filteredMedianAdjustedPrices, setFilteredMedianAdjustedPrices] = useState<MedianAdjustedPriceEntry[]>([]);
+
+  // Upon initial load, fetch the data
+  useEffect(() => {
+    // Load HDB data from CSV files
+    d3.csv("/datasets/hdb/hdb_scaled.csv").then((data) => {
+      setHdbData(data.map((d) => ({
+        town: d['town'],
+        flat_type: d['flat_type'],
+        floor_area: +d['floor_area'],
+        resale_price: +d['resale_price'],
+        year: d['year'],
+        adjusted_price: +d['adjusted_price'],
+        price_per_sqm: +d['price_per_sqm'],
+        adjusted_price_per_sqm: +d['adjusted_price_per_sqm'],
+        town_classification: d['town_classification']
+        })));
+    });
+
+    // Load income data from CSV files
+    d3.csv("/datasets/income/average_income_by_household.csv").then((data) => {
+      setIncomeData(data.map((d) => ({
+        year: d['year'],
+        flat_type: d['flat_type'],
+        average_household_income: +d['average_household_income']
+        })));
+    });
+
+    // Load the median price data from the CSV file
+    d3.csv("/datasets/hdb/median_price.csv").then((data) => {
+      setMedianAdjustedPrices(data.map((d) => ({
+        year: d['year'],
+        flat_type: d['flat_type'],
+        town_classification: d['town_classification'],
+        resale_price: +d['resale_price'],
+        adjusted_price: +d['adjusted_price'],
+        price_per_sqm: +d['price_per_sqm'],
+        adjusted_price_per_sqm: +d['adjusted_price_per_sqm']
+      })))});
+
+    // Set the unique years 
+    const uniqueYears : string[] = Array.from(new Set(hdbData.map(d => d.year)));
+    uniqueYears.sort();
+    uniqueYears.unshift("All");
+    setYears(uniqueYears);
+
+    // Set the unique flat types
+    const uniqueFlatTypes : string[] = Array.from(new Set(hdbData.map(d => d.flat_type)));
+    uniqueFlatTypes.sort();
+    uniqueFlatTypes.unshift("All");
+    setFlatTypes(uniqueFlatTypes);
+  } , []);
+  
+  
+
+  const handleFilterChange = (
+    event: React.ChangeEvent<HTMLSelectElement>,
+    filterType: "year" |  "flatTypes"
+  ) => {
+    let value = Array.from(
+      event.target.selectedOptions,
+      (option) => option.value
+    );
+
+    // Special handling for "all" selection in flatTypes
+    if (filterType === "flatTypes") {
+      if (value.includes("All")) {
+        value = ["All"]; // Reset to "all" only, or handle as needed
+      }
+    }
+
+    setSelectedFilter((prevFilter) => ({
+      ...prevFilter,
+      [filterType]: value,
+    }));
+  };
+
+  function filterData(data: (HDBData | IncomeData | MedianAdjustedPriceEntry)[], filter: Filter) {
+    return data.filter(
+      (d) =>
+        (filter.year.includes("All") || filter.year.includes(d.year)) &&
+        (filter.flatTypes.includes("All") || // You might not need this condition if "all" is always added
+          filter.flatTypes.includes(d.flat_type))
+    );
+  };
+
+  useEffect(() => {
+    const filterHDB = filterData(hdbData, selectedFilter);
+    setFilteredHDBData(filterHDB);
+    // console.log(filteredHDBData)
+    const filterIncomeData = filterData(incomeData, selectedFilter);
+    const filterMedianAdjustedPrices = filterData(medianAdjustedPrices, selectedFilter);
+    setFilteredIncomeData(filterIncomeData);
+    setFilteredMedianAdjustedPrices(filterMedianAdjustedPrices);
+
+  
+
+    const avgResalePriceByYearAndType = d3.rollups(
+      filteredHDBData,
+      (group) => d3.mean(group, d => d.resale_price), // Ensure this returns the mean
+      (d) => d.year,  // First level of grouping: by year
+      (d) => d.flat_type // Second level of grouping: by flat_type
+    ).map(([year, flatTypes]) => ({  
+      // This maps the nested structure into a flat one, if that's what you're looking for.
+      // Otherwise, you can adjust the structure as needed.
+      year: year,
+      flat_types: flatTypes.map(([flat_type, mean]) => ({
+        flat_type, mean
+      }))
+    }));
+    // console.log("avgResalePriceByYearAndType:", avgResalePriceByYearAndType);
+
+    function calculateRatioIncomePrice(avgPrice: { year: string; flat_types: { flat_type: string; mean: number; }[]; }[], incomeData: IncomeData[]) {
+      const ratios = [];
+  
+      // Iterate over each year entry in avgPrice
+      for (const priceEntry of avgPrice) {
+          const year = priceEntry.year;
+  
+          // Now, iterate over each flat_type within the year
+          for (const flatTypeEntry of priceEntry.flat_types) {
+              const income = incomeData.find(i => i.year === year && i.flat_type === flatTypeEntry.flat_type);
+              if (income) {
+                  // Calculate the ratio and add it to the ratios array
+                  ratios.push({
+                      year: year,
+                      flat_type: flatTypeEntry.flat_type,
+                      ratio: flatTypeEntry.mean / income.average_household_income
+                  });
+              }
+          }
+      }
+  
+      // It's not necessary to filter for nulls since we only push when we find a match
+      return ratios;
+  }
+
+    const ratioData = calculateRatioIncomePrice(avgResalePriceByYearAndType, filteredIncomeData);
+
+      setRatioData(ratioData);
+
+    }, [selectedFilter]);
+
   const navigate = useNavigate();
 
   const handleDashboardButton = () => {
     navigate('./recommend');
   }
 
-  console.log(Recommend(preferences, filter))
   return (
     <>
       <Nav activePage='overview'/>
@@ -51,8 +284,8 @@ export default function Overview() {
                 Finding the right home in Singapore
               </p>
             </div>
-            <div className="flex justify-content content-center">
-              <img src="https://hecksrealty.com/wp-content/uploads/2020/02/SingaporeDistrictCode-MapDemarcation624x350-1.png" className="w-4/5"/>
+            <div className="flex justify-content content-center pl-5">
+              <Map width={500} height={500}/>
             </div>
           </div>
           <div className="absolute bottom-20 text-center align-center">
@@ -165,13 +398,51 @@ export default function Overview() {
         </div>
       </CustomContainer>
 
-      {/* <div className = "overview">
-        <h1 id="section">Finding Home is Difficult</h1>
-        <p>"Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. </p>
-        <p>Take a look at the choropleth below. Hover on any area, and you will see that houses are EXPENSIVE.</p>
-        <Button variant="outline">Button</Button>
-        <Test />
-      </div>} */}
+      <div className="filter-selector">
+        <label htmlFor="year-select">Select Year: </label>
+        <select
+          multiple // Added to enable multiple selections
+          id="year-select"
+          value={selectedFilter.year}
+          onChange={(e) => handleFilterChange(e, "year")}
+          size={years.length} // Adjust as needed
+        >
+          {years.map((year) => (
+            <option key={year} value={year}>
+              {year}
+            </option>
+          ))}
+        </select>
+      </div>
+  
+        {/* Flat Type Selector */}
+        <div className="filter-selector">
+          <label htmlFor="flat-type-select">Flat Type: </label>
+          <select
+            multiple
+            id="flat-type-select"
+            value={selectedFilter.flatTypes}
+            onChange={(e) => handleFilterChange(e, "flatTypes")}
+            size={flatTypes.length}
+          >
+            <option value="all">All</option>
+            {flatTypes.map((type) => (
+              <option key={type} value={type}>
+                {type}
+              </option>
+            ))}
+          </select>
+        </div>
+
+        <Resale_Flat_Hdb data={filteredHDBData} selectedFilter={selectedFilter} />
+        <MedianMaturityPriceChart
+          data={filteredMedianAdjustedPrices}
+          selectedFilter={selectedFilter}
+        />
+        <OwnershipTimeChart
+          data={ratioData}
+          selectedFilter={selectedFilter} // Change to pass the entire selectedFilter object
+        />
     </>
   )
 }

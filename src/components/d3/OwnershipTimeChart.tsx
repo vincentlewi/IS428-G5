@@ -1,9 +1,14 @@
 import React, { useEffect, useRef } from "react";
 import * as d3 from "d3";
-// import { RatioDataEntry } from "../pages/Overview.tsx"; // Adjust the import path as needed
+
+interface RatioDataEntry {
+  year: string;
+  flat_type: string;
+  ratio: number;
+}
 
 interface OwnershipTimeChartProps {
-  data: [];
+  data: RatioDataEntry[];
   selectedFilter: {
     year: string[];
     flatTypes: string[]; // Ensure this matches the structure in Overview.tsx
@@ -23,55 +28,57 @@ const OwnershipTimeChart: React.FC<OwnershipTimeChartProps> = ({
       const margin = { top: 70, right: 30, bottom: 40, left: 80 },
         width = 960 - margin.left - margin.right,
         height = 500 - margin.top - margin.bottom;
-      console.log(data);
       const svg = d3
         .select(svgElement)
         .attr("width", width + margin.left + margin.right)
         .attr("height", height + margin.top + margin.bottom);
 
       svg.selectAll("*").remove(); // Clear the svg for redrawing
-
+      // console.log("data", data);
       const g = svg
         .append("g")
         .attr("transform", `translate(${margin.left},${margin.top})`);
 
-      const filteredData = data.filter((d) => {
-        const yearAsString = d.year.getFullYear().toString();
-        const yearMatches =
-          selectedFilter.year.includes("all") ||
-          selectedFilter.year.includes(yearAsString);
-        const flatTypeMatches =
-          selectedFilter.flatTypes.includes("all") ||
-          selectedFilter.flatTypes.length === 0 ||
-          selectedFilter.flatTypes.includes(d.flat_type);
-        return yearMatches && flatTypeMatches;
-      });
+      // const filteredData = data.filter((d) => {
+      //   const yearAsString = d.year;
+      //   const yearMatches =
+      //     selectedFilter.year.includes("all") ||
+      //     selectedFilter.year.includes(yearAsString);
+      //   const flatTypeMatches =
+      //     selectedFilter.flatTypes.includes("all") ||
+      //     selectedFilter.flatTypes.length === 0 ||
+      //     selectedFilter.flatTypes.includes(d.flat_type);
+      //   return yearMatches && flatTypeMatches;
+      // });
+      // console.log("filteredData", filteredData);
+      // const minYear = d3.min(data, (d) => new Date(d.year));
+      const maxRatio = d3.max(data, (d) => d.ratio);
 
       // Scales
       const xScale = d3
         .scaleTime()
-        .domain(d3.extent(filteredData, (d) => d.year) as [Date, Date])
+        .domain(d3.extent(data, (d) => new Date(d.year)) as [Date, Date])
         .range([0, width]);
 
       const yScale = d3
         .scaleLinear()
-        .domain([0, d3.max(filteredData, (d) => d.ratio)])
+        .domain([0, maxRatio || 0])
         .range([height, 0]);
 
       // Line generator
       const lineGenerator = d3
         .line<RatioDataEntry>()
-        .x((d) => xScale(d.year))
+        .x((d) => xScale(new Date(d.year)))
         .y((d) => yScale(d.ratio));
 
       // Define the color scale
       const colorScale = d3.scaleOrdinal(d3.schemeCategory10);
 
       // Group the data by flat type
-      const dataByFlatType = d3.groups(filteredData, (d) => d.flat_type);
+      const dataByFlatType = d3.groups(data, (d) => d.flat_type);
 
       // Draw the line for each flat type
-      dataByFlatType.forEach(([flat_Type, values], index) => {
+      dataByFlatType.forEach(([flat_type, values], index) => {
         g.append("path")
           .datum(values)
           .attr("fill", "none")

@@ -1,36 +1,34 @@
 import React, { useEffect, useRef } from "react";
 import * as d3 from "d3";
 
-interface DataEntry {
-  year: string;
-  maturity: string;
+interface HDBData {
+  town: string;
   flat_type: string;
+  floor_area: number;
+  resale_price: number;
+  year: string;
   adjusted_price: number;
+  price_per_sqm: number;
+  adjusted_price_per_sqm: number;
   town_classification: string;
-  resale_price: string;
-  average_household_income: string;
 }
 
 interface ResaleFlatHdbProps {
-  data: DataEntry[];
+  data: HDBData[];
   selectedFilter: {
     year: string[];
-    maturity: string;
     flatTypes: string[];
   };
 }
 
-const Resale_Flat_Hdb: React.FC<ResaleFlatHdbProps> = ({
-  data,
-  selectedFilter,
-}) => {
+const Resale_Flat_Hdb: React.FC<ResaleFlatHdbProps> = ({ data, selectedFilter }) => {
   const chartRef = useRef(null);
 
   useEffect(() => {
     if (data && data.length > 0) {
       const svgContainer = d3.select(chartRef.current);
       svgContainer.selectAll("*").remove();
-
+    
       const svg = svgContainer
         .append("svg")
         .attr("width", 1000)
@@ -44,7 +42,7 @@ const Resale_Flat_Hdb: React.FC<ResaleFlatHdbProps> = ({
 
   function updateChart(
     svg: d3.Selection<SVGGElement, unknown, null, undefined>,
-    data: DataEntry[],
+    data: HDBData[],
     selectedFilter: ResaleFlatHdbProps["selectedFilter"]
   ) {
     const margin = { top: 50, right: 30, bottom: 70, left: 100 },
@@ -57,30 +55,28 @@ const Resale_Flat_Hdb: React.FC<ResaleFlatHdbProps> = ({
     let processedData = data
       .filter(
         (d) =>
-          selectedFilter.year.includes("all") ||
+          selectedFilter.year.includes("All") ||
           selectedFilter.year.includes(d.year)
       )
       .filter(
         (d) =>
-          selectedFilter.maturity === "All" ||
-          d.maturity === selectedFilter.maturity
-      )
-      .filter(
-        (d) =>
-          selectedFilter.flatTypes.includes("all") ||
-          selectedFilter.flatTypes.length === 0 ||
+          selectedFilter.flatTypes.includes("All") ||
           selectedFilter.flatTypes.includes(d.flat_type)
       );
 
     // Rollup and sort data, then take top 5
-    processedData = d3
+    const newProcessedData = d3
       .rollups(
         processedData,
         (v) => v.length,
         (d) => d.town
       )
       .sort((a, b) => b[1] - a[1])
-      .slice(0, 5); // Take only top 5
+      .slice(0, 5)
+      .map(([keys, value]) => ({
+        town: keys,
+        count: value,
+      })); // Take only top 5
 
     // The rest of your D3 code to draw the chart remains the same
     // Color scale, X axis, Y axis, Bars, and Chart title
@@ -88,7 +84,7 @@ const Resale_Flat_Hdb: React.FC<ResaleFlatHdbProps> = ({
     // Color scale
     const color = d3
       .scaleOrdinal()
-      .domain(processedData.map((d) => d[0]))
+      .domain(newProcessedData.map((d) => d.town))
       .range(d3.schemeTableau10);
 
     // Define the tooltip for the chart
@@ -103,11 +99,13 @@ const Resale_Flat_Hdb: React.FC<ResaleFlatHdbProps> = ({
       .style("padding", "10px")
       .style("box-shadow", "2px 2px 5px rgba(0,0,0,0.2)")
       .style("pointer-events", "none"); // This line ensures the tooltip does not interfere with mouse events.
+    
+    const maxCount = d3.max(newProcessedData, (d) => d.count);
 
     // X axis
     const x = d3
       .scaleLinear()
-      .domain([0, d3.max(processedData, (d) => d[1])])
+      .domain([0, maxCount || 0 ])
       .range([0, width]);
 
     // Draw the x-axis with gridlines
@@ -122,24 +120,25 @@ const Resale_Flat_Hdb: React.FC<ResaleFlatHdbProps> = ({
     const y = d3
       .scaleBand()
       .range([0, height])
-      .domain(processedData.map((d) => d[0]))
+      .domain(newProcessedData.map((d) => d.town))
       .padding(0.1);
+    
 
     svg.append("g").call(d3.axisLeft(y));
 
     // Bars
     svg
       .selectAll("rect")
-      .data(processedData)
+      .data(newProcessedData)
       .enter()
       .append("rect")
       .attr("x", x(0))
-      .attr("y", (d) => y(d[0]))
-      .attr("width", (d) => x(d[1]))
+      .attr("y", (d) => y(d.town) as number) // Ensure a valid value is assigned to 'y'
+      .attr("width", (d) => x(d.count))
       .attr("height", y.bandwidth())
-      .attr("fill", (d) => color(d[0]))
+      .attr("fill", (d) => color(d.town) as string) // Add type annotation to ensure a valid value is returned
       .on("mouseover", (event, d) => {
-        tooltip.style("visibility", "visible").text(`${d[0]}: ${d[1]}`);
+        tooltip.style("visibility", "visible").text(`${d.town}: ${d.count}`);
       })
       .on("mousemove", (event) => {
         tooltip
@@ -174,9 +173,9 @@ const Resale_Flat_Hdb: React.FC<ResaleFlatHdbProps> = ({
         title += ` in ${selectedFilter.year[0]}`; // Single year selected
       }
     }
-    if (selectedFilter.maturity !== "All") {
-      title += ` - ${selectedFilter.maturity} Estates`;
-    }
+    // if (selectedFilter.maturity !== "All") {
+    //   title += ` - ${selectedFilter.maturity} Estates`;
+    // }
     if (
       !selectedFilter.flatTypes.includes("all") &&
       selectedFilter.flatTypes.length > 0
