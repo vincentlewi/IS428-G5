@@ -8,7 +8,7 @@ export default function Nav(props: NavProps) {
   const activePage = props.activePage
 
   return (
-    <nav className="flex items-center justify-between py-4">
+    <nav className="flex items-center justify-between py-4 px-4 sticky top-0 z-40 bg-white">
       <div>
         <a href="/" className="text-gray-800">Logo</a>
       </div>
