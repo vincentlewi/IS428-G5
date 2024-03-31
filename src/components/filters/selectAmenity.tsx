@@ -16,7 +16,7 @@ export default function SelectAmenity({setSelectedAmenity}: {setSelectedAmenity:
   return (
     <RadioGroup defaultValue="" onValueChange={(e) => setSelectedAmenity(e)}>
       {Object.keys(amenities).map((key) => (
-        <div className="flex items-center space-x-2">
+        <div className="flex items-center space-x-2" key={key}>
           <RadioGroupItem value={amenities[key]} id={key} />
           <Label htmlFor={key}>{key}</Label>
         </div>

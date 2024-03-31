@@ -20,10 +20,30 @@ import supermarketLocations from "@/assets/datasets/schools.json";
 type MapProps = {
   width: number
   height: number
-  points: { LATITUDE: string, LONGITUDE: string, address: string, town: string, flat_type: string }[]
+  points: House[]
   selectedAmenity: string
 }
-
+interface House {
+  LATITUDE: string
+  LONGITUDE: string
+  address: string
+  town: string
+  region: string
+  flat_type: string
+  floor_area_sqm: number
+  score: number
+  resale_price: number
+  remaining_lease: number
+  price_per_sqm: number
+  'bus_within_0.5': number
+  'school_within_2.0': number
+  'mall_within_2.0': number
+  'supermarket_within_0.5': number
+  cbd_distance: number
+  hawker_distance: number
+  park_distance: number
+  mrtlrt_distance: number
+}
 const amenities = {
   'bus': { locations: busLocations, icon: busIcon},
   'hawker': { locations: hawkerLocations, icon: hawkerIcon},
@@ -118,7 +138,7 @@ export default function Map({ width, height, points, selectedAmenity }: MapProps
   useEffect(() => {
     if (points) {
       const newPoints = points.map(point => {
-        const projected = projection([parseFloat(point.LONGITUDE), parseFloat(point.LATITUDE)]);
+        const projected = projection([+point.LONGITUDE, +point.LATITUDE]);
         // You can customize these attributes
         const circleAttributes: React.SVGProps<SVGCircleElement> = {
           cx: projected[0],

@@ -22,7 +22,7 @@ interface Filter {
 
 export async function Recommend( filter: Filter, preferences : Preferences) {
   // Load CSV data and compute scores for each house
-  let data = await d3.csv('/datasets/hdb/hdb_available_cleaned.csv')
+  let data: any = await d3.csv('/datasets/hdb/hdb_available_cleaned.csv')
   data = data.filter((house) => !(+house['resale_price'] < filter.min_price || 
                                   +house['resale_price'] > filter.max_price || 
                                   +house['remaining_lease'] < filter.min_remaining_lease || 
@@ -42,19 +42,19 @@ export async function Recommend( filter: Filter, preferences : Preferences) {
     return({ 
       ...house,
       price_per_sqm: +house['resale_price'] / +house['floor_area_sqm'],
-      score: preferences.bus * (log_bus / 2.772588722239781) +
-              preferences.school * (log_school / 2.833213344056216) +
-              preferences.mall * (log_mall / 1.791759469228055) +
-              preferences.supermarket * (log_supermarket / 1.0986122886681098) +
-              preferences.cbd * (2.6561072220310518 - log_cbd) +
-              preferences.hawker * (0.4868281744936002 - log_hawker) +
-              preferences.park * (0.5096731599345877 - log_park) +
-              preferences.mrt * (0.4227980215034163 - log_mrt)
+      score: preferences.bus * ((Math.log(+house['bus_within_0.5'] + 1) / 2.833213344056216) - 0.489301084236452) / (1.373641807199326 - 0.489301084236452) +
+             preferences.school * ((Math.log(+house['school_within_2.0'] + 1) / 2.833213344056216) - 0) / (1.327538613914891 - 0) +
+             preferences.mall * ((Math.log(+house['mall_within_2.0'] + 1) / 1.791759469228055) - 0) / (1.859738746970775 - 0) +
+             preferences.supermarket * ((Math.log(+house['supermarket_within_0.5'] + 1) / 1.0986122886681098) - 0) / (2.182658338644138 - 0) +
+             preferences.cbd * ((2.6918131575504636 - Math.log(+house['cbd_distance'] + 1)) - (-0.35970338335873064)) /  (1.7775188171402796 - (-0.35970338335873064)) +
+             preferences.hawker * ((0.5280186725354765 - Math.log(+house['hawker_distance'] + 1)) - (-0.8246116087100726)) / (0.49930002895364245 - (-0.8246116087100726)) +
+             preferences.park * ((0.5125843761855321 - Math.log(+house['park_distance'] + 1)) - (-0.7146231004033047)) / (0.4552574209939195 - (-0.7146231004033047	)) +
+             preferences.mrt * ((0.43037103127764664 - Math.log(+house['mrtlrt_distance'] + 1)) - (-1.0773561414005774)) / (0.40923204240852556 - (-1.0773561414005774))
     })
   })
 
   if (scoredHouses.length === 0) {
-    return([false])
+    return([])
   } else {
     let topScoringHouses = scoredHouses.sort((a, b) => b.score - a.score)
     if (topScoringHouses[0].score != 0) {
