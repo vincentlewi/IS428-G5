@@ -11,10 +11,10 @@ export default function multilineChart() {
 
   useEffect(() => {
     if (dataset.length > 0 && d3Container.current) {
-        const margin = { top: 20, right: 20, bottom: 30, left: 60 };
+        const margin = { top: 20, right: 10, bottom: 30, left: 20 };
         const legendMargin = { top: 20, right: 20, width: 150 };
-        const width = 960 - margin.left - margin.right;
-        const height = 500 - margin.top - margin.bottom;
+        const width = 500 - margin.left - margin.right;
+        const height = 300 - margin.top - margin.bottom;
         const svgWidth = width + margin.left + margin.right + legendMargin.width + legendMargin.right + 100;
         const svgHeight = height + margin.top + margin.bottom;
         
@@ -68,8 +68,8 @@ export default function multilineChart() {
         .attr('d', d => lineGenerator(d.value));
 
         // Legend setup
-        const legendSpace = 24; // Define spacing for the legend
-        const legendRectSize = 12; // Define the size of the legend marker
+        const legendSpace = 10; // Define spacing for the legend
+        const legendRectSize = 5; // Define the size of the legend marker
 
         // Create a legend group element
         const legend = svg.selectAll('.legend')
@@ -92,6 +92,7 @@ export default function multilineChart() {
         .attr('y', legendRectSize - 2)
         .text(d => d.key)
         .attr('text-anchor', 'start')
+        .attr('font-size', '10px')
         .style('alignment-baseline', 'middle')
         .style('fill', d => color(d.key));
 

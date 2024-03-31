@@ -232,7 +232,7 @@ const MapIntro: React.FC<MapIntroProps> = ({ dataUrl, topojsonUrl }) => {
   // In your component's return statement
   return (
     <div>
-      <svg ref={svgRef} width="800" height="700">
+      <svg ref={svgRef} width="800" height="800">
       <div style={{ textAlign: "center" }}>
         <button onClick={handlePlayPause}>
           {isPlaying ? "Pause" : "Play"}

@@ -9,8 +9,8 @@ const Treemap = () => {
     return d3.hierarchy(data).sum((d) => d.value).sort((a,b) => b.value - a.value)
   }, [data]);
 
-  const width = 800
-  const height = 600
+  const width = 700
+  const height = 500
 
 
 

@@ -16,6 +16,8 @@ import { Recommend } from '@/components/d3/recommend';
 import { DropdownFilter } from '@/components/ui/dropdownFilterGraph'
 import { DropdownFilterFlat } from "@/components/ui/dropdownFilterFlat";
 import MapIntro from "@/components/d3/map_intro";
+import Treemap from "@/components/d3/treemap";
+import MultilineChart from '@/components/d3/multilineChart.jsx'
 
 interface HDBData {
   town: string;
@@ -289,14 +291,14 @@ export default function Overview() {
   const navigate = useNavigate();
 
   const handleDashboardButton = () => {
-    navigate("./recommend");
+    navigate("./dashboard");
   };
   
   return (
     <>
       <Nav activePage="overview" />
       <CustomContainer
-        style={{ backgroundColor: "#deebf7" }}
+        style={{ backgroundColor: "#fdfaecff" }}
         className="content-center relative"
       >
         <div className="flex justify-center content-center">
@@ -332,7 +334,7 @@ export default function Overview() {
 
       <CustomContainer
         id="sg-scene"
-        style={{ backgroundColor: "#c6dbef" }}
+        style={{ backgroundColor: "#eae6d6ff" }}
         className="content-center relative"
       >
         <div className="flex justify-center">
@@ -388,7 +390,7 @@ export default function Overview() {
 
       <CustomContainer
         id="further-data"
-        style={{ backgroundColor: "#9ecae1" }}
+        style={{ backgroundColor: "#fdfaecff" }}
         className="content-center relative"
       >
         <div className="flex justify-center">
@@ -468,7 +470,7 @@ export default function Overview() {
 
       <CustomContainer
         id="decision-making"
-        style={{ backgroundColor: "#6baed6" }}
+        style={{ backgroundColor: "#eae6d6ff" }}
         className="content-center relative"
       >
         <div className="flex justify-center">
@@ -484,10 +486,14 @@ export default function Overview() {
               Singapore, and make an informed decision based on your preferences
               and budget.
             </p>
-            <img
-              src="https://datavizcatalogue.com/methods/images/top_images/line_graph.png"
-              width="100%"
-            />
+            <div className="grid grid-cols-2 gap-10">
+              <div>
+                <Treemap />
+              </div>
+              <div>
+                <MultilineChart />
+              </div>
+            </div>
           </div>
           <div className="absolute bottom-5 text-center align-center">
             <ScrollIntoView selector="#solution">
@@ -512,22 +518,15 @@ export default function Overview() {
 
       <CustomContainer
         id="solution"
-        style={{ backgroundColor: "#08306b" }}
+        style={{ backgroundColor: "#fdfaecff" }}
         className="content-center"
       >
         <div className="flex justify-center">
           <div className="w-3/4">
-            <p className="text-3xl font-bold pb-5 text-center text-zinc-50">
+            <p className="text-3xl font-bold pb-5 text-center">
               The Solution
             </p>
-            <div className="flex justify-center">
-              <img
-                src="https://i.redd.it/2kga3e4v4dx71.png"
-                width="50%"
-                className="pb-5"
-              />
-            </div>
-            <p className="text-lg text-justify pb-10 text-zinc-50">
+            <p className="text-lg text-justify pb-10">
               Our tool will provide you with a comprehensive overview of the
               prices of homes in different estates, and help you make the best
               decision on where to buy your home. By using our tool, you will be
@@ -536,7 +535,7 @@ export default function Overview() {
               and budget.
             </p>
             <div className="text-center">
-              <Button onClick={handleDashboardButton}>
+              <Button onClick={handleDashboardButton} >
                 Go to Dashboard
               </Button>
             </div>

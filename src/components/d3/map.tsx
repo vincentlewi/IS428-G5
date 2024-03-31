@@ -20,8 +20,8 @@ import supermarketLocations from "@/assets/datasets/schools.json";
 type MapProps = {
   width: number
   height: number
-  points: House[]
-  selectedAmenity: string
+  points?: House[]
+  selectedAmenity?: string
 }
 interface House {
   LATITUDE: string
