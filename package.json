@@ -29,6 +29,7 @@
     "lucide-react": "^0.358.0",
     "react": "^18.2.0",
     "react-animated-text": "^0.1.4",
+    "react-d3-radar": "^1.0.0-rc6",
     "react-dom": "^18.2.0",
     "react-router-dom": "^6.22.3",
     "react-scroll-into-view": "^2.1.2",
