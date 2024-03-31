@@ -1,0 +1,11 @@
+,Feature Id,Importances
+0,floor_area_sqm,29.504515497385434
+1,cbd_distance,17.325912522564707
+2,remaining_lease,13.679991151419145
+3,school_within_2.0,7.0481312566286
+4,mrtlrt_distance,6.891653348625881
+5,hawker_distance,5.6234038059219476
+6,mall_within_2.0,5.389397383714669
+7,park_distance,5.152727751743172
+8,supermarket_within_0.5,4.959990450789978
+9,bus_within_0.5,4.424276831206476

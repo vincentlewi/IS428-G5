@@ -3,8 +3,8 @@ import {
   Route,
   useLocation
 } from "react-router-dom";
-import Overview from "@/pages/Overview";
-import Recommend from "@/pages/Recommend";
+import Overview from "@/pages/Overview.tsx";
+import Dashboard from "@/pages/Dashboard";
 
 
 function App() {
@@ -12,7 +12,7 @@ function App() {
   return (
     <Routes location={location} key={location.pathname}>
       <Route index element={<Overview />}></Route>
-      <Route path="/recommend" element={<Recommend />}></Route>
+      <Route path="/dashboard" element={<Dashboard />}></Route>
     </Routes>
   )
 }
