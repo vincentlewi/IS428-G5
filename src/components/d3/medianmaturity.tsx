@@ -13,23 +13,21 @@ interface MedianAdjustedPriceEntry {
 
 interface Props {
   data: MedianAdjustedPriceEntry[];
-  selectedFilter: {
-    year: string[];
-    flatTypes: string[]; // Ensure this matches the structure in Overview.tsx
-  };
+  selectedFilter:string; // Ensure this matches the structure in Overview.tsx;
 }
 
 const MedianMaturityPriceChart: React.FC<Props> = ({ data, selectedFilter }) => {
   const d3Container = useRef<SVGSVGElement | null>(null);
   const [mature, setMature] = useState<MedianAdjustedPriceEntry[]>([]);
   const [nonMature, setNonMature] = useState<MedianAdjustedPriceEntry[]>([]);
+  
   useEffect(() => {
     if (data && d3Container.current) {
       const svgElement = d3Container.current;
-      const margin = { top: 70, right: 30, bottom: 40, left: 80 },
-        width = 960 - margin.left - margin.right,
-        height = 500 - margin.top - margin.bottom;
-
+      const margin = { top: 50, right: 50, bottom: 40, left: 40 },
+        width = 480 - margin.left - margin.right,
+        height = 300 - margin.top - margin.bottom;
+    
       // Set the outer dimensions of the SVG
       const svg = d3
         .select(svgElement)
@@ -52,8 +50,8 @@ const MedianMaturityPriceChart: React.FC<Props> = ({ data, selectedFilter }) => 
       );
       setNonMature(nonMaturePrice);
 
-      const minYear = d3.min(maturePrice, (d) => new Date(d.year));
-      const maxYear = d3.max(maturePrice, (d) => new Date(d.year));
+      const minYear = d3.min(maturePrice, (d) => new Date(d.year).getFullYear());
+      const maxYear = d3.max(maturePrice, (d) => new Date(d.year).getFullYear());
 
       // Scales
       const xScale = d3
@@ -64,30 +62,30 @@ const MedianMaturityPriceChart: React.FC<Props> = ({ data, selectedFilter }) => 
       const yScale = d3
         .scaleLinear()
         // .domain([0, d3.max(data, (d) => Math.max(d.resale_price)) || 0])
-        .domain([0, d3.max([...mature, ...nonMature], (d) => d.resale_price) || 0])
+        .domain([0, d3.max([...maturePrice, ...nonMaturePrice], (d) => d.resale_price) || 0])
         .range([height, 0]);
 
       // Line generators
       const lineMature = d3
         .line<MedianAdjustedPriceEntry>()
-        .x((mature) => xScale(new Date(mature.year)))
-        .y((mature) => yScale(mature.resale_price));
+        .x((maturePrice) => xScale(new Date(maturePrice.year).getFullYear()))
+        .y((maturePrice) => yScale(maturePrice.resale_price));
 
       const lineNonMature = d3
         .line<MedianAdjustedPriceEntry>()
-        .x((nonMature) => xScale(new Date(nonMature.year)))
-        .y((nonMature) => yScale(nonMature.resale_price));
+        .x((nonMaturePrice) => xScale(new Date(nonMaturePrice.year).getFullYear()))
+        .y((nonMaturePrice) => yScale(nonMaturePrice.resale_price));
 
       // Draw lines
       g.append("path")
-        .datum(mature)
+        .datum(maturePrice)
         .attr("fill", "none")
         .attr("stroke", "steelblue")
         .attr("stroke-width", 1.5)
         .attr("d", lineMature);
 
       g.append("path")
-        .datum(nonMature)
+        .datum(nonMaturePrice)
         .attr("fill", "none")
         .attr("stroke", "red")
         .attr("stroke-width", 1.5)
@@ -99,6 +97,23 @@ const MedianMaturityPriceChart: React.FC<Props> = ({ data, selectedFilter }) => 
         .call(d3.axisBottom(xScale));
 
       g.append("g").call(d3.axisLeft(yScale));
+
+      g
+      .append("text")
+      .attr("class", "chart-title")
+      .attr("x", width / 2)
+      .attr("y", -20)
+      .attr("text-anchor", "middle")
+      .style("font-size", "15px")
+      .style("text-decoration", "underline")
+      .text(generateChartTitle(selectedFilter));
+    
+      function generateChartTitle(
+        selectedFilter: Props["selectedFilter"]
+      ): string {
+        let title = `Mature vs. Non-Mature Median Price for ${selectedFilter} Flat Types`;
+        return title;
+      }
     }
   }, [data, selectedFilter]);
 

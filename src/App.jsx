@@ -3,7 +3,7 @@ import {
   Route,
   useLocation
 } from "react-router-dom";
-import Overview from "@/pages/Overview.tsx";
+import Overview from "@/pages/Overview";
 import Dashboard from "@/pages/Dashboard";
 
 

@@ -21,33 +21,73 @@ interface ResaleFlatHdbProps {
   };
 }
 
-const Resale_Flat_Hdb: React.FC<ResaleFlatHdbProps> = ({ data, selectedFilter }) => {
+const Resale_Flat_Hdb: React.FC<ResaleFlatHdbProps> = ({ data, selectedFilter, }) => {
   const chartRef = useRef(null);
-
-  useEffect(() => {
+  const resizeSVG = () => {
     if (data && data.length > 0) {
-      const svgContainer = d3.select(chartRef.current);
+      const container = chartRef.current;
+      if (!container) return;
+
+      const width = 500;
+      const height = 300;
+
+      const svgContainer = d3.select(container);
       svgContainer.selectAll("*").remove();
-    
+
       const svg = svgContainer
         .append("svg")
-        .attr("width", 1000)
-        .attr("height", 500)
+        .attr("width", width)
+        .attr("height", height)
         .append("g")
         .attr("transform", "translate(60,50)");
 
-      updateChart(svg, data, selectedFilter);
+      // Assuming you have a function updateChart that draws or updates the graph
+      updateChart(svg, data, selectedFilter, width, height);
     }
+  };
+
+  useEffect(() => {
+    resizeSVG();
+    // if (data && data.length > 0) {
+    //   const container = chartRef.current;
+    //   // if (!container) return;
+
+    //   const width = container.clientWidth;
+    //   const height = container.clientHeight;
+
+    //   const svgContainer = d3.select(container);
+    //   svgContainer.selectAll("*").remove();
+
+    //   const svg = svgContainer
+    //     .append("svg")
+    //     .attr("width", width)
+    //     .attr("height", height)
+    //     .append("g")
+    //     .attr("transform", "translate(60,50)");
+    //   // const svgContainer = d3.select(chartRef.current);
+    //   // svgContainer.selectAll("*").remove();
+    
+    //   // const svg = svgContainer
+    //   //   .append("svg")
+    //   //   .attr("width", 800)
+    //   //   .attr("height", 500)
+    //   //   .append("g")
+    //   //   .attr("transform", "translate(60,50)");
+
+    //   updateChart(svg, data, selectedFilter);
+    // }
   }, [data, selectedFilter]);
 
   function updateChart(
     svg: d3.Selection<SVGGElement, unknown, null, undefined>,
     data: HDBData[],
-    selectedFilter: ResaleFlatHdbProps["selectedFilter"]
-  ) {
+    selectedFilter: ResaleFlatHdbProps["selectedFilter"],
+    width: number,
+    height: number
+    ) {
     const margin = { top: 50, right: 30, bottom: 70, left: 100 },
-      width = 1000 - margin.left - margin.right,
-      height = 500 - margin.top - margin.bottom;
+      width_graph = width - margin.left - margin.right,
+      height_graph = height - margin.top - margin.bottom;
 
     svg.selectAll("*").remove();
 
@@ -106,20 +146,20 @@ const Resale_Flat_Hdb: React.FC<ResaleFlatHdbProps> = ({ data, selectedFilter })
     const x = d3
       .scaleLinear()
       .domain([0, maxCount || 0 ])
-      .range([0, width]);
+      .range([0, width_graph]);
 
     // Draw the x-axis with gridlines
     svg
       .append("g")
-      .attr("transform", `translate(0,${height})`)
-      .call(d3.axisBottom(x).tickSize(-height))
+      .attr("transform", `translate(0,${height_graph})`)
+      .call(d3.axisBottom(x).tickSize(-height_graph))
       .call((g) => g.select(".domain").remove()) // Optional: removes the axis line
       .call((g) => g.selectAll(".tick line").attr("stroke-opacity", 0.2)); // Optional: styles the gridlines
 
     // Y axis
     const y = d3
       .scaleBand()
-      .range([0, height])
+      .range([0, height_graph])
       .domain(newProcessedData.map((d) => d.town))
       .padding(0.1);
     
@@ -153,40 +193,25 @@ const Resale_Flat_Hdb: React.FC<ResaleFlatHdbProps> = ({ data, selectedFilter })
     svg
       .append("text")
       .attr("class", "chart-title")
-      .attr("x", width / 2)
+      .attr("x", width_graph / 2)
       .attr("y", -20)
       .attr("text-anchor", "middle")
-      .style("font-size", "20px")
+      .style("font-size", "15px")
       .style("text-decoration", "underline")
       .text(generateChartTitle(selectedFilter));
-  }
-
-  // Adjust the generateChartTitle function to correctly utilize selectedFilter
-  function generateChartTitle(
-    selectedFilter: ResaleFlatHdbProps["selectedFilter"]
-  ): string {
-    let title = "Top 5 Flats Sold";
-    if (!selectedFilter.year.includes("all")) {
-      if (selectedFilter.year.length > 1) {
-        title += ` in Multiple Years`; // Simple indication of multiple selections
-      } else if (selectedFilter.year.length === 1) {
-        title += ` in ${selectedFilter.year[0]}`; // Single year selected
+    
+      function generateChartTitle(
+        selectedFilter: ResaleFlatHdbProps["selectedFilter"]
+      ): string {
+        let title = `Top 5 Areas with Most ${selectedFilter.flatTypes} Resale Flats Sold`;
+        if (!selectedFilter.year.includes("All")) {
+            title += ` in ${selectedFilter.year}`; // Single year selected
+        }
+        return title;
       }
-    }
-    // if (selectedFilter.maturity !== "All") {
-    //   title += ` - ${selectedFilter.maturity} Estates`;
-    // }
-    if (
-      !selectedFilter.flatTypes.includes("all") &&
-      selectedFilter.flatTypes.length > 0
-    ) {
-      const flatTypes = selectedFilter.flatTypes.join(", ");
-      title += ` - ${flatTypes}`;
-    }
-    return title;
   }
 
-  return <div ref={chartRef}></div>;
+  return <div ref={chartRef} ></div> 
 };
 
 export default Resale_Flat_Hdb;
