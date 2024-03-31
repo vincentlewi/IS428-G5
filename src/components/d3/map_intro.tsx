@@ -1,7 +1,5 @@
 import React, { useEffect, useState, useRef } from "react";
 import * as d3 from "d3";
-import d3Tip from "d3-tip";
-import "./mapintro.css";
 
 interface TownData {
   n: number;
@@ -88,21 +86,6 @@ const MapIntro: React.FC<MapIntroProps> = ({ dataUrl, topojsonUrl }) => {
       ...geoData.features.map((d) => d.properties.meanPerSqmPrice ?? 0)
     );
 
-    // Set up D3 tip
-    const tip = d3Tip()
-      .attr("class", "d3-tip")
-      .html(
-        (
-          event: any,
-          d: { properties: { meanPerSqmPrice?: number; PLN_AREA_N: string } }
-        ) => {
-          const price = d.properties.meanPerSqmPrice;
-          return price
-            ? `${d.properties.PLN_AREA_N}<br>${price.toFixed(2)} S$/sqm`
-            : `${d.properties.PLN_AREA_N}<br>(No data)`;
-        }
-      );
-
     // Select the SVG element and clear previous contents
     const svg = d3.select(svgElement).html("");
 
@@ -126,13 +109,7 @@ const MapIntro: React.FC<MapIntroProps> = ({ dataUrl, topojsonUrl }) => {
           ? colorScale(d.properties.meanPerSqmPrice)
           : "#F3EDC8"; // Fallback color for no data
       })
-      .on("mouseover", tip.show)
-      .on("mouseout", function () {
-        tip.hide();
-      });
 
-    // Call tip
-    svg.call(tip);
 
     // Draw the year label
     svg
@@ -255,7 +232,7 @@ const MapIntro: React.FC<MapIntroProps> = ({ dataUrl, topojsonUrl }) => {
   // In your component's return statement
   return (
     <div>
-      <svg ref={svgRef} width="1200" height="600"></svg>
+      <svg ref={svgRef} width="800" height="700">
       <div style={{ textAlign: "center" }}>
         <button onClick={handlePlayPause}>
           {isPlaying ? "Pause" : "Play"}
@@ -269,6 +246,7 @@ const MapIntro: React.FC<MapIntroProps> = ({ dataUrl, topojsonUrl }) => {
         </button>
         <button onClick={handleNextYear}>Next Year</button>
       </div>
+      </svg>
     </div>
   );
 };

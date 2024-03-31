@@ -24,9 +24,9 @@ const MedianMaturityPriceChart: React.FC<Props> = ({ data, selectedFilter }) => 
   useEffect(() => {
     if (data && d3Container.current) {
       const svgElement = d3Container.current;
-      const margin = { top: 50, right: 50, bottom: 40, left: 40 },
+      const margin = { top: 70, right: 50, bottom: 40, left: 40 },
         width = 480 - margin.left - margin.right,
-        height = 300 - margin.top - margin.bottom;
+        height = 320 - margin.top - margin.bottom;
     
       // Set the outer dimensions of the SVG
       const svg = d3

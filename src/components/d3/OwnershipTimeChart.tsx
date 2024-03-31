@@ -44,7 +44,7 @@ const OwnershipTimeChart: React.FC<OwnershipTimeChartProps> = ({
       if (!container) return;
 
       const width = 500;
-      const height = 500;
+      const height = 330;
 
       const svgContainer = d3.select(container);
       svgContainer.selectAll("*").remove();
@@ -142,9 +142,9 @@ const OwnershipTimeChart: React.FC<OwnershipTimeChartProps> = ({
     width: number,
     height: number
     ){
-      const margin = { top: 200, right:50, bottom: 70, left: 50 },
+      const margin = { top: 50, right: 50, bottom: 50, left: 50 },
       width_graph = width - margin.left - margin.right,
-      height_graph = width - margin.top - margin.bottom;
+      height_graph = height - margin.top - margin.bottom;
 
       svg.selectAll("*").remove();
 
