@@ -55,7 +55,7 @@ const MedianMaturityPriceChart: React.FC<Props> = ({ data, selectedFilter }) => 
 
       // Scales
       const xScale = d3
-        .scaleTime()
+        .scaleLinear()
         .domain([minYear || 0, maxYear|| 0])
         .range([0, width]);
 

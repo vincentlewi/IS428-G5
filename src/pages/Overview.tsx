@@ -41,8 +41,7 @@ interface DataEntry {
 
 interface IncomeData {
   year: string;
-  flat_type: string;
-  average_household_income: number;
+  median_income: number;
 }
 
 interface MedianAdjustedPriceEntry {
@@ -104,7 +103,7 @@ export default function Overview() {
   const [filteredHDBData, setFilteredHDBData] = useState<HDBData[]>([]);
   const [filteredIncomeData, setFilteredIncomeData] = useState<IncomeData[]>([]);
   const [filteredMedianAdjustedPrices, setFilteredMedianAdjustedPrices] = useState<MedianAdjustedPriceEntry[]>([]);
-  const [filterHdbFlat, setFilterHdbFlat] = useState<HDBData[]>([]);
+  const [filterHdbFlat, setFilterHdbFlat] = useState<MedianAdjustedPriceEntry[]>([]);
   
 
   // Upon initial load, fetch the data
@@ -133,16 +132,14 @@ export default function Overview() {
       town_classification: d['town_classification']
       })));
     
-    const incomeData = await d3.csv("/datasets/income/average_income_by_household.csv");
+    const incomeData = await d3.csv("/datasets/hdb/median_house.csv");
     setIncomeData(incomeData.map((d) => ({
-      year: d['year'],
-      flat_type: d['flat_type'],
-      average_household_income: +d['average_household_income']
+      year: d['Year'],
+      median_income: +d['Median Income']
       })));
     setFilteredIncomeData(incomeData.map((d) => ({
-      year: d['year'],
-      flat_type: d['flat_type'],
-      average_household_income: +d['average_household_income']
+      year: d['Year'],
+      median_income: +d['Median Income']
       })));
 
     const medianAdjustedPrices = await d3.csv("/datasets/hdb/median_price_final.csv");
@@ -185,30 +182,29 @@ export default function Overview() {
   } , []);
   
   
-  function calculateRatioIncomePrice(avgPrice: { year: string; flat_types: { flat_type: string; mean: number; }[]; }[], incomeData: IncomeData[]) {
-    const ratios = [];
+  // function calculateRatioIncomePrice(avgPrice: { year: string; flat_types: { flat_type: string; mean: number; }[]; }[], incomeData: IncomeData[]) {
+  //   const ratios = [];
 
-    // Iterate over each year entry in avgPrice
-    for (const priceEntry of avgPrice) {
-        const year = priceEntry.year;
+  //   // Iterate over each year entry in avgPrice
+  //   for (const priceEntry of avgPrice) {
+  //       const year = priceEntry.year;
+  //       const income = incomeData.find(i => i.year === year);
+  //           if (income) {
+  //               // Calculate the ratio and add it to the ratios array
+  //               ratios.push({
+  //                   year: year,
+  //                   ratio: flatTypeEntry.mean / income.median_income
+  //               });
+  //           }
+  //       // Now, iterate over each flat_type within the year
+  //       for (const flatTypeEntry of priceEntry.flat_types) {
+            
+  //       }
+  //   }
 
-        // Now, iterate over each flat_type within the year
-        for (const flatTypeEntry of priceEntry.flat_types) {
-            const income = incomeData.find(i => i.year === year && i.flat_type === flatTypeEntry.flat_type);
-            if (income) {
-                // Calculate the ratio and add it to the ratios array
-                ratios.push({
-                    year: year,
-                    flat_type: flatTypeEntry.flat_type,
-                    ratio: flatTypeEntry.mean / income.average_household_income
-                });
-            }
-        }
-    }
-
-    // It's not necessary to filter for nulls since we only push when we find a match
-    return ratios;
-  } 
+  //   // It's not necessary to filter for nulls since we only push when we find a match
+  //   return ratios;
+  // } 
 
   const handleFilterChange = (
     event: React.ChangeEvent<HTMLSelectElement>,
@@ -256,36 +252,37 @@ export default function Overview() {
     );
   }
 
-  function filterIncomeFlat(incomeData: IncomeData[], filter: string) {
-    return incomeData.filter(
-      (d) =>
-        (filter === "All" || filter === d.flat_type)
-    );
-  }
+  // function filterIncomeFlat(incomeData: IncomeData[], filter: string) {
+  //   return incomeData.filter(
+  //     (d) =>
+  //       (filter === "All" || filter === d.flat_type)
+  //   );
+  // }
 
   useEffect(() => {
     const filterHDB = filterData(hdbData, selectedFilter);
     setFilteredHDBData(filterHDB);
-    const filteredHDBFlat = filterHDBFlat(hdbData, selectedIncomeFlatType);
+    const filteredHDBFlat = filterMedianPriceData(medianAdjustedPrices, "All");
     setFilterHdbFlat(filteredHDBFlat);
-    const filterIncomeData = filterIncomeFlat(incomeData, selectedIncomeFlatType);
-    setFilteredIncomeData(filterIncomeData);
+    console.log(filterHdbFlat);
+    // const filterIncomeData = filterIncomeFlat(incomeData, selectedIncomeFlatType);
+    // setFilteredIncomeData(filterIncomeData);
     const filterMedianAdjustedPrices = filterMedianPriceData(medianAdjustedPrices, selectedMedianFlatType);
     setFilteredMedianAdjustedPrices(filterMedianAdjustedPrices);
-
-    const avgResalePriceByYearAndType = d3.rollups(
-      filteredHDBData,
-      (group) => d3.mean(group, d => d.resale_price), // Ensure this returns the mean
-      (d) => d.year,  // First level of grouping: by year
-      (d) => d.flat_type // Second level of grouping: by flat_type
-    ).map(([year, flatTypes]) => ({  
-      // This maps the nested structure into a flat one, if that's what you're looking for.
-      // Otherwise, you can adjust the structure as needed.
-      year: year,
-      flat_types: flatTypes.map(([flat_type, mean]) => ({
-        flat_type, mean
-      }))
-    }));
+     console.log(filteredIncomeData);
+    // const avgResalePriceByYearAndType = d3.rollups(
+    //   filteredHDBData,
+    //   (group) => d3.mean(group, d => d.resale_price), // Ensure this returns the mean
+    //   (d) => d.year,  // First level of grouping: by year
+    //   (d) => d.flat_type // Second level of grouping: by flat_type
+    // ).map(([year, flatTypes]) => ({  
+    //   // This maps the nested structure into a flat one, if that's what you're looking for.
+    //   // Otherwise, you can adjust the structure as needed.
+    //   year: year,
+    //   flat_types: flatTypes.map(([flat_type, mean]) => ({
+    //     flat_type, mean
+    //   }))
+    // }));
       
     }, [selectedFilter, selectedIncomeFlatType, selectedMedianFlatType]);
 
@@ -437,12 +434,13 @@ export default function Overview() {
               <div>
                 <p className="text-2xl font-bold pb-3">Graph 3</p>
                 <p className="text-md text-justify pb-5">Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.</p>
-                <label htmlFor="flat-type-select">Flat Type: </label>
-                <DropdownFilterFlat filterKey={'flatTypes'} placeholder={'All'} items={flatTypes} filter={selectedIncomeFlatType} setFilter={setSelectedIncomeFlatType}/>
+                <br/>
+                <br/>
+                <br/>
                 <OwnershipTimeChart
                   incomeData={filteredIncomeData}
                   hdbData={filterHdbFlat}
-                  selectedFilter={selectedIncomeFlatType} // Change to pass the entire selectedFilter object
+                  selectedFilter="All" // Change to pass the entire selectedFilter object
                 />
               </div>
             </div>
@@ -545,56 +543,6 @@ export default function Overview() {
           </div>
         </div>
       </CustomContainer>
-
-      <div className="filter-selector">
-        <label htmlFor="year-select">Select Year: </label>
-        <DropdownFilter filterKey={'year'} placeholder={'All'} items={years} filter={selectedFilter} setFilter={setSelectedFilter}/>
-        {/* <DropdownFilter filterKey={'year'} placeholder={'All'} items={years} filter={selectedYear} setFilter={setSelectedYear}/> */}
-        {/* <select
-          multiple // Added to enable multiple selections
-          id="year-select"
-          value={selectedFilter.year}
-          onChange={(e) => handleFilterChange(e, "year")}
-          size={years.length} // Adjust as needed
-        >
-          {years.map((year) => (
-            <option key={year} value={year}>
-              {year}
-            </option>
-          ))}
-        </select> */}
-      </div>
-  
-        {/* Flat Type Selector */}
-        <div className="filter-selector">
-          <label htmlFor="flat-type-select">Flat Type: </label>
-          <DropdownFilter filterKey={'flatTypes'} placeholder={'All'} items={flatTypes} filter={selectedFilter} setFilter={setSelectedFilter}/>
-          {/* <select
-            multiple
-            id="flat-type-select"
-            value={selectedFilter.flatTypes}
-            onChange={(e) => handleFilterChange(e, "flatTypes")}
-            size={flatTypes.length}
-          >
-            <option value="all">All</option>
-            {flatTypes.map((type) => (
-              <option key={type} value={type}>
-                {type}
-              </option>
-            ))}
-          </select> */}
-        </div>
-
-        <Resale_Flat_Hdb data={filteredHDBData} selectedFilter={selectedFilter} />
-        <MedianMaturityPriceChart
-          data={filteredMedianAdjustedPrices}
-          selectedFilter={selectedMedianFlatType}
-        />
-        <OwnershipTimeChart
-          incomeData={filteredIncomeData}
-          hdbData={filteredHDBData}
-          selectedFilter={selectedIncomeFlatType} // Change to pass the entire selectedFilter object
-        />
     </>
   );
 }

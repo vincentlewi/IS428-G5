@@ -4,20 +4,17 @@ import { data } from "@/assets/datasets/treemap_data";
 
 interface IncomeData {
   year: string;
-  flat_type: string;
-  average_household_income: number;
+  median_income: number;
 }
 
-interface HDBData {
-  town: string;
-  flat_type: string;
-  floor_area: number;
-  resale_price: number;
+interface MedianAdjustedPriceEntry {
   year: string;
+  flat_type: string;
+  town_classification: string;
+  resale_price: number;
   adjusted_price: number;
   price_per_sqm: number;
   adjusted_price_per_sqm: number;
-  town_classification: string;
 }
 
 interface RatioDataEntry {
@@ -28,7 +25,7 @@ interface RatioDataEntry {
 
 interface OwnershipTimeChartProps {
   incomeData: IncomeData[];
-  hdbData: HDBData[];
+  hdbData: MedianAdjustedPriceEntry[];
   selectedFilter: string; // Ensure this matches the structure in Overview.tsx;
 }
 
@@ -109,25 +106,21 @@ const OwnershipTimeChart: React.FC<OwnershipTimeChartProps> = ({
     // }
   }, [incomeData, hdbData, selectedFilter]); // Dependencies to re-run the effect when they change
 
-  function calculateRatioIncomePrice(avgPrice: { year: string; flat_types: { flat_type: string; mean: number; }[]; }[], incomeData: IncomeData[]) {
+  function calculateRatioIncomePrice(hdbData: MedianAdjustedPriceEntry[], incomeData: IncomeData[]) {
     const ratios = [];
-
-    // Iterate over each year entry in avgPrice
-    for (const priceEntry of avgPrice) {
-        const year = priceEntry.year;
-
-        // Now, iterate over each flat_type within the year
-        for (const flatTypeEntry of priceEntry.flat_types) {
-            const income = incomeData.find(i => i.year === year && i.flat_type === flatTypeEntry.flat_type);
-            if (income) {
-                // Calculate the ratio and add it to the ratios array
-                ratios.push({
-                    year: year,
-                    flat_type: flatTypeEntry.flat_type,
-                    ratio: flatTypeEntry.mean / income.average_household_income
-                });
-            }
-        }
+    for (const medianPrice of hdbData){
+      const year = medianPrice.year;
+      const income = incomeData.filter((d) => d.year === (year + " "));
+      console.log(income)
+      if (income) {
+        income.map((d) => 
+          ratios.push({
+            year: year,
+            town_classification: medianPrice.town_classification,
+            ratio: medianPrice.adjusted_price / d.median_income
+          }))
+        ;
+      }
     }
 
     // It's not necessary to filter for nulls since we only push when we find a match
@@ -137,7 +130,7 @@ const OwnershipTimeChart: React.FC<OwnershipTimeChartProps> = ({
   function updateChart( 
     svg: d3.Selection<SVGGElement, unknown, null, undefined>,
     incomeData: IncomeData[],
-    hdbData: HDBData[],
+    hdbData: MedianAdjustedPriceEntry[],
     selectedFilter: OwnershipTimeChartProps["selectedFilter"],
     width: number,
     height: number
@@ -148,22 +141,23 @@ const OwnershipTimeChart: React.FC<OwnershipTimeChartProps> = ({
 
       svg.selectAll("*").remove();
 
-      const avgResalePriceByYearAndType = d3.rollups(
-        hdbData,
-        (group) => d3.mean(group, d => d.resale_price), // Ensure this returns the mean
-        (d) => d.year,  // First level of grouping: by year
-        (d) => d.flat_type // Second level of grouping: by flat_type
-      ).map(([year, flatTypes]) => ({  
-        // This maps the nested structure into a flat one, if that's what you're looking for.
-        // Otherwise, you can adjust the structure as needed.
-        year: year,
-        flat_types: flatTypes.map(([flat_type, mean]) => ({
-          flat_type, mean
-        }))
+      // const avgResalePriceByYearAndType = d3.rollups(
+      //   hdbData,
+      //   (group) => d3.mean(group, d => d.resale_price), // Ensure this returns the mean
+      //   (d) => d.year,  // First level of grouping: by year
+      //   (d) => d.flat_type // Second level of grouping: by flat_type
+      // ).map(([year, flatTypes]) => ({  
+      //   // This maps the nested structure into a flat one, if that's what you're looking for.
+      //   // Otherwise, you can adjust the structure as needed.
+      //   year: year,
+      //   flat_types: flatTypes.map(([flat_type, mean]) => ({
+      //     flat_type, mean
+      //   }))
 
-      }));
+      // }));
 
-      const ratioData = calculateRatioIncomePrice(avgResalePriceByYearAndType, incomeData);
+      const ratioData = calculateRatioIncomePrice(hdbData, incomeData);
+      console.log(ratioData)
       // Adjusted filter data based on the selectedFilter object
     // let processedData = data
     // .filter(
@@ -216,10 +210,10 @@ const OwnershipTimeChart: React.FC<OwnershipTimeChartProps> = ({
   const colorScale = d3.scaleOrdinal(d3.schemeCategory10);
 
   // Group the data by flat type
-  const dataByFlatType = d3.groups(ratioData, (d) => d.flat_type);
+  const dataByFlatType = d3.groups(ratioData, (d) => d.town_classficiation);
 
   // Draw the line for each flat type
-  dataByFlatType.forEach(([flat_type, values], index) => {
+  dataByFlatType.forEach(([town_classification, values], index) => {
     svg.append("path")
       .datum(values)
       .attr("fill", "none")
