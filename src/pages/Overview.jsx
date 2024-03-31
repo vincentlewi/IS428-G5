@@ -1,12 +1,9 @@
 import './Overview.css'
 import Nav from '@/components/ui/nav'
 import { Button } from "@/components/ui/button"
-import Map from '@/components/d3/map'
-import SingaporeMap from '@/components/d3/mapVisualisation'
 import MultilineChart from '@/components/d3/multilineChart.jsx'
 import { Recommend } from '@/components/d3/recommend'
 import Treemap from '@/components/d3/treemap'
-import DiscoveryRadar from '@/components/d3/radar'
 
 const preferences = {
   bus: 4,
@@ -39,8 +36,6 @@ export default function Overview() {
         <p>"Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. </p>
         <p>Take a look at the choropleth below. Hover on any area, and you will see that houses are EXPENSIVE.</p>
         <Button variant="outline">Button</Button>
-        <Map width={600} height={400}/>
-        <SingaporeMap/>
         <MultilineChart />
         <Treemap/>
       </div>

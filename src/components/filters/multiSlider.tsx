@@ -6,7 +6,7 @@ import * as SliderPrimitive from '@radix-ui/react-slider';
 
 import { cn } from '@/lib/utils';
 
-interface MultiSliderProps {
+interface MultiSliderProps extends React.ComponentPropsWithoutRef<typeof SliderPrimitive.Root>{
   defaultValue: number[];
   min: number;
   max: number;
@@ -28,7 +28,7 @@ interface MultiSliderProps {
 
 const MultiSlider = React.forwardRef<
   React.ElementRef<typeof SliderPrimitive.Root>,
-  React.ComponentPropsWithoutRef<typeof SliderPrimitive.Root>
+  MultiSliderProps
 >(({filter, setFilter, defaultValue, min, max}: MultiSliderProps, ref) => {
   return(
   <SliderPrimitive.Root
