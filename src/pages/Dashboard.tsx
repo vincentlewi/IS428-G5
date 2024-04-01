@@ -17,6 +17,14 @@ import { Recommend } from '@/components/d3/recommend'
 import { MultiSlider } from '@/components/filters/multiSlider'
 import Slider from '@/components/filters/slider'
 import SelectAmenity from '@/components/filters/selectAmenity'
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog"
 
 interface House {
   LATITUDE: string
@@ -113,8 +121,8 @@ export default function Dashboard() {
   return (
     <>
       <Nav activePage='dashboard'/>
-      <div className='flex align-middle justify-center items-center gap-4 bg-yellow-50'>
-        <Card className="mr-10 w-[300px]">
+      <div className='flex align-middle justify-center items-center gap-4 bg-yellow-50 pt-8'>
+        <Card className="mr-3 w-[300px] h-[360px]">
           <CardHeader>
             <CardTitle>Filter</CardTitle>
           </CardHeader>
@@ -130,15 +138,15 @@ export default function Dashboard() {
               <p className="pt-2 text-xs">S{SGD.format(filter.max_price)}</p>
             </div>
             <div className='flex justify-between'>
-              <p className="text-md pb-2">Minimum Remaining Lease:</p>
+              <p className="text-md pb-2 pt-2">Minimum Remaining Lease:</p>
               <p>{filter.min_remaining_lease}</p>
             </div>
             <Slider filterKey='min_remaining_lease' defaultValue={[0]} min={0} max={99} step={1} filter={filter} setFilter={setFilter}/>
             
           </CardContent>
-        </Card>        
-        <Map width={600} height={400} points={topHouses} selectedAmenity={selectedAmenity}/>
-        <Card>
+        </Card> 
+        <Map width={680} height={360} points={topHouses} selectedAmenity={selectedAmenity}/>
+        <Card className='ml-3 '>
           <CardHeader>
             <CardTitle>Show Amenities</CardTitle>
           </CardHeader>
@@ -147,7 +155,7 @@ export default function Dashboard() {
           </CardContent>
         </Card>
       </div>
-      <div className="text-center bg-yellow-50">
+      <div className="text-center bg-yellow-50 pt-5">
         <p className="font-bold text-xl pb-3">Amenities Priority</p>
         <div className='flex justify-center pb-5'>
           
@@ -170,42 +178,47 @@ export default function Dashboard() {
         : topHouses[0].address === ''
           ? <p>Loading...</p>
           : <>
-              <DiscoveryRadar options={{variables: [], sets:topHouses}} hovered={hovered}/>
-              {topHouses.map((house, index) => (
-                <Card 
-                  key={index} 
-                  className={cardColor[index]} 
-                  onMouseEnter={() => setHovered(`${house.address} ${house.town} ${house.flat_type}`)}
-                  onMouseLeave={() => setHovered('')}
-                >
-                  <CardHeader>
-                    <CardTitle>#{index + 1} {house.town}</CardTitle>
-                    <CardDescription>{house.flat_type} HDB at {house.address}</CardDescription>
-                  </CardHeader>
-                  <CardContent>
-                    {/* <p>Score: {+house.score}</p> */}
-                    <div className="text-sm">
-                      <p><span className="font-bold">Median Price: </span>{SGD.format(Math.round(house.resale_price))}</p>
-                      <p><span className="font-bold">Remaining Lease: </span>{+house.remaining_lease} years</p>
-                      <p><span className="font-bold">Price per Square Meters: </span>{SGD.format(Math.round(house.price_per_sqm))}</p>
-                    </div>
-                    <br />
-                    <div className="text-sm">
-                      <p><span className="font-bold">Bus within 500m: </span>{+house['bus_within_0.5']}</p>
-                      <p><span className="font-bold">School within 2km: </span>{+house['school_within_2.0']}</p>
-                      <p><span className="font-bold">Mall within 2km: </span>{+house['mall_within_2.0']}</p>
-                      <p><span className="font-bold">Supermarkets within 500m: </span>{+house['supermarket_within_0.5']}</p>
-                      <p><span className="font-bold">Distance to CBD: </span>{Math.round((+house['cbd_distance'] + Number.EPSILON)*100)/100} km</p>
-                      <p><span className="font-bold">Distance to Hawker: </span>{Math.round((+house['hawker_distance'] + Number.EPSILON)*100)/100} km</p>
-                      <p><span className="font-bold">Distance to Park: </span>{Math.round((+house['park_distance'] + Number.EPSILON)*100)/100} km</p>
-                      <p><span className="font-bold">Distance to MRT/LRT: </span>{Math.round((+house['mrtlrt_distance'] + Number.EPSILON)*100)/100} km</p>
-                    </div>
-                  </CardContent>
-                  <CardFooter>
-                    <Button>More Details</Button>
-                  </CardFooter>
-                </Card>
-              ))}
+              <div className='mx-12'><DiscoveryRadar options={{variables: [], sets:topHouses}} hovered={hovered}/></div>
+              <div>
+                {topHouses.map((house, index) => (
+                  <Card 
+                    key={index} 
+                    className={`${cardColor[index]} my-2 py-2`} 
+                    onMouseEnter={() => setHovered(`${house.address} ${house.town} ${house.flat_type}`)}
+                    onMouseLeave={() => setHovered('')}
+                  >
+                    <CardHeader className='px-4 py-2'>
+                      <CardTitle>#{index + 1} {house.town}</CardTitle>
+                      <CardDescription>{house.flat_type} HDB at {house.address}</CardDescription>
+                    </CardHeader>
+                    <CardContent className='px-4 py-2'>
+                      <Button>
+                        <Dialog>
+                          <DialogTrigger>See More Details</DialogTrigger>
+                          <DialogContent>
+                            <DialogHeader>
+                              <DialogTitle className='text-xl'>#{index + 1} {house.town}</DialogTitle>
+                              <DialogDescription>{house.flat_type} HDB at {house.address}</DialogDescription>
+                              <p><b>Median Price:</b> {SGD.format(Math.round(house.resale_price))}</p>
+                              <p><b>Remaining Lease:</b> {+house.remaining_lease} years</p>
+                              <p><b>Price per Square Meters:</b> {SGD.format(Math.round(house.price_per_sqm))}</p>
+                              <br />
+                              <p><b>Bus within 500m:</b> {+house['bus_within_0.5']}</p>
+                              <p><b>School within 2km:</b> {+house['school_within_2.0']}</p>
+                              <p><b>Mall within 2km:</b> {+house['mall_within_2.0']}</p>
+                              <p><b>Supermarkets within 500m:</b> {+house['supermarket_within_0.5']}</p>
+                              <p><b>Distance to CBD:</b> {Math.round((+house['cbd_distance'] + Number.EPSILON)*100)/100} km</p>
+                              <p><b>Distance to Hawker:</b> {Math.round((+house['hawker_distance'] + Number.EPSILON)*100)/100} km</p>
+                              <p><b>Distance to Park:</b> {Math.round((+house['park_distance'] + Number.EPSILON)*100)/100} km</p>
+                              <p><b>Distance to MRT/LRT:</b> {Math.round((+house['mrtlrt_distance'] + Number.EPSILON)*100)/100} km</p>
+                            </DialogHeader>
+                          </DialogContent>
+                        </Dialog>
+                      </Button>
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
             </>
         }
       </div>
