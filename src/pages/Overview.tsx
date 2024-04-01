@@ -505,10 +505,23 @@ export default function Overview() {
             </p>
             <div className="grid grid-cols-2 gap-20">
               <ul className="text-zinc-50 text-justify">
-                <li>[1] “HDB Sample Household Survey 2018,” Housing & Development Board, https://www.hdb.gov.sg/-/media/HDBContent/Images/CDG/Library/Library/SHS-2018-Monograph-1---23-Apr-2021_BLUE.ashx.</li>
+                <li>[1]“HDB Sample Household Survey 2018,” Housing & Development Board, https://www.hdb.gov.sg/-/media/HDBContent/Images/CDG/Library/Library/SHS-2018-Monograph-1---23-Apr-2021_BLUE.ashx.</li>
+                <li>[2]Private residential property transactions - property market information, https://www.ura.gov.sg/property-market-information/pmiResidentialTransactionSearch.</li>
+                <li>[3]“HDB property information,” Data.gov.sg, https://beta.data.gov.sg/collections/150/view.</li>
+                <li>[4]“Resale flat prices (based on Approval date), 1990 - 1999,” Data.gov.sg, https://beta.data.gov.sg/datasets/d_ebc5ab87086db484f88045b47411ebc5/view.</li>
+                <li>[5]“Resale flat prices (based on Approval date), 2000 - Feb 2012,” Data.gov.sg, https://beta.data.gov.sg/datasets/d_43f493c6c50d54243cc1eab0df142d6a/view.</li>
+                <li>[6]“Resale flat prices (based on registration date), from MAR 2012 to Dec 2014,” Data.gov.sg, https://beta.data.gov.sg/datasets/d_2d5ff9ea31397b66239f245f57751537/view.</li>
+                
+
               </ul>
               <ul className="text-zinc-50 text-justify">
-                <li>[10] Worldometers, “Singapore Population (2023) - Worldometer,” www.worldometers.info, Jul. 16, 2023. https://www.worldometers.info/world-population/singapore-population/#:~:text=Singapore%202023%20population%20is%20estimated</li>
+                <li>[7]“Resale flat prices (based on registration date), from Jan 2015 to Dec 2016,” Data.gov.sg, https://beta.data.gov.sg/datasets/d_ea9ed51da2787afaf8e51f827c304208/view. </li>
+                <li>[8]“Resale flat prices based on registration date from Jan-2017 onwards,” Data.gov.sg, https://beta.data.gov.sg/datasets/d_8b84c4ee58e3cfc0ece0d773c8ca6abc/view.</li>
+                <li>[9]“List of government markets Hawker Centres,” Data.gov.sg, https://beta.data.gov.sg/datasets/d_68a42f09f350881996d83f9cd73ab02f/view.</li>
+                <li>[10]“Dates of Hawker Centres closure,” Data.gov.sg, https://beta.data.gov.sg/datasets/d_bda4baa634dd1cc7a6c7cad5f19e2d68/view.</li>
+                <li>[11]“Hawker Centres (GEOJSON),” Data.gov.sg, https://beta.data.gov.sg/datasets/d_4a086da0a5553be1d89383cd90d07ecd/view.</li>
+                <li>[12]“School Directory and Information,” Data.gov.sg, https://beta.data.gov.sg/collections/457/datasets/d_688b934f82c1059ed0a6993d2a829089/view.</li>
+                <li>[13]“Search datasets,” LTA, https://datamall.lta.gov.sg/content/datamall/en/search_datasets.html.</li>
               </ul>
             </div>
             
