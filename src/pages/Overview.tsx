@@ -12,7 +12,6 @@ import OwnershipTimeChart from '@/components/d3/OwnershipTimeChart';
 import Resale_Flat_Hdb from '@/components/d3/Resale_Flat_Hdb';
 import MedianMaturityPriceChart from '@/components/d3/medianmaturity';
 import * as d3 from "d3";
-import { Recommend } from '@/components/d3/recommend';
 import { DropdownFilter } from '@/components/ui/dropdownFilterGraph'
 import { DropdownFilterFlat } from "@/components/ui/dropdownFilterFlat";
 import MapIntro from "@/components/d3/map_intro";
