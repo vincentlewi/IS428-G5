@@ -220,9 +220,6 @@ export default function Overview() {
   useEffect(() => {
     const filterHDB = filterData(hdbData, selectedFilter);
     setFilteredHDBData(filterHDB);
-    // const filteredHDBFlat = filterMedianPriceData(medianAdjustedPrices, selectedIncomeFlatType);
-    // setFilterHdbFlat(filteredHDBFlat);
-    // console.log(filterHdbFlat)
     const filterMedianAdjustedPrices = filterMedianPriceData(medianAdjustedPrices, selectedMedianFlatType);
     setFilteredMedianAdjustedPrices(filterMedianAdjustedPrices);
     }, [selectedFilter, selectedIncomeFlatType, selectedMedianFlatType]);
@@ -238,7 +235,7 @@ export default function Overview() {
       <Nav activePage="overview" />
       <CustomContainer
         style={{ backgroundColor: "#fdfaecff" }}
-        className="content-center relative"
+        className="content-center relative text-justify"
       >
         <div className="flex justify-center content-center">
           <div className="grid grid-cols-2 gap-4 h-80 w-2/3 content-center">
@@ -253,14 +250,13 @@ export default function Overview() {
           <div className="absolute bottom-20 text-center align-center">
             <ScrollIntoView selector="#sg-scene">
               <button>
-                {/* <p className="text-lg pb-3">Let us tell you the story</p> */}
                 <Wave
                   text="Let us tell you the story"
                   effect="jump"
                   effectDirection="up"
-                  speed={30}
-                  effectChange={0.5}
-                  effectDuration={0.5}
+                  speed={10}
+                  effectChange={0.2}
+                  effectDuration={1}
                 />
                 <p className="flex justify-center">
                   <ArrowBigDown />
@@ -314,9 +310,9 @@ export default function Overview() {
                   text="Further into the Data"
                   effect="jump"
                   effectDirection="up"
-                  speed={30}
-                  effectChange={0.5}
-                  effectDuration={0.5}
+                  speed={10}
+                  effectChange={0.2}
+                  effectDuration={1}
                 />
                 <p className="flex justify-center">
                   <ArrowBigDown />
@@ -344,8 +340,8 @@ export default function Overview() {
               <div>
                 <p className="text-2xl font-bold pb-3">Top 5 Area with Most Resale Flats Count</p>
                 <p className="text-md text-justify pb-5">Tampines, Yishun, Bedok, Jurong West, and Woodlands rank as the top five towns with the highest number of transactions over the years.
-<br/>
-Starting from 2016, the transaction counts in Sengkang and Punggol have been rapidly increasing. By 2020 and 2021, they emerged as the top two towns with the highest transaction volumes.</p>
+                <br/>
+                Starting from 2016, the transaction counts in Sengkang and Punggol have been rapidly increasing. By 2020 and 2021, they emerged as the top two towns with the highest transaction volumes.</p>
                 <div className="flex grid grid-cols-2 gap-4 pb-5">
                   <div>
                     <label htmlFor="year-select">Select Year: </label>
@@ -361,8 +357,8 @@ Starting from 2016, the transaction counts in Sengkang and Punggol have been rap
               <div>
                 <p className="text-2xl font-bold pb-3">Mature vs. Non Mature Median Price</p>
                 <p className="text-md text-justify pb-5">Over the years, the difference in the median adjusted price, accounting for inflation, between non-mature and mature towns has become less significant.
-<br/>
-For flat types 3 and above, the gap in median prices between mature and non-mature towns increased from 2015 to 2020, but it narrowed after 2020.</p>
+                <br/>
+                For flat types 3 and above, the gap in median prices between mature and non-mature towns increased from 2015 to 2020, but it narrowed after 2020.</p>
                 <label htmlFor="flat-type-select">Flat Type: </label>
                 <DropdownFilterFlat filterKey={'flatTypes'} placeholder={'All'} items={flatTypes} filter={selectedMedianFlatType} setFilter={setSelectedMedianFlatType}/>
                 <MedianMaturityPriceChart
@@ -373,14 +369,10 @@ For flat types 3 and above, the gap in median prices between mature and non-matu
               <div>
                 <p className="text-2xl font-bold pb-3">Years to Pay Off Flat</p>
                 <p className="text-md text-justify pb-5"><br/>In general, the affordability ratio (the estimated time it would take for one to own a HDB flat  if one saves their entire income, based on median income) has remained relatively stable. </p>
-                {/* <br/>
-                <br/>
-                <br/>
-                <br/> */}
                 <OwnershipTimeChart
                   incomeData={filteredIncomeData}
                   hdbData={medianPrice}
-                  selectedFilter="All" // Change to pass the entire selectedFilter object
+                  selectedFilter="All" 
                 />
               </div>
             </div>
@@ -388,14 +380,13 @@ For flat types 3 and above, the gap in median prices between mature and non-matu
           <div className="absolute bottom-5 text-center align-center">
             <ScrollIntoView selector="#decision-making">
               <button>
-                {/* <p className="text-lg pb-3">Let us tell you the story</p> */}
                 <Wave
                   text="The Decision Making Process"
                   effect="jump"
                   effectDirection="up"
-                  speed={30}
-                  effectChange={0.5}
-                  effectDuration={0.5}
+                  speed={10}
+                  effectChange={0.2}
+                  effectDuration={1}
                 />
                 <p className="flex justify-center">
                   <ArrowBigDown />
@@ -416,31 +407,23 @@ For flat types 3 and above, the gap in median prices between mature and non-matu
             <p className="text-3xl font-bold pb-5 text-center">
               The Decision Making Process
             </p>
-            {/* <p className="text-lg text-justify pb-10">
-              Our tool will provide you with a comprehensive overview of the
-              prices of homes in different estates, and help you make the best
-              decision on where to buy your home. By using our tool, you will be
-              able to compare the prices of homes across different estates in
-              Singapore, and make an informed decision based on your preferences
-              and budget.
-            </p> */}
             <div className="grid grid-cols-2 gap-10">
               <div>
                 <p className="text-2xl font-bold pb-3">Amenities with Most Time Spent</p>
                 <p className="pb-5 text-justify">The treemap graph displays data from a survey conducted by the Housing Development Board (HDB). This survey illustrates the proportion of time HDB residents spend on various amenities surrounding their homes.
-<br/>
-Amenities accounting for less than 1% of time spent have been grouped together to prevent the treemap from becoming overly cluttered.
-<br/>
-Thus, upon examining the treemap, it is observed that residents spend the majority of their time in shopping centers, followed by different type of amenities.</p>
+                <br/>
+                Amenities accounting for less than 1% of time spent have been grouped together to prevent the treemap from becoming overly cluttered.
+                <br/>
+                Thus, upon examining the treemap, it is observed that residents spend the majority of their time in shopping centers, followed by different type of amenities.</p>
                 <Treemap />
               </div>
               <div>
                 <p className="text-2xl font-bold pb-3">Feature Importance Based on Catboost</p>
                 <p className="pb-5">CatBoost was selected to rank the feature importance because it does not assume all features have a linear correlation. Hence, this multiline graph displays the top 10 features as determined by CatBoost.
-<br/>
-<br/>
-With the top three features identified as floor area (sqm), distance to CBD, and the years left on the lease, we decided to incorporate other amenities, as highlighted in the treemap graph, to further assist young adults in choosing their homes.
-</p>
+                <br/>
+                <br/>
+                With the top three features identified as floor area (sqm), distance to CBD, and the years left on the lease, we decided to incorporate other amenities, as highlighted in the treemap graph, to further assist young adults in choosing their homes.
+                </p>
                 <MultilineChart />
               </div>
             </div>
@@ -453,9 +436,9 @@ With the top three features identified as floor area (sqm), distance to CBD, and
                   text="The Solution"
                   effect="jump"
                   effectDirection="up"
-                  speed={30}
-                  effectChange={0.5}
-                  effectDuration={0.5}
+                  speed={10}
+                  effectChange={0.2}
+                  effectDuration={1}
                 />
                 <p className="flex justify-center">
                   <ArrowBigDown />
@@ -469,7 +452,7 @@ With the top three features identified as floor area (sqm), distance to CBD, and
       <CustomContainer
         id="solution"
         style={{ backgroundColor: "#fdfaecff" }}
-        className="content-center"
+        className="content-center relative"
       >
         <div className="flex justify-center">
           <div className="w-3/4">
@@ -489,6 +472,59 @@ With the top three features identified as floor area (sqm), distance to CBD, and
                 Go to Dashboard
               </Button>
             </div>
+          </div>
+          <div className="absolute bottom-5 text-center align-center">
+            <ScrollIntoView selector="#references">
+              <button>
+                {/* <p className="text-lg pb-3">Let us tell you the story</p> */}
+                <Wave
+                  text="References"
+                  effect="jump"
+                  effectDirection="up"
+                  speed={10}
+                  effectChange={0.2}
+                  effectDuration={1}
+                />
+                <p className="flex justify-center">
+                  <ArrowBigDown />
+                </p>
+              </button>
+            </ScrollIntoView>
+          </div>
+        </div>
+      </CustomContainer>
+
+      <CustomContainer
+      id="references"
+      style={{ backgroundColor: "#333333ff" }}
+      className="content-center relative">
+        <div className="flex justify-center">
+          <div className="w-3/4 text-center">
+            <p className="text-3xl font-bold pb-5 text-center text-zinc-50">
+              References
+            </p>
+            <div className="grid grid-cols-2 gap-20">
+              <ul className="text-zinc-50 text-justify">
+                <li>[1]“HDB Sample Household Survey 2018,” Housing & Development Board, https://www.hdb.gov.sg/-/media/HDBContent/Images/CDG/Library/Library/SHS-2018-Monograph-1---23-Apr-2021_BLUE.ashx.</li>
+                <li>[2]Private residential property transactions - property market information, https://www.ura.gov.sg/property-market-information/pmiResidentialTransactionSearch.</li>
+                <li>[3]“HDB property information,” Data.gov.sg, https://beta.data.gov.sg/collections/150/view.</li>
+                <li>[4]“Resale flat prices (based on Approval date), 1990 - 1999,” Data.gov.sg, https://beta.data.gov.sg/datasets/d_ebc5ab87086db484f88045b47411ebc5/view.</li>
+                <li>[5]“Resale flat prices (based on Approval date), 2000 - Feb 2012,” Data.gov.sg, https://beta.data.gov.sg/datasets/d_43f493c6c50d54243cc1eab0df142d6a/view.</li>
+                <li>[6]“Resale flat prices (based on registration date), from MAR 2012 to Dec 2014,” Data.gov.sg, https://beta.data.gov.sg/datasets/d_2d5ff9ea31397b66239f245f57751537/view.</li>
+                
+
+              </ul>
+              <ul className="text-zinc-50 text-justify">
+                <li>[7]“Resale flat prices (based on registration date), from Jan 2015 to Dec 2016,” Data.gov.sg, https://beta.data.gov.sg/datasets/d_ea9ed51da2787afaf8e51f827c304208/view. </li>
+                <li>[8]“Resale flat prices based on registration date from Jan-2017 onwards,” Data.gov.sg, https://beta.data.gov.sg/datasets/d_8b84c4ee58e3cfc0ece0d773c8ca6abc/view.</li>
+                <li>[9]“List of government markets Hawker Centres,” Data.gov.sg, https://beta.data.gov.sg/datasets/d_68a42f09f350881996d83f9cd73ab02f/view.</li>
+                <li>[10]“Dates of Hawker Centres closure,” Data.gov.sg, https://beta.data.gov.sg/datasets/d_bda4baa634dd1cc7a6c7cad5f19e2d68/view.</li>
+                <li>[11]“Hawker Centres (GEOJSON),” Data.gov.sg, https://beta.data.gov.sg/datasets/d_4a086da0a5553be1d89383cd90d07ecd/view.</li>
+                <li>[12]“School Directory and Information,” Data.gov.sg, https://beta.data.gov.sg/collections/457/datasets/d_688b934f82c1059ed0a6993d2a829089/view.</li>
+                <li>[13]“Search datasets,” LTA, https://datamall.lta.gov.sg/content/datamall/en/search_datasets.html.</li>
+              </ul>
+            </div>
+            
           </div>
         </div>
       </CustomContainer>
