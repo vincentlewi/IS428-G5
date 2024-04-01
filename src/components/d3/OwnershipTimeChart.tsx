@@ -92,7 +92,7 @@ const OwnershipTimeChart: React.FC<OwnershipTimeChartProps> = ({
       svg.selectAll("*").remove();
 
       const ratioData = calculateRatioIncomePrice(hdbData, incomeData);
-      console.log(ratioData)
+      // console.log(ratioData)
   const maxRatio = d3.max(ratioData, (d) => d.ratio);
  
   

@@ -27,7 +27,7 @@ const filter = {
 
 
 export default function Overview() {
-  console.log(Recommend(preferences, filter))
+  // console.log(Recommend(preferences, filter))
   return (
     <>
       <Nav activePage='overview'/>
