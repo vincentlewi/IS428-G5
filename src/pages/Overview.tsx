@@ -55,6 +55,12 @@ interface MedianAdjustedPriceEntry {
   adjusted_price_per_sqm: number;
 }
 
+interface MedianPriceData {
+  year: string;
+  resale_price: number;
+  flat_type: string;
+}
+
 interface MaturityPrice {
   year: string;
   mature: Array<number>;
@@ -79,9 +85,6 @@ interface Filter {
 }
 
 export default function Overview() {
-
-  const mapIntroUrl = "@/assets/datasets/hdb/hdb_intro_map.json"; // Update this with the actual path
-  const topojsonUrl = "@/assets/datasets/map/singapore_intro_map.json"; // Update this with the actual path
   const [years, setYears] = useState<string[]>(['All']);
   const [flatTypes, setFlatTypes] = useState<string[]>(['All']);
   const [selectedFilter, setSelectedFilter] = useState<Filter>({ 
@@ -105,6 +108,7 @@ export default function Overview() {
   const [filteredIncomeData, setFilteredIncomeData] = useState<IncomeData[]>([]);
   const [filteredMedianAdjustedPrices, setFilteredMedianAdjustedPrices] = useState<MedianAdjustedPriceEntry[]>([]);
   const [filterHdbFlat, setFilterHdbFlat] = useState<MedianAdjustedPriceEntry[]>([]);
+  const [medianPrice, setMedianPrice] = useState<MedianPriceData[]>([]);
   
 
   // Upon initial load, fetch the data
@@ -132,7 +136,14 @@ export default function Overview() {
       adjusted_price_per_sqm: +d['adjusted_price_per_sqm'],
       town_classification: d['town_classification']
       })));
-    
+
+    const medianPriceData = await d3.csv("/datasets/hdb/median_resale_price.csv");
+    setMedianPrice(medianPriceData.map((d) => ({
+      year: d['year'],
+      resale_price: +d['resale_price'],
+      flat_type: d['flat_type']
+      })));
+
     const incomeData = await d3.csv("/datasets/hdb/median_house.csv");
     setIncomeData(incomeData.map((d) => ({
       year: d['Year'],
@@ -209,8 +220,9 @@ export default function Overview() {
   useEffect(() => {
     const filterHDB = filterData(hdbData, selectedFilter);
     setFilteredHDBData(filterHDB);
-    const filteredHDBFlat = filterMedianPriceData(medianAdjustedPrices, "All");
-    setFilterHdbFlat(filteredHDBFlat);
+    // const filteredHDBFlat = filterMedianPriceData(medianAdjustedPrices, selectedIncomeFlatType);
+    // setFilterHdbFlat(filteredHDBFlat);
+    // console.log(filterHdbFlat)
     const filterMedianAdjustedPrices = filterMedianPriceData(medianAdjustedPrices, selectedMedianFlatType);
     setFilteredMedianAdjustedPrices(filterMedianAdjustedPrices);
     }, [selectedFilter, selectedIncomeFlatType, selectedMedianFlatType]);
@@ -231,8 +243,8 @@ export default function Overview() {
         <div className="flex justify-center content-center">
           <div className="grid grid-cols-2 gap-4 h-80 w-2/3 content-center">
             <div className="text-center content-center">
-              <p className="font-bold text-5xl pb-5">Housing in Singapore</p>
-              <p className="text-3xl">Finding the right home in Singapore</p>
+              <p className="font-bold text-5xl pb-5">Singapore Dream House</p>
+              <p className="text-2xl">Helping young adults finding the best home</p>
             </div>
             <div className="flex justify-content content-center pl-5">
               <Map width={500} height={500}/>
@@ -269,7 +281,7 @@ export default function Overview() {
             
             {/* helo ini map ya */}
             <div className="float-left pl-20">
-              <MapIntro dataUrl={mapIntroUrl} topojsonUrl={topojsonUrl} />
+              <MapIntro/>
             </div>
             <p className="text-3xl font-bold pb-5">The Singapore Scene</p>
             <p className="text-lg text-justify pt-5 pb-10">
@@ -331,7 +343,9 @@ export default function Overview() {
             <div className="grid grid-cols-3 gap-10">
               <div>
                 <p className="text-2xl font-bold pb-3">Top 5 Area with Most Resale Flats Count</p>
-                {/* <p className="text-md text-justify pb-5">Below is the graph showing the top 5 towns that have the most resale flats according to the year and flat types. From 2016, transaction counts at Sengkang and Punggol are increasing rapidly as seen in 2020 and 2021 they are the top two. You can toggle the filters for the year and flat types to understand more on which areas have the most sold flats in that year.</p> */}
+                <p className="text-md text-justify pb-5">Tampines, Yishun, Bedok, Jurong West, and Woodlands rank as the top five towns with the highest number of transactions over the years.
+<br/>
+Starting from 2016, the transaction counts in Sengkang and Punggol have been rapidly increasing. By 2020 and 2021, they emerged as the top two towns with the highest transaction volumes.</p>
                 <div className="flex grid grid-cols-2 gap-4 pb-5">
                   <div>
                     <label htmlFor="year-select">Select Year: </label>
@@ -346,7 +360,9 @@ export default function Overview() {
               </div>
               <div>
                 <p className="text-2xl font-bold pb-3">Mature vs. Non Mature Median Price</p>
-                {/* <p className="text-md text-justify pb-5">The graph shows the median price of the different flat types in the mature and non-mature areas across the year. You can toggle the flat types filter to see the trend of the median prices across the years.</p> */}
+                <p className="text-md text-justify pb-5">Over the years, the difference in the median adjusted price, accounting for inflation, between non-mature and mature towns has become less significant.
+<br/>
+For flat types 3 and above, the gap in median prices between mature and non-mature towns increased from 2015 to 2020, but it narrowed after 2020.</p>
                 <label htmlFor="flat-type-select">Flat Type: </label>
                 <DropdownFilterFlat filterKey={'flatTypes'} placeholder={'All'} items={flatTypes} filter={selectedMedianFlatType} setFilter={setSelectedMedianFlatType}/>
                 <MedianMaturityPriceChart
@@ -356,14 +372,14 @@ export default function Overview() {
               </div>
               <div>
                 <p className="text-2xl font-bold pb-3">Years to Pay Off Flat</p>
-                {/* <p className="text-md text-justify pb-5">Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.</p> */}
+                <p className="text-md text-justify pb-5"><br/>In general, the affordability ratio (the estimated time it would take for one to own a HDB flat  if one saves their entire income, based on median income) has remained relatively stable. </p>
                 {/* <br/>
                 <br/>
                 <br/>
                 <br/> */}
                 <OwnershipTimeChart
                   incomeData={filteredIncomeData}
-                  hdbData={filterHdbFlat}
+                  hdbData={medianPrice}
                   selectedFilter="All" // Change to pass the entire selectedFilter object
                 />
               </div>
@@ -411,10 +427,20 @@ export default function Overview() {
             <div className="grid grid-cols-2 gap-10">
               <div>
                 <p className="text-2xl font-bold pb-3">Amenities with Most Time Spent</p>
+                <p className="pb-5 text-justify">The treemap graph displays data from a survey conducted by the Housing Development Board (HDB). This survey illustrates the proportion of time HDB residents spend on various amenities surrounding their homes.
+<br/>
+Amenities accounting for less than 1% of time spent have been grouped together to prevent the treemap from becoming overly cluttered.
+<br/>
+Thus, upon examining the treemap, it is observed that residents spend the majority of their time in shopping centers, followed by different type of amenities.</p>
                 <Treemap />
               </div>
               <div>
-                <p className="text-2xl font-bold pb-3">Feature Importance</p>
+                <p className="text-2xl font-bold pb-3">Feature Importance Based on Catboost</p>
+                <p className="pb-5">CatBoost was selected to rank the feature importance because it does not assume all features have a linear correlation. Hence, this multiline graph displays the top 10 features as determined by CatBoost.
+<br/>
+<br/>
+With the top three features identified as floor area (sqm), distance to CBD, and the years left on the lease, we decided to incorporate other amenities, as highlighted in the treemap graph, to further assist young adults in choosing their homes.
+</p>
                 <MultilineChart />
               </div>
             </div>

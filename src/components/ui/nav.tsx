@@ -10,7 +10,8 @@ export default function Nav(props: NavProps) {
   return (
     <nav className="flex items-center justify-between py-4 px-4 sticky top-0 z-40 bg-white">
       <div>
-        <a href="/" className="text-gray-800">Logo</a>
+        {/* <a href="/" className="text-gray-800">Logo</a> */}
+        <img src="/logoFull.png" alt="logo" className="h-8 ms-4 scale-150" />
       </div>
       <div className="flex h-5 items-center space-x-4">
         <a href="/" className={`text-gray-800 ${activePage === 'overview' ? 'font-semibold' : ''}`}>Overview</a>
