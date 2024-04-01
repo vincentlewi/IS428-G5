@@ -113,6 +113,8 @@ const MedianMaturityPriceChart: React.FC<Props> = ({ data, selectedFilter }) => 
 
       g.append("g").call(d3.axisLeft(yScale));
 
+      
+
       // Legend setup
       const legend = g.append('g')
       .attr('class', 'legend')
@@ -159,7 +161,7 @@ const MedianMaturityPriceChart: React.FC<Props> = ({ data, selectedFilter }) => 
       function generateChartTitle(
         selectedFilter: Props["selectedFilter"]
       ): string {
-        let title = `Mature vs. Non-Mature Median Price for ${selectedFilter} Flat Types`;
+        let title = `Mature vs. Non-Mature Median Price - ${selectedFilter}`;
         return title;
       }
     }
