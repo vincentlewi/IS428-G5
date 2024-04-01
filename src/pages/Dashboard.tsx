@@ -121,8 +121,8 @@ export default function Dashboard() {
   return (
     <>
       <Nav activePage='dashboard'/>
-      <div className='flex align-middle justify-center items-center gap-4'>
-        <Card>
+      <div className='flex align-middle justify-center items-center gap-4 bg-yellow-50 pt-8'>
+        <Card className="mr-3 w-[300px] h-[360px]">
           <CardHeader>
             <CardTitle>Filter</CardTitle>
           </CardHeader>
@@ -134,19 +134,19 @@ export default function Dashboard() {
             <p className="text-md py-2">Price Range:</p>
             <MultiSlider defaultValue={[0, 1379016]} min={0} max={1379016} filter={filter} setFilter={setFilter}/>
             <div className='flex justify-between'>
-              <p className="pt-1">S{SGD.format(filter.min_price)}</p>
-              <p className="pt-1">S{SGD.format(filter.max_price)}</p>
+              <p className="pt-2 text-xs">S{SGD.format(filter.min_price)}</p>
+              <p className="pt-2 text-xs">S{SGD.format(filter.max_price)}</p>
             </div>
             <div className='flex justify-between'>
-              <p className="text-md pb-2">Minimum Remaining Lease:</p>
+              <p className="text-md pb-2 pt-2">Minimum Remaining Lease:</p>
               <p>{filter.min_remaining_lease}</p>
             </div>
             <Slider filterKey='min_remaining_lease' defaultValue={[0]} min={0} max={99} step={1} filter={filter} setFilter={setFilter}/>
             
           </CardContent>
-        </Card>        
-        <Map width={800} height={400} points={topHouses} selectedAmenity={selectedAmenity}/>
-        <Card>
+        </Card> 
+        <Map width={680} height={360} points={topHouses} selectedAmenity={selectedAmenity}/>
+        <Card className='ml-3 '>
           <CardHeader>
             <CardTitle>Show Amenities</CardTitle>
           </CardHeader>
@@ -155,26 +155,30 @@ export default function Dashboard() {
           </CardContent>
         </Card>
       </div>
-      <div className='flex justify-center pb-5'>
-        {Object.keys(preferences).map((pref, index) => (              
-          <Card className='mx-1 w-[150px]'>
-            <CardHeader className='px-1 py-2'>
-              <CardTitle className='text-md'>{pref.toUpperCase()}</CardTitle>
-            </CardHeader>
-            <CardContent className='px-0 text-center'>
-              <Slider filterKey={pref as keyof typeof preferences} defaultValue={[0]} min={0} max={4} step={1} filter={preferences} setFilter={setPreferences}/>
-              <span className='text-xs'>{preferences_alias[preferences[pref]]}</span>
-            </CardContent>
-          </Card>
-        ))}
+      <div className="text-center bg-yellow-50 pt-5">
+        <p className="font-bold text-xl pb-3">Amenities Priority</p>
+        <div className='flex justify-center pb-5'>
+          
+          {Object.keys(preferences).map((pref, index) => (              
+            <Card className='mx-1 w-[150px]'>
+              <CardHeader className='px-2 py-2 text-center'>
+                <CardTitle className='text-md'>{pref.toUpperCase()}</CardTitle>
+              </CardHeader>
+              <CardContent className='py-2 px-2 text-center'>
+                <Slider filterKey={pref as keyof typeof preferences} defaultValue={[0]} min={0} max={4} step={1} filter={preferences} setFilter={setPreferences}/>
+                <span className='text-xs'>{preferences_alias[preferences[pref]]}</span>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
       </div>
-      <div className='flex align-middle justify-center items-center gap-4'>
+      <div className='flex align-middle justify-center items-center gap-4 bg-yellow-50'>
         {!topHouses[0]
         ? <p>Sorry, we couldn't find any house to recommend.</p>
         : topHouses[0].address === ''
           ? <p>Loading...</p>
           : <>
-              <div className='mx-10'><DiscoveryRadar options={{variables: [], sets:topHouses}} hovered={hovered}/></div>
+              <div className='mx-12'><DiscoveryRadar options={{variables: [], sets:topHouses}} hovered={hovered}/></div>
               <div>
                 {topHouses.map((house, index) => (
                   <Card 
@@ -218,6 +222,7 @@ export default function Dashboard() {
             </>
         }
       </div>
+      
     </>
   )
 }

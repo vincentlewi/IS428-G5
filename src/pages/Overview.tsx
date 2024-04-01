@@ -243,8 +243,8 @@ export default function Overview() {
         <div className="flex justify-center content-center">
           <div className="grid grid-cols-2 gap-4 h-80 w-2/3 content-center">
             <div className="text-center content-center">
-              <p className="font-bold text-5xl pb-5">Housing in Singapore</p>
-              <p className="text-3xl">Finding the right home in Singapore</p>
+              <p className="font-bold text-5xl pb-5">Singapore Dream House</p>
+              <p className="text-2xl">Helping young adults finding the best home</p>
             </div>
             <div className="flex justify-content content-center pl-5">
               <Map width={500} height={500}/>
