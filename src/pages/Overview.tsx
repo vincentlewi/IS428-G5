@@ -85,9 +85,6 @@ interface Filter {
 }
 
 export default function Overview() {
-
-  const mapIntroUrl = "@/assets/datasets/hdb/hdb_intro_map.json"; // Update this with the actual path
-  const topojsonUrl = "@/assets/datasets/map/singapore_intro_map.json"; // Update this with the actual path
   const [years, setYears] = useState<string[]>(['All']);
   const [flatTypes, setFlatTypes] = useState<string[]>(['All']);
   const [selectedFilter, setSelectedFilter] = useState<Filter>({ 
@@ -284,7 +281,7 @@ export default function Overview() {
             
             {/* helo ini map ya */}
             <div className="float-left pl-20">
-              <MapIntro dataUrl={mapIntroUrl} topojsonUrl={topojsonUrl} />
+              <MapIntro/>
             </div>
             <p className="text-3xl font-bold pb-5">The Singapore Scene</p>
             <p className="text-lg text-justify pt-5 pb-10">
