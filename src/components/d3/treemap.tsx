@@ -25,7 +25,7 @@ const Treemap = () => {
   }, [modifiedData]);
 
   const width = 600
-  const height = 500
+  const height = 450
 
   const root = useMemo(() => {
     const treeGenerator = d3.treemap<Tree>().size([width, height]).padding(4);

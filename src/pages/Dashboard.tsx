@@ -119,22 +119,22 @@ export default function Dashboard() {
             <CardTitle>Filter</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className=''></div>
             <p className="text-md">Region:</p>
             <DropdownFilter filterKey={'region'} placeholder={'All'} items={['All', 'Central', 'East', 'North', 'North East', 'West']} filter={filter} setFilter={setFilter}/>
             <p className="text-md pt-2">Flat Type:</p>
             <DropdownFilter filterKey={'flat_type'} placeholder={'All'} items={['All', '1 ROOM', '2 ROOM', '3 ROOM', '4 ROOM', '5 ROOM', 'EXECUTIVE', 'MULTI-GENERATION']} filter={filter} setFilter={setFilter}/>
-            Price Range:
+            <p className="text-md py-2">Price Range:</p>
             <MultiSlider defaultValue={[0, 1379016]} min={0} max={1379016} filter={filter} setFilter={setFilter}/>
             <div className='flex justify-between'>
-              <p>S${SGD.format(filter.min_price)}</p>
-              <p>S${SGD.format(filter.max_price)}</p>
+              <p className="pt-1">S{SGD.format(filter.min_price)}</p>
+              <p className="pt-1">S{SGD.format(filter.max_price)}</p>
             </div>
             <div className='flex justify-between'>
-              <p>Minimum Remaining Lease:</p>
+              <p className="text-md pb-2">Minimum Remaining Lease:</p>
               <p>{filter.min_remaining_lease}</p>
             </div>
             <Slider filterKey='min_remaining_lease' defaultValue={[0]} min={0} max={99} step={1} filter={filter} setFilter={setFilter}/>
+            
           </CardContent>
         </Card>        
         <Map width={600} height={400} points={topHouses} selectedAmenity={selectedAmenity}/>
@@ -147,7 +147,7 @@ export default function Dashboard() {
           </CardContent>
         </Card>
       </div>
-      <div className='flex justify-center'>
+      <div className='flex justify-center pb-5'>
         {Object.keys(preferences).map((pref, index) => (              
           <Card className='mx-1 w-[150px]'>
             <CardHeader className='px-1 py-2'>
