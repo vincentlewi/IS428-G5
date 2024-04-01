@@ -11,12 +11,12 @@ export default function multilineChart() {
 
   useEffect(() => {
     if (dataset.length > 0 && d3Container.current) {
-        const margin = { top: 20, right: 10, bottom: 30, left: 20 };
+        const margin = { top: 20, right: 10, bottom: 100, left: 20 };
         const legendMargin = { top: 20, right: 20, width: 150 };
-        const width = 500 - margin.left - margin.right;
-        const height = 300 - margin.top - margin.bottom;
+        const width = 600 - margin.left - margin.right;
+        const height = 350 - margin.top - margin.bottom;
         const svgWidth = width + margin.left + margin.right + legendMargin.width + legendMargin.right + 100;
-        const svgHeight = height + margin.top + margin.bottom;
+        const svgHeight = 500;
         
 
       // Remove any previous SVG
@@ -68,33 +68,32 @@ export default function multilineChart() {
         .attr('d', d => lineGenerator(d.value));
 
         // Legend setup
-        const legendSpace = 10; // Define spacing for the legend
-        const legendRectSize = 5; // Define the size of the legend marker
+      const legendRectSize = 10; // Size of the legend marker
+      const legendSpacing = 5; // Space between legend marker and text
+      const legendHeight = legendRectSize + legendSpacing;
 
-        // Create a legend group element
-        const legend = svg.selectAll('.legend')
-        .data(dataset)
-        .enter()
-        .append('g')
-        .attr('class', 'legend')
-        .attr('transform', (_, i) => `translate(${width + margin.left + margin.right}, ${i * legendSpace})`);
+      // Create legend below the chart
+      dataset.forEach((d, i) => {
+        const legend = svg.append('g')
+          .attr('class', 'legend')
+          .attr('transform', `translate(0, ${height + margin.bottom / 2 + (i * legendHeight)})`);
 
-        // Draw legend rectangles
         legend.append('rect')
-        .attr('width', legendRectSize)
-        .attr('height', legendRectSize)
-        .style('fill', d => color(d.key))
-        .style('stroke', d => color(d.key));
+          .attr('width', legendRectSize)
+          .attr('height', legendRectSize)
+          .style('fill', color(d.key))
+          .style('stroke', color(d.key));
 
-        // Draw legend text
         legend.append('text')
-        .attr('x', legendRectSize + 5)
-        .attr('y', legendRectSize - 2)
-        .text(d => d.key)
-        .attr('text-anchor', 'start')
-        .attr('font-size', '10px')
-        .style('alignment-baseline', 'middle')
-        .style('fill', d => color(d.key));
+          .attr('x', legendRectSize + 5)
+          .attr('y', legendRectSize / 2)
+          .text(d.key)
+          .attr('dy', '0.32em') // Vertically center text
+          .attr('text-anchor', 'start')
+          .attr('font-size', '10px')
+          .style('alignment-baseline', 'middle')
+          .style('fill', color(d.key));
+      });
 
         svg.attr('viewBox', `0 0 ${svgWidth} ${svgHeight}`)
         .attr('preserveAspectRatio', 'xMinYMin meet');

@@ -12,7 +12,6 @@ import OwnershipTimeChart from '@/components/d3/OwnershipTimeChart';
 import Resale_Flat_Hdb from '@/components/d3/Resale_Flat_Hdb';
 import MedianMaturityPriceChart from '@/components/d3/medianmaturity';
 import * as d3 from "d3";
-import { Recommend } from '@/components/d3/recommend';
 import { DropdownFilter } from '@/components/ui/dropdownFilterGraph'
 import { DropdownFilterFlat } from "@/components/ui/dropdownFilterFlat";
 import MapIntro from "@/components/d3/map_intro";
@@ -81,8 +80,8 @@ interface Filter {
 
 export default function Overview() {
 
-  const mapIntroUrl = "../src/assets/datasets/hdb/hdb_intro_map.json"; // Update this with the actual path
-  const topojsonUrl = "../src/assets/datasets/map/singapore_intro_map.json"; // Update this with the actual path
+  const mapIntroUrl = "@/assets/datasets/hdb/hdb_intro_map.json"; // Update this with the actual path
+  const topojsonUrl = "@/assets/datasets/map/singapore_intro_map.json"; // Update this with the actual path
   const [years, setYears] = useState<string[]>(['All']);
   const [flatTypes, setFlatTypes] = useState<string[]>(['All']);
   const [selectedFilter, setSelectedFilter] = useState<Filter>({ 
@@ -401,19 +400,21 @@ export default function Overview() {
             <p className="text-3xl font-bold pb-5 text-center">
               The Decision Making Process
             </p>
-            <p className="text-lg text-justify pb-10">
+            {/* <p className="text-lg text-justify pb-10">
               Our tool will provide you with a comprehensive overview of the
               prices of homes in different estates, and help you make the best
               decision on where to buy your home. By using our tool, you will be
               able to compare the prices of homes across different estates in
               Singapore, and make an informed decision based on your preferences
               and budget.
-            </p>
+            </p> */}
             <div className="grid grid-cols-2 gap-10">
               <div>
+                <p className="text-2xl font-bold pb-3">Amenities with Most Time Spent</p>
                 <Treemap />
               </div>
               <div>
+                <p className="text-2xl font-bold pb-3">Feature Importance</p>
                 <MultilineChart />
               </div>
             </div>
