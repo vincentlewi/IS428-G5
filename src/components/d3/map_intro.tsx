@@ -1,5 +1,7 @@
 import React, { useEffect, useState, useRef } from "react";
 import * as d3 from "d3";
+import transformedData from "@/assets/datasets/hdb/hdb_intro_map.json";
+import topojsonData from "@/assets/datasets/map/singapore_intro_map.json";
 
 interface TownData {
   n: number;
@@ -31,7 +33,7 @@ interface MapIntroProps {
   topojsonUrl: string;
 }
 
-const MapIntro: React.FC<MapIntroProps> = ({ dataUrl, topojsonUrl }) => {
+const MapIntro: React.FC<MapIntroProps> = () => {
   const [geoData, setGeoData] = useState<GeoJSONFeatureCollection | null>(null);
   const svgRef = useRef<SVGSVGElement>(null);
   const [currentYear, setCurrentYear] = useState<number>(2019);
@@ -40,14 +42,6 @@ const MapIntro: React.FC<MapIntroProps> = ({ dataUrl, topojsonUrl }) => {
   useEffect(() => {
     async function fetchDataAndProcess() {
       try {
-        const transformedDataResp = await fetch(dataUrl);
-        const topojsonDataResp = await fetch(topojsonUrl);
-        const transformedData: TransformedData =
-          await transformedDataResp.json();
-        const topojsonData: GeoJSONFeatureCollection =
-          await topojsonDataResp.json();
-
-        // Process and merge data right after fetching
         processAndMergeData(topojsonData, transformedData, currentYear);
       } catch (error) {
         console.error("Error fetching or processing data:", error);
@@ -55,7 +49,7 @@ const MapIntro: React.FC<MapIntroProps> = ({ dataUrl, topojsonUrl }) => {
     }
 
     fetchDataAndProcess();
-  }, [dataUrl, topojsonUrl, currentYear]);
+  }, [currentYear]);
   // Interval for auto-changing years
   useEffect(() => {
     if (isPlaying) {
@@ -188,7 +182,7 @@ const MapIntro: React.FC<MapIntroProps> = ({ dataUrl, topojsonUrl }) => {
       }
     }, [delay]);
   }
-
+  
   const processAndMergeData = (
     geojson: GeoJSONFeatureCollection,
     transformedData: TransformedData,

@@ -35,7 +35,7 @@ export type TreeNode = {
       {type: 'leaf', name:"Community Centre", value: 1.8},
       {type: 'leaf', name:"Supermarket", value: 6.25},
       {type: 'leaf', name:"Shops at town centre", value: 2.65},
-      {type: 'leaf', name:"Shopping Cetre/ Complex", value: 35.05},
+      {type: 'leaf', name:"Shopping Centre/Complex", value: 35.05},
       {type: 'leaf', name:"Others", value: 0.5},
       {type: 'leaf', name:"Market/Stall", value: 5.5},
       {type: 'leaf', name:"HDB Neighbourhood centre", value: 0.9},
