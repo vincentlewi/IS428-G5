@@ -28,21 +28,16 @@ interface GeoJSONFeature
 interface GeoJSONFeatureCollection
   extends GeoJSON.FeatureCollection<GeoJSON.Geometry, FeatureProperties> {}
 
-interface MapIntroProps {
-  dataUrl: string;
-  topojsonUrl: string;
-}
-
-const MapIntro: React.FC<MapIntroProps> = () => {
+const MapIntro: React.FC = () => {
   const [geoData, setGeoData] = useState<GeoJSONFeatureCollection | null>(null);
   const svgRef = useRef<SVGSVGElement>(null);
-  const [currentYear, setCurrentYear] = useState<number>(2019);
+  const [currentYear, setCurrentYear] = useState<number>(1990);
   const [isPlaying, setIsPlaying] = useState<boolean>(true);
 
   useEffect(() => {
     async function fetchDataAndProcess() {
       try {
-        processAndMergeData(topojsonData, transformedData, currentYear);
+        processAndMergeData(topojsonData as GeoJSONFeatureCollection, transformedData, currentYear);
       } catch (error) {
         console.error("Error fetching or processing data:", error);
       }
@@ -198,7 +193,7 @@ const MapIntro: React.FC<MapIntroProps> = () => {
           // Initialize the town's data aggregation
           aggregatedTownData[town.town] = { ...town, n: 0, perSqmPriceSum: 0 };
         }
-
+        
         // Aggregate data
         aggregatedTownData[town.town].n += town.n;
         aggregatedTownData[town.town].perSqmPriceSum += town.perSqmPriceSum;
@@ -219,7 +214,6 @@ const MapIntro: React.FC<MapIntroProps> = () => {
       }
       return feature;
     });
-
     setGeoData({ ...geojson, features: featuresWithTownData });
   };
 
