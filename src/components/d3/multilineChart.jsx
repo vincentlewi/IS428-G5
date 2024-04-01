@@ -34,11 +34,11 @@ export default function multilineChart() {
       const x = d3.scalePoint()
         .domain(dataset[0].value.map(d => d.year))
         .range([0, width])
-        .padding(0.5);
+        .padding(0.5)
 
       svg.append('g')
         .attr('transform', `translate(0, ${height})`)
-        .call(d3.axisBottom(x));
+        .call(d3.axisBottom(x))
 
       // Compute maximum value in dataset for Y axis domain
     const maxY = d3.max(dataset.flatMap(group => group.value.map(point => point.Importances))) ?? 0;
@@ -50,6 +50,13 @@ export default function multilineChart() {
 
     svg.append('g').call(d3.axisLeft(y));
 
+    // X-axis title
+    svg.append("text")
+    .attr("text-anchor", "end")
+    .attr("x", width / 2 + margin.left)
+    .attr("y", height + 40) // Adjust accordingly
+    .text("Year Range")
+    .style("font-size", "12px");
 
     const lineGenerator = d3.line()
         .x(d => x(d.year) || 0)
@@ -64,7 +71,12 @@ export default function multilineChart() {
         .join('path')
         .attr('fill', 'none')
         .attr('stroke', d => color(d.key))
-        .attr('stroke-width', 1.5)
+        .attr('stroke-width', d => {
+          // Make the stroke thicker for the top 3 features
+          // You need to define logic to determine the top 3 features
+          // For demonstration, we'll assume the first three dataset items are "top"
+          return dataset.indexOf(d) < 3 ? 3 : 1.5; // Increase stroke width for top 3 features
+        })
         .attr('d', d => lineGenerator(d.value));
 
         // Legend setup
@@ -92,7 +104,9 @@ export default function multilineChart() {
           .attr('text-anchor', 'start')
           .attr('font-size', '10px')
           .style('alignment-baseline', 'middle')
-          .style('fill', color(d.key));
+          .style('fill', color(d.key))
+
+    
       });
 
         svg.attr('viewBox', `0 0 ${svgWidth} ${svgHeight}`)
@@ -107,11 +121,12 @@ export default function multilineChart() {
             svg.append("text")
                 .attr("x", x(d.year))
                 .attr("y", y(d.Importances))
-                .attr("dy", "-0.5em") // Adjust position above the circle
+                .attr("dy", "-0.6em") // Adjust position above the circle
+                .attr("dx", "0.4em") // Adjust position above the circle
                 .attr("text-anchor", "middle")
                 .text(`${d.Importances.toFixed(2)}`) // Show the feature name and value
-                .attr("font-size", "10px") // Adjust font size as needed
-                .attr("fill", color(featureGroup.key)); // Use the color scale for consistency
+                .attr("font-size", "9px") // Adjust font size as needed
+                .attr("fill", color(featureGroup.key)) // Use the color scale for consistency
             });
         }
         });

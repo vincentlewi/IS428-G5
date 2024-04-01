@@ -27,3 +27,4 @@ dist-ssr
 ./datasets
 catboost_info
 feature_importances
+.ipynb_checkpoints

@@ -220,9 +220,6 @@ export default function Overview() {
   useEffect(() => {
     const filterHDB = filterData(hdbData, selectedFilter);
     setFilteredHDBData(filterHDB);
-    // const filteredHDBFlat = filterMedianPriceData(medianAdjustedPrices, selectedIncomeFlatType);
-    // setFilterHdbFlat(filteredHDBFlat);
-    // console.log(filterHdbFlat)
     const filterMedianAdjustedPrices = filterMedianPriceData(medianAdjustedPrices, selectedMedianFlatType);
     setFilteredMedianAdjustedPrices(filterMedianAdjustedPrices);
     }, [selectedFilter, selectedIncomeFlatType, selectedMedianFlatType]);
@@ -238,7 +235,7 @@ export default function Overview() {
       <Nav activePage="overview" />
       <CustomContainer
         style={{ backgroundColor: "#fdfaecff" }}
-        className="content-center relative"
+        className="content-center relative text-justify"
       >
         <div className="flex justify-center content-center">
           <div className="grid grid-cols-2 gap-4 h-80 w-2/3 content-center">
@@ -253,14 +250,13 @@ export default function Overview() {
           <div className="absolute bottom-20 text-center align-center">
             <ScrollIntoView selector="#sg-scene">
               <button>
-                {/* <p className="text-lg pb-3">Let us tell you the story</p> */}
                 <Wave
                   text="Let us tell you the story"
                   effect="jump"
                   effectDirection="up"
-                  speed={30}
-                  effectChange={0.5}
-                  effectDuration={0.5}
+                  speed={10}
+                  effectChange={0.2}
+                  effectDuration={1}
                 />
                 <p className="flex justify-center">
                   <ArrowBigDown />
@@ -314,9 +310,9 @@ export default function Overview() {
                   text="Further into the Data"
                   effect="jump"
                   effectDirection="up"
-                  speed={30}
-                  effectChange={0.5}
-                  effectDuration={0.5}
+                  speed={10}
+                  effectChange={0.2}
+                  effectDuration={1}
                 />
                 <p className="flex justify-center">
                   <ArrowBigDown />
@@ -344,8 +340,8 @@ export default function Overview() {
               <div>
                 <p className="text-2xl font-bold pb-3">Top 5 Area with Most Resale Flats Count</p>
                 <p className="text-md text-justify pb-5">Tampines, Yishun, Bedok, Jurong West, and Woodlands rank as the top five towns with the highest number of transactions over the years.
-<br/>
-Starting from 2016, the transaction counts in Sengkang and Punggol have been rapidly increasing. By 2020 and 2021, they emerged as the top two towns with the highest transaction volumes.</p>
+                <br/>
+                Starting from 2016, the transaction counts in Sengkang and Punggol have been rapidly increasing. By 2020 and 2021, they emerged as the top two towns with the highest transaction volumes.</p>
                 <div className="flex grid grid-cols-2 gap-4 pb-5">
                   <div>
                     <label htmlFor="year-select">Select Year: </label>
@@ -361,8 +357,8 @@ Starting from 2016, the transaction counts in Sengkang and Punggol have been rap
               <div>
                 <p className="text-2xl font-bold pb-3">Mature vs. Non Mature Median Price</p>
                 <p className="text-md text-justify pb-5">Over the years, the difference in the median adjusted price, accounting for inflation, between non-mature and mature towns has become less significant.
-<br/>
-For flat types 3 and above, the gap in median prices between mature and non-mature towns increased from 2015 to 2020, but it narrowed after 2020.</p>
+                <br/>
+                For flat types 3 and above, the gap in median prices between mature and non-mature towns increased from 2015 to 2020, but it narrowed after 2020.</p>
                 <label htmlFor="flat-type-select">Flat Type: </label>
                 <DropdownFilterFlat filterKey={'flatTypes'} placeholder={'All'} items={flatTypes} filter={selectedMedianFlatType} setFilter={setSelectedMedianFlatType}/>
                 <MedianMaturityPriceChart
@@ -373,14 +369,10 @@ For flat types 3 and above, the gap in median prices between mature and non-matu
               <div>
                 <p className="text-2xl font-bold pb-3">Years to Pay Off Flat</p>
                 <p className="text-md text-justify pb-5"><br/>In general, the affordability ratio (the estimated time it would take for one to own a HDB flat  if one saves their entire income, based on median income) has remained relatively stable. </p>
-                {/* <br/>
-                <br/>
-                <br/>
-                <br/> */}
                 <OwnershipTimeChart
                   incomeData={filteredIncomeData}
                   hdbData={medianPrice}
-                  selectedFilter="All" // Change to pass the entire selectedFilter object
+                  selectedFilter="All" 
                 />
               </div>
             </div>
@@ -388,14 +380,13 @@ For flat types 3 and above, the gap in median prices between mature and non-matu
           <div className="absolute bottom-5 text-center align-center">
             <ScrollIntoView selector="#decision-making">
               <button>
-                {/* <p className="text-lg pb-3">Let us tell you the story</p> */}
                 <Wave
                   text="The Decision Making Process"
                   effect="jump"
                   effectDirection="up"
-                  speed={30}
-                  effectChange={0.5}
-                  effectDuration={0.5}
+                  speed={10}
+                  effectChange={0.2}
+                  effectDuration={1}
                 />
                 <p className="flex justify-center">
                   <ArrowBigDown />
@@ -416,31 +407,23 @@ For flat types 3 and above, the gap in median prices between mature and non-matu
             <p className="text-3xl font-bold pb-5 text-center">
               The Decision Making Process
             </p>
-            {/* <p className="text-lg text-justify pb-10">
-              Our tool will provide you with a comprehensive overview of the
-              prices of homes in different estates, and help you make the best
-              decision on where to buy your home. By using our tool, you will be
-              able to compare the prices of homes across different estates in
-              Singapore, and make an informed decision based on your preferences
-              and budget.
-            </p> */}
             <div className="grid grid-cols-2 gap-10">
               <div>
                 <p className="text-2xl font-bold pb-3">Amenities with Most Time Spent</p>
                 <p className="pb-5 text-justify">The treemap graph displays data from a survey conducted by the Housing Development Board (HDB). This survey illustrates the proportion of time HDB residents spend on various amenities surrounding their homes.
-<br/>
-Amenities accounting for less than 1% of time spent have been grouped together to prevent the treemap from becoming overly cluttered.
-<br/>
-Thus, upon examining the treemap, it is observed that residents spend the majority of their time in shopping centers, followed by different type of amenities.</p>
+                <br/>
+                Amenities accounting for less than 1% of time spent have been grouped together to prevent the treemap from becoming overly cluttered.
+                <br/>
+                Thus, upon examining the treemap, it is observed that residents spend the majority of their time in shopping centers, followed by different type of amenities.</p>
                 <Treemap />
               </div>
               <div>
                 <p className="text-2xl font-bold pb-3">Feature Importance Based on Catboost</p>
                 <p className="pb-5">CatBoost was selected to rank the feature importance because it does not assume all features have a linear correlation. Hence, this multiline graph displays the top 10 features as determined by CatBoost.
-<br/>
-<br/>
-With the top three features identified as floor area (sqm), distance to CBD, and the years left on the lease, we decided to incorporate other amenities, as highlighted in the treemap graph, to further assist young adults in choosing their homes.
-</p>
+                <br/>
+                <br/>
+                With the top three features identified as floor area (sqm), distance to CBD, and the years left on the lease, we decided to incorporate other amenities, as highlighted in the treemap graph, to further assist young adults in choosing their homes.
+                </p>
                 <MultilineChart />
               </div>
             </div>
@@ -453,9 +436,9 @@ With the top three features identified as floor area (sqm), distance to CBD, and
                   text="The Solution"
                   effect="jump"
                   effectDirection="up"
-                  speed={30}
-                  effectChange={0.5}
-                  effectDuration={0.5}
+                  speed={10}
+                  effectChange={0.2}
+                  effectDuration={1}
                 />
                 <p className="flex justify-center">
                   <ArrowBigDown />
