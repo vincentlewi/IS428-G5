@@ -452,7 +452,7 @@ export default function Overview() {
       <CustomContainer
         id="solution"
         style={{ backgroundColor: "#fdfaecff" }}
-        className="content-center"
+        className="content-center relative"
       >
         <div className="flex justify-center">
           <div className="w-3/4">
@@ -472,6 +472,46 @@ export default function Overview() {
                 Go to Dashboard
               </Button>
             </div>
+          </div>
+          <div className="absolute bottom-5 text-center align-center">
+            <ScrollIntoView selector="#references">
+              <button>
+                {/* <p className="text-lg pb-3">Let us tell you the story</p> */}
+                <Wave
+                  text="References"
+                  effect="jump"
+                  effectDirection="up"
+                  speed={10}
+                  effectChange={0.2}
+                  effectDuration={1}
+                />
+                <p className="flex justify-center">
+                  <ArrowBigDown />
+                </p>
+              </button>
+            </ScrollIntoView>
+          </div>
+        </div>
+      </CustomContainer>
+
+      <CustomContainer
+      id="references"
+      style={{ backgroundColor: "#333333ff" }}
+      className="content-center relative">
+        <div className="flex justify-center">
+          <div className="w-3/4 text-center">
+            <p className="text-3xl font-bold pb-5 text-center text-zinc-50">
+              References
+            </p>
+            <div className="grid grid-cols-2 gap-20">
+              <ul className="text-zinc-50 text-justify">
+                <li>[1] “HDB Sample Household Survey 2018,” Housing & Development Board, https://www.hdb.gov.sg/-/media/HDBContent/Images/CDG/Library/Library/SHS-2018-Monograph-1---23-Apr-2021_BLUE.ashx.</li>
+              </ul>
+              <ul className="text-zinc-50 text-justify">
+                <li>[10] Worldometers, “Singapore Population (2023) - Worldometer,” www.worldometers.info, Jul. 16, 2023. https://www.worldometers.info/world-population/singapore-population/#:~:text=Singapore%202023%20population%20is%20estimated</li>
+              </ul>
+            </div>
+            
           </div>
         </div>
       </CustomContainer>
