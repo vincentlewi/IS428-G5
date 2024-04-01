@@ -120,9 +120,9 @@ export default function Dashboard() {
           </CardHeader>
           <CardContent>
             <div className=''></div>
-            Region:
+            <p className="text-md">Region:</p>
             <DropdownFilter filterKey={'region'} placeholder={'All'} items={['All', 'Central', 'East', 'North', 'North East', 'West']} filter={filter} setFilter={setFilter}/>
-            Flat Type:
+            <p className="text-md pt-2">Flat Type:</p>
             <DropdownFilter filterKey={'flat_type'} placeholder={'All'} items={['All', '1 ROOM', '2 ROOM', '3 ROOM', '4 ROOM', '5 ROOM', 'EXECUTIVE', 'MULTI-GENERATION']} filter={filter} setFilter={setFilter}/>
             Price Range:
             <MultiSlider defaultValue={[0, 1379016]} min={0} max={1379016} filter={filter} setFilter={setFilter}/>

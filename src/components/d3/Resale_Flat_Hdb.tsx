@@ -39,7 +39,7 @@ const Resale_Flat_Hdb: React.FC<ResaleFlatHdbProps> = ({ data, selectedFilter, }
         .attr("width", width)
         .attr("height", height)
         .append("g")
-        .attr("transform", "translate(60,50)");
+        .attr("transform", "translate(85,50)");
 
       // Assuming you have a function updateChart that draws or updates the graph
       updateChart(svg, data, selectedFilter, width, height);
@@ -48,34 +48,6 @@ const Resale_Flat_Hdb: React.FC<ResaleFlatHdbProps> = ({ data, selectedFilter, }
 
   useEffect(() => {
     resizeSVG();
-    // if (data && data.length > 0) {
-    //   const container = chartRef.current;
-    //   // if (!container) return;
-
-    //   const width = container.clientWidth;
-    //   const height = container.clientHeight;
-
-    //   const svgContainer = d3.select(container);
-    //   svgContainer.selectAll("*").remove();
-
-    //   const svg = svgContainer
-    //     .append("svg")
-    //     .attr("width", width)
-    //     .attr("height", height)
-    //     .append("g")
-    //     .attr("transform", "translate(60,50)");
-    //   // const svgContainer = d3.select(chartRef.current);
-    //   // svgContainer.selectAll("*").remove();
-    
-    //   // const svg = svgContainer
-    //   //   .append("svg")
-    //   //   .attr("width", 800)
-    //   //   .attr("height", 500)
-    //   //   .append("g")
-    //   //   .attr("transform", "translate(60,50)");
-
-    //   updateChart(svg, data, selectedFilter);
-    // }
   }, [data, selectedFilter]);
 
   function updateChart(
@@ -85,7 +57,7 @@ const Resale_Flat_Hdb: React.FC<ResaleFlatHdbProps> = ({ data, selectedFilter, }
     width: number,
     height: number
     ) {
-    const margin = { top: 50, right: 30, bottom: 70, left: 100 },
+    const margin = { top: 50, right: 70, bottom: 70, left: 120 },
       width_graph = width - margin.left - margin.right,
       height_graph = height - margin.top - margin.bottom;
 
@@ -147,6 +119,15 @@ const Resale_Flat_Hdb: React.FC<ResaleFlatHdbProps> = ({ data, selectedFilter, }
       .scaleLinear()
       .domain([0, maxCount || 0 ])
       .range([0, width_graph]);
+    
+    // X Axis Label
+    svg.append('text')
+    .attr('class', 'x axis-label')
+    .attr('x', width_graph / 2)
+    .attr('y', height_graph + 35) // Adjust this value to position the label below the x-axis
+    .attr('text-anchor', 'middle')
+    .style('font-size', '12px') // You can adjust the style as needed
+    .text('No. of Flats'); // Replace 'Axis Label Text Here' with your actual x-axis label
 
     // Draw the x-axis with gridlines
     svg
@@ -163,7 +144,17 @@ const Resale_Flat_Hdb: React.FC<ResaleFlatHdbProps> = ({ data, selectedFilter, }
       .domain(newProcessedData.map((d) => d.town))
       .padding(0.1);
     
-
+    // // Y Axis Label
+    // svg.append('text')
+    // .attr('class', 'y axis-label')
+    // .attr('transform', 'rotate(-90)') // Rotate the text for y-axis label
+    // .attr('y', -margin.left + 20) // Adjust this value to position the label next to the y-axis
+    // .attr('x', - (height_graph / 2))
+    // .attr('dy', '1em') // Further adjust the position of the label
+    // .attr('text-anchor', 'middle')
+    // .style('font-size', '12px') // You can adjust the style as needed
+    // .text('Town'); // Replace 'Axis Label Text Here' with your actual y-axis label
+    
     svg.append("g").call(d3.axisLeft(y));
 
     // Bars

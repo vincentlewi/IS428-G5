@@ -3,7 +3,7 @@ import { Tree, data } from "@/assets/datasets/treemap_data";
 import * as d3 from "d3";
 import styles from "./treemap.module.css"
 
-const nTree = 1
+const nTree = 15
 
 const Treemap = () => {
   // Modify data to include an "others" category for everything beyond the top 10 features.
@@ -24,7 +24,7 @@ const Treemap = () => {
     return d3.hierarchy(modifiedData).sum((d) => d.value).sort((a, b) => b.value - a.value);
   }, [modifiedData]);
 
-  const width = 700
+  const width = 600
   const height = 500
 
   const root = useMemo(() => {
