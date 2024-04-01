@@ -80,8 +80,8 @@ interface Filter {
 
 export default function Overview() {
 
-  const mapIntroUrl = "../src/assets/datasets/hdb/hdb_intro_map.json"; // Update this with the actual path
-  const topojsonUrl = "../src/assets/datasets/map/singapore_intro_map.json"; // Update this with the actual path
+  const mapIntroUrl = "@/assets/datasets/hdb/hdb_intro_map.json"; // Update this with the actual path
+  const topojsonUrl = "@/assets/datasets/map/singapore_intro_map.json"; // Update this with the actual path
   const [years, setYears] = useState<string[]>(['All']);
   const [flatTypes, setFlatTypes] = useState<string[]>(['All']);
   const [selectedFilter, setSelectedFilter] = useState<Filter>({ 
