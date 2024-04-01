@@ -7,14 +7,10 @@ interface IncomeData {
   median_income: number;
 }
 
-interface MedianAdjustedPriceEntry {
+interface MedianPriceData {
   year: string;
-  flat_type: string;
-  town_classification: string;
   resale_price: number;
-  adjusted_price: number;
-  price_per_sqm: number;
-  adjusted_price_per_sqm: number;
+  flat_type: string;
 }
 
 interface RatioDataEntry {
@@ -25,7 +21,7 @@ interface RatioDataEntry {
 
 interface OwnershipTimeChartProps {
   incomeData: IncomeData[];
-  hdbData: MedianAdjustedPriceEntry[];
+  hdbData: MedianPriceData[];
   selectedFilter: string; // Ensure this matches the structure in Overview.tsx;
 }
 
@@ -61,7 +57,7 @@ const OwnershipTimeChart: React.FC<OwnershipTimeChartProps> = ({
     resizeSVG();
   }, [incomeData, hdbData, selectedFilter]); // Dependencies to re-run the effect when they change
 
-  function calculateRatioIncomePrice(hdbData: MedianAdjustedPriceEntry[], incomeData: IncomeData[]) {
+  function calculateRatioIncomePrice(hdbData: MedianPriceData[], incomeData: IncomeData[]) {
     const ratios = [];
     for (const medianPrice of hdbData){
       const year = medianPrice.year;
@@ -70,8 +66,8 @@ const OwnershipTimeChart: React.FC<OwnershipTimeChartProps> = ({
         income.map((d) => 
           ratios.push({
             year: year,
-            town_classification: medianPrice.town_classification,
-            ratio: medianPrice.adjusted_price / d.median_income
+            flat_type: medianPrice.flat_type,
+            ratio: medianPrice.resale_price / d.median_income
           }))
         ;
       }
@@ -84,7 +80,7 @@ const OwnershipTimeChart: React.FC<OwnershipTimeChartProps> = ({
   function updateChart( 
     svg: d3.Selection<SVGGElement, unknown, null, undefined>,
     incomeData: IncomeData[],
-    hdbData: MedianAdjustedPriceEntry[],
+    hdbData: MedianPriceData[],
     selectedFilter: OwnershipTimeChartProps["selectedFilter"],
     width: number,
     height: number
@@ -96,7 +92,7 @@ const OwnershipTimeChart: React.FC<OwnershipTimeChartProps> = ({
       svg.selectAll("*").remove();
 
       const ratioData = calculateRatioIncomePrice(hdbData, incomeData);
-      
+      console.log(ratioData)
   const maxRatio = d3.max(ratioData, (d) => d.ratio);
  
   
@@ -124,10 +120,10 @@ const OwnershipTimeChart: React.FC<OwnershipTimeChartProps> = ({
   const colorScale = d3.scaleOrdinal(d3.schemeCategory10);
 
   // Group the data by flat type
-  const dataByFlatType = d3.groups(ratioData, (d) => d.town_classification);
+  const dataByFlatType = d3.groups(ratioData, (d) => d.flat_type);
 
   // Draw the line for each flat type
-  dataByFlatType.forEach(([town_classification, values], index) => {
+  dataByFlatType.forEach(([flat_type, values], index) => {
     svg.append("path")
       .datum(values)
       .attr("fill", "none")
@@ -188,7 +184,7 @@ legend.append('text')
     function generateChartTitle(
       selectedFilter: OwnershipTimeChartProps["selectedFilter"]
     ): string {
-      let title = `Years to Pay Off ${selectedFilter} HDB Flats`;
+      let title = `Years to Pay Off HDB vs. Condominium Flats`;
       return title;
     }
   }
