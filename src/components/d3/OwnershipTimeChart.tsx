@@ -19,7 +19,7 @@ interface MedianAdjustedPriceEntry {
 
 interface RatioDataEntry {
   year: string;
-  flat_type: string;
+  town_classification: string;
   ratio: number;
 }
 
@@ -41,7 +41,7 @@ const OwnershipTimeChart: React.FC<OwnershipTimeChartProps> = ({
       if (!container) return;
 
       const width = 500;
-      const height = 330;
+      const height = 280;
 
       const svgContainer = d3.select(container);
       svgContainer.selectAll("*").remove();
@@ -51,59 +51,14 @@ const OwnershipTimeChart: React.FC<OwnershipTimeChartProps> = ({
         .attr("width", width)
         .attr("height", height)
         .append("g")
-        .attr("transform", "translate(60,50)");
+        .attr("transform", "translate(30,50)");
 
         updateChart(svg, incomeData, hdbData, selectedFilter, width, height);
-        
-      // Add Gridlines, Axis Titles, and Legend as per your JS example
-      // ... (You'll need to implement these based on the existing JS logic)
-    
-    // if (data && data.length > 0) {
-    //   const container = chartRef.current;
-    //   if (!container) return;
-
-    //   const width = 500;
-    //   const height = 300;
-
-    //   const svgContainer = d3.select(container);
-    //   svgContainer.selectAll("*").remove();
-
-    //   const svg = svgContainer
-    //     .append("svg")
-    //     .attr("width", width)
-    //     .attr("height", height)
-    //     .append("g")
-    //     .attr("transform", "translate(60,50)");
-
-      // Assuming you have a function updateChart that draws or updates the graph
-    //   updateChart(svg, data, selectedFilter, width, height);
-    // }
   };
 
 
   useEffect(() => {
     resizeSVG();
-    // if (hdbData.length > 0 && incomeData.length > 0 && chartRef.current) {
-    //   const svgElement = d3.select(chartRef.current);
-    //   svgElement.selectAll("*").remove();
-
-    //   const margin = { top: 70, right: 30, bottom: 40, left: 80 },
-    //     width = 480 - margin.left - margin.right,
-    //     height = 300 - margin.top - margin.bottom;
-    //   const svg = svgElement
-    //     .append("svg")
-    //     .attr("width", width + margin.left + margin.right)
-    //     .attr("height", height + margin.top + margin.bottom)
-    //     .append("g")
-    //     .attr("transform", `translate(${margin.left},${margin.top})`);
-
-    //     // svgElement.selectAll("*").remove();
-
-    //     updateChart(svg, incomeData, hdbData, selectedFilter);
-        
-    //   // Add Gridlines, Axis Titles, and Legend as per your JS example
-    //   // ... (You'll need to implement these based on the existing JS logic)
-    // }
   }, [incomeData, hdbData, selectedFilter]); // Dependencies to re-run the effect when they change
 
   function calculateRatioIncomePrice(hdbData: MedianAdjustedPriceEntry[], incomeData: IncomeData[]) {
@@ -111,7 +66,6 @@ const OwnershipTimeChart: React.FC<OwnershipTimeChartProps> = ({
     for (const medianPrice of hdbData){
       const year = medianPrice.year;
       const income = incomeData.filter((d) => d.year === (year + " "));
-      console.log(income)
       if (income) {
         income.map((d) => 
           ratios.push({
@@ -141,57 +95,17 @@ const OwnershipTimeChart: React.FC<OwnershipTimeChartProps> = ({
 
       svg.selectAll("*").remove();
 
-      // const avgResalePriceByYearAndType = d3.rollups(
-      //   hdbData,
-      //   (group) => d3.mean(group, d => d.resale_price), // Ensure this returns the mean
-      //   (d) => d.year,  // First level of grouping: by year
-      //   (d) => d.flat_type // Second level of grouping: by flat_type
-      // ).map(([year, flatTypes]) => ({  
-      //   // This maps the nested structure into a flat one, if that's what you're looking for.
-      //   // Otherwise, you can adjust the structure as needed.
-      //   year: year,
-      //   flat_types: flatTypes.map(([flat_type, mean]) => ({
-      //     flat_type, mean
-      //   }))
-
-      // }));
-
       const ratioData = calculateRatioIncomePrice(hdbData, incomeData);
-      console.log(ratioData)
-      // Adjusted filter data based on the selectedFilter object
-    // let processedData = data
-    // .filter(
-    //   (d) =>
-    //     selectedFilter.year.includes("All") ||
-    //     selectedFilter.year.includes(d.year)
-    // )
-    // .filter(
-    //   (d) =>
-    //     selectedFilter.flatTypes.includes("All") ||
-    //     selectedFilter.flatTypes.includes(d.flat_type)
-    // );
-      
-  //  svg 
-  //   .selectAll("g")
-  //   .data(processedData)
-  //   .attr("width", width + margin.left + margin.right)
-  //   .attr("height", height + margin.top + margin.bottom);
-
-  // svg.selectAll("*").remove(); // Clear the svg for redrawing
-
-  // svg
-  //   .append("g")
-  //   .attr("transform", `translate(${margin.left},${margin.top})`);
       
   const maxRatio = d3.max(ratioData, (d) => d.ratio);
  
   
-  const minYear = d3.min(ratioData, (d) => new Date(d.year).getFullYear());
-  const maxYear = d3.max(ratioData, (d) => new Date(d.year).getFullYear());
+  const minYear = d3.min(ratioData, (d) => new Date(d.year));
+  const maxYear = d3.max(ratioData, (d) => new Date(d.year));
 
   // Scales
   const xScale = d3
-    .scaleLinear()
+    .scaleTime()
     .domain([minYear || 0, maxYear || 0])
     .range([0, width_graph]);
 
@@ -203,14 +117,14 @@ const OwnershipTimeChart: React.FC<OwnershipTimeChartProps> = ({
   // Line generator
   const lineGenerator = d3
     .line<RatioDataEntry>()
-    .x((d) => xScale(new Date(d.year).getFullYear()))
+    .x((d) => xScale(new Date(d.year)))
     .y((d) => yScale(d.ratio));
 
   // Define the color scale
   const colorScale = d3.scaleOrdinal(d3.schemeCategory10);
 
   // Group the data by flat type
-  const dataByFlatType = d3.groups(ratioData, (d) => d.town_classficiation);
+  const dataByFlatType = d3.groups(ratioData, (d) => d.town_classification);
 
   // Draw the line for each flat type
   dataByFlatType.forEach(([town_classification, values], index) => {
@@ -223,15 +137,43 @@ const OwnershipTimeChart: React.FC<OwnershipTimeChartProps> = ({
       ;
  });
 
-
-  // console.log("maxratio", maxRatio);
   // Add X axis
   svg.append("g")
     .attr("transform", `translate(0,${height_graph})`)
-    .call(d3.axisBottom(xScale));
+    .call(d3.axisBottom(xScale).tickFormat(d3.timeFormat("%Y")));
 
   // Add Y axis
   svg.append("g").call(d3.axisLeft(yScale));
+
+  const legendSize = 10; // Size of the legend box
+  const legendSpacing = 100; // Space between each legend item
+  const legendXPosition = 0; // Starting horizontal position of the first legend item
+  const legendYPosition = height_graph + margin.bottom - 20; // Positioned below the graph
+
+  const legend = svg.selectAll('.legend')
+    .data(dataByFlatType) // Use the grouped data
+    .enter().append('g')
+      .attr('class', 'legend')
+      .attr('transform', (d, i) => {
+        // Calculate the horizontal position by accumulating space
+        const xPosition = legendXPosition + i * (legendSize + legendSpacing);
+        return `translate(${xPosition},${legendYPosition})`;
+      });
+
+  // Append rectangles for legend symbols
+  legend.append('rect')
+    .attr('width', legendSize)
+    .attr('height', legendSize)
+    .style('fill', (d, i) => colorScale(i.toString()))
+    .style('stroke', (d, i) => colorScale(i.toString()));
+
+  // Append text labels for legend
+legend.append('text')
+  .attr('x', legendSize + 5) // A small padding from the rectangle
+  .attr('y', legendSize / 2)
+  .attr('dy', '.35em') // Vertically center text
+  .style('font-size', '12px') // Set the font size to 14px
+  .text((d) => d[0]); // Using the town_classification as label text
 
   svg
     .append("text")
