@@ -28,7 +28,7 @@ const Resale_Flat_Hdb: React.FC<ResaleFlatHdbProps> = ({ data, selectedFilter, }
       const container = chartRef.current;
       if (!container) return;
 
-      const width = 450;
+      const width = 480;
       const height = 300;
 
       const svgContainer = d3.select(container);
