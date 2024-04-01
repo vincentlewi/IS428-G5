@@ -181,53 +181,6 @@ export default function Overview() {
   useEffect(() => {
     setdata()
   } , []);
-  
-  
-  // function calculateRatioIncomePrice(avgPrice: { year: string; flat_types: { flat_type: string; mean: number; }[]; }[], incomeData: IncomeData[]) {
-  //   const ratios = [];
-
-  //   // Iterate over each year entry in avgPrice
-  //   for (const priceEntry of avgPrice) {
-  //       const year = priceEntry.year;
-  //       const income = incomeData.find(i => i.year === year);
-  //           if (income) {
-  //               // Calculate the ratio and add it to the ratios array
-  //               ratios.push({
-  //                   year: year,
-  //                   ratio: flatTypeEntry.mean / income.median_income
-  //               });
-  //           }
-  //       // Now, iterate over each flat_type within the year
-  //       for (const flatTypeEntry of priceEntry.flat_types) {
-            
-  //       }
-  //   }
-
-  //   // It's not necessary to filter for nulls since we only push when we find a match
-  //   return ratios;
-  // } 
-
-  const handleFilterChange = (
-    event: React.ChangeEvent<HTMLSelectElement>,
-    filterType: "year" |  "flatTypes"
-  ) => {
-    let value = Array.from(
-      event.target.selectedOptions,
-      (option) => option.value
-    );
-
-    // Special handling for "all" selection in flatTypes
-    if (filterType === "flatTypes") {
-      if (value.includes("All")) {
-        value = ["All"]; // Reset to "all" only, or handle as needed
-      }
-    }
-
-    setSelectedFilter((prevFilter) => ({
-      ...prevFilter,
-      [filterType]: value,
-    }));
-  };
 
   function filterData(data: HDBData[], filter: Filter) {
     return data.filter(
@@ -253,38 +206,13 @@ export default function Overview() {
     );
   }
 
-  // function filterIncomeFlat(incomeData: IncomeData[], filter: string) {
-  //   return incomeData.filter(
-  //     (d) =>
-  //       (filter === "All" || filter === d.flat_type)
-  //   );
-  // }
-
   useEffect(() => {
     const filterHDB = filterData(hdbData, selectedFilter);
     setFilteredHDBData(filterHDB);
     const filteredHDBFlat = filterMedianPriceData(medianAdjustedPrices, "All");
     setFilterHdbFlat(filteredHDBFlat);
-    console.log(filterHdbFlat);
-    // const filterIncomeData = filterIncomeFlat(incomeData, selectedIncomeFlatType);
-    // setFilteredIncomeData(filterIncomeData);
     const filterMedianAdjustedPrices = filterMedianPriceData(medianAdjustedPrices, selectedMedianFlatType);
     setFilteredMedianAdjustedPrices(filterMedianAdjustedPrices);
-     console.log(filteredIncomeData);
-    // const avgResalePriceByYearAndType = d3.rollups(
-    //   filteredHDBData,
-    //   (group) => d3.mean(group, d => d.resale_price), // Ensure this returns the mean
-    //   (d) => d.year,  // First level of grouping: by year
-    //   (d) => d.flat_type // Second level of grouping: by flat_type
-    // ).map(([year, flatTypes]) => ({  
-    //   // This maps the nested structure into a flat one, if that's what you're looking for.
-    //   // Otherwise, you can adjust the structure as needed.
-    //   year: year,
-    //   flat_types: flatTypes.map(([flat_type, mean]) => ({
-    //     flat_type, mean
-    //   }))
-    // }));
-      
     }, [selectedFilter, selectedIncomeFlatType, selectedMedianFlatType]);
 
   const navigate = useNavigate();
@@ -397,19 +325,13 @@ export default function Overview() {
             <p className="text-3xl font-bold pb-5 text-center">
               Further into the Data
             </p>
-            <p className="text-lg text-justify pb-10">
-              Our team has developed a tool that will help you make the best
-              decision on where to buy your home. By using our tool, you will be
-              able to compare the prices of homes across different estates in
-              Singapore, and make an informed decision based on your preferences
-              and budget. Our tool will provide you with a comprehensive
-              overview of the prices of homes in different estates, and help you
-              make the best decision on where to buy your home.
+            <p className="text-lg pb-10 text-center">
+              Let us further explore the data that we have to better understand the housing market in Singapore.
             </p>
             <div className="grid grid-cols-3 gap-10">
               <div>
-                <p className="text-2xl font-bold pb-3">Graph 1</p>
-                <p className="text-md text-justify pb-5">Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.</p>
+                <p className="text-2xl font-bold pb-3">Top 5 Area with Most Resale Flats Count</p>
+                {/* <p className="text-md text-justify pb-5">Below is the graph showing the top 5 towns that have the most resale flats according to the year and flat types. From 2016, transaction counts at Sengkang and Punggol are increasing rapidly as seen in 2020 and 2021 they are the top two. You can toggle the filters for the year and flat types to understand more on which areas have the most sold flats in that year.</p> */}
                 <div className="flex grid grid-cols-2 gap-4 pb-5">
                   <div>
                     <label htmlFor="year-select">Select Year: </label>
@@ -423,8 +345,8 @@ export default function Overview() {
                 <Resale_Flat_Hdb data={filteredHDBData} selectedFilter={selectedFilter} />
               </div>
               <div>
-                <p className="text-2xl font-bold pb-3">Graph 2</p>
-                <p className="text-md text-justify pb-5">Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.</p>
+                <p className="text-2xl font-bold pb-3">Mature vs. Non Mature Median Price</p>
+                {/* <p className="text-md text-justify pb-5">The graph shows the median price of the different flat types in the mature and non-mature areas across the year. You can toggle the flat types filter to see the trend of the median prices across the years.</p> */}
                 <label htmlFor="flat-type-select">Flat Type: </label>
                 <DropdownFilterFlat filterKey={'flatTypes'} placeholder={'All'} items={flatTypes} filter={selectedMedianFlatType} setFilter={setSelectedMedianFlatType}/>
                 <MedianMaturityPriceChart
@@ -433,11 +355,12 @@ export default function Overview() {
                 />
               </div>
               <div>
-                <p className="text-2xl font-bold pb-3">Graph 3</p>
-                <p className="text-md text-justify pb-5">Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.</p>
+                <p className="text-2xl font-bold pb-3">Years to Pay Off Flat</p>
+                {/* <p className="text-md text-justify pb-5">Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.</p> */}
+                {/* <br/>
                 <br/>
                 <br/>
-                <br/>
+                <br/> */}
                 <OwnershipTimeChart
                   incomeData={filteredIncomeData}
                   hdbData={filterHdbFlat}
@@ -477,19 +400,21 @@ export default function Overview() {
             <p className="text-3xl font-bold pb-5 text-center">
               The Decision Making Process
             </p>
-            <p className="text-lg text-justify pb-10">
+            {/* <p className="text-lg text-justify pb-10">
               Our tool will provide you with a comprehensive overview of the
               prices of homes in different estates, and help you make the best
               decision on where to buy your home. By using our tool, you will be
               able to compare the prices of homes across different estates in
               Singapore, and make an informed decision based on your preferences
               and budget.
-            </p>
+            </p> */}
             <div className="grid grid-cols-2 gap-10">
               <div>
+                <p className="text-2xl font-bold pb-3">Amenities with Most Time Spent</p>
                 <Treemap />
               </div>
               <div>
+                <p className="text-2xl font-bold pb-3">Feature Importance</p>
                 <MultilineChart />
               </div>
             </div>
