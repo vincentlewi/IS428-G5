@@ -56,7 +56,7 @@ const DiscoveryRadar = ({ options = { variables: [], sets: [] }, hovered }) => {
       padding={30}
       domainMax={1} 
       highlighted={{"setKey": highlighted}}
-      onHover={(e) => console.log(e)}
+      // onHover={(e) => console.log(e)}
       data={{
         variables: chartData.variables,
         sets: chartData.sets
