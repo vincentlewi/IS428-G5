@@ -24,8 +24,8 @@ const MedianMaturityPriceChart: React.FC<Props> = ({ data, selectedFilter }) => 
   useEffect(() => {
     if (data && d3Container.current) {
       const svgElement = d3Container.current;
-      const margin = { top: 70, right: 50, bottom: 40, left: 40 },
-        width = 480 - margin.left - margin.right,
+      const margin = { top: 70, right: 50, bottom: 70, left: 50 },
+        width = 400 - margin.left - margin.right,
         height = 320 - margin.top - margin.bottom;
     
       // Set the outer dimensions of the SVG
@@ -50,12 +50,15 @@ const MedianMaturityPriceChart: React.FC<Props> = ({ data, selectedFilter }) => 
       );
       setNonMature(nonMaturePrice);
 
-      const minYear = d3.min(maturePrice, (d) => new Date(d.year).getFullYear());
-      const maxYear = d3.max(maturePrice, (d) => new Date(d.year).getFullYear());
+      // const minYear = d3.min(maturePrice, (d) => new Date(d.year).getFullYear());
+      // const maxYear = d3.max(maturePrice, (d) => new Date(d.year).getFullYear());
 
+      const minYear = d3.min(maturePrice, (d) => new Date(d.year)); // January of the min year
+      const maxYear = d3.max(maturePrice, (d) => new Date(d.year)); // End of the max year
+      
       // Scales
       const xScale = d3
-        .scaleLinear()
+        .scaleTime()
         .domain([minYear || 0, maxYear|| 0])
         .range([0, width]);
 
@@ -66,15 +69,22 @@ const MedianMaturityPriceChart: React.FC<Props> = ({ data, selectedFilter }) => 
         .range([height, 0]);
 
       // Line generators
+      // const lineMature = d3.line<MedianAdjustedPriceEntry>()
+      // .x((d) => xScale(new Date(maturePrice.year)))
+      // .y((d) => yScale(nonMaturePrice.resale_price));
+
+      // const lineNonMature = d3.line<MedianAdjustedPriceEntry>()
+      // .x((d) => xScale(new Date(nonMaturePrice.year)))
+      // .y((d) => yScale(nonMaturePrice.resale_price));
       const lineMature = d3
         .line<MedianAdjustedPriceEntry>()
-        .x((maturePrice) => xScale(new Date(maturePrice.year).getFullYear()))
-        .y((maturePrice) => yScale(maturePrice.resale_price));
+        .x((maturePrice) => xScale(new Date(maturePrice.year)))
+        .y((maturePrice) => yScale(maturePrice.adjusted_price));
 
       const lineNonMature = d3
         .line<MedianAdjustedPriceEntry>()
-        .x((nonMaturePrice) => xScale(new Date(nonMaturePrice.year).getFullYear()))
-        .y((nonMaturePrice) => yScale(nonMaturePrice.resale_price));
+        .x((nonMaturePrice) => xScale(new Date(nonMaturePrice.year)))
+        .y((nonMaturePrice) => yScale(nonMaturePrice.adjusted_price));
 
       // Draw lines
       g.append("path")
@@ -93,10 +103,48 @@ const MedianMaturityPriceChart: React.FC<Props> = ({ data, selectedFilter }) => 
 
       // Axes
       g.append("g")
-        .attr("transform", `translate(0,${height})`)
-        .call(d3.axisBottom(xScale));
+      .attr("transform", `translate(0,${height})`)
+      .call(d3.axisBottom(xScale).tickFormat(d3.timeFormat("%Y"))) // Formatting the date
+      .selectAll("text")  
+        .style("text-anchor", "end")
+        .attr("dx", "-.8em")
+        .attr("dy", ".15em")
+        .attr("transform", "rotate(-65)"); // Rotate the text labels
 
       g.append("g").call(d3.axisLeft(yScale));
+
+      // Legend setup
+      const legend = g.append('g')
+      .attr('class', 'legend')
+      .attr('transform', `translate(${margin.left}, ${height + 45})`); // Adjust as necessary
+
+      // Legend for Mature Price
+      legend.append('rect')
+      .attr('x', 0)
+      .attr('width', 10)
+      .attr('height', 10)
+      .style('fill', 'steelblue');
+
+      legend.append('text')
+      .attr('x', 20) // Distance from the rectangle
+      .attr('y', 10) // Vertically align with the rectangle
+      .text('Mature')
+      .style('font-size', '12px')
+      .attr('alignment-baseline', 'middle');
+
+      // Legend for Non-Mature Price
+      legend.append('rect')
+      .attr('x', 100) // Adjust this value based on your actual layout
+      .attr('width', 10)
+      .attr('height', 10)
+      .style('fill', 'red');
+
+      legend.append('text')
+      .attr('x', 120) // Adjust based on the rectangle's position
+      .attr('y', 10) // Vertically align with the rectangle
+      .text('Non-Mature')
+      .style('font-size', '12px')
+      .attr('alignment-baseline', 'middle');
 
       g
       .append("text")
