@@ -17,6 +17,14 @@ import { Recommend } from '@/components/d3/recommend'
 import { MultiSlider } from '@/components/filters/multiSlider'
 import Slider from '@/components/filters/slider'
 import SelectAmenity from '@/components/filters/selectAmenity'
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog"
 
 interface House {
   LATITUDE: string
@@ -137,7 +145,7 @@ export default function Dashboard() {
             
           </CardContent>
         </Card>        
-        <Map width={600} height={400} points={topHouses} selectedAmenity={selectedAmenity}/>
+        <Map width={800} height={400} points={topHouses} selectedAmenity={selectedAmenity}/>
         <Card>
           <CardHeader>
             <CardTitle>Show Amenities</CardTitle>
@@ -166,38 +174,47 @@ export default function Dashboard() {
         : topHouses[0].address === ''
           ? <p>Loading...</p>
           : <>
-              <DiscoveryRadar options={{variables: [], sets:topHouses}} hovered={hovered}/>
-              {topHouses.map((house, index) => (
-                <Card 
-                  key={index} 
-                  className={cardColor[index]} 
-                  onMouseEnter={() => setHovered(`${house.address} ${house.town} ${house.flat_type}`)}
-                  onMouseLeave={() => setHovered('')}
-                >
-                  <CardHeader>
-                    <CardTitle>#{index + 1} {house.town}</CardTitle>
-                    <CardDescription>{house.flat_type} HDB at {house.address}</CardDescription>
-                  </CardHeader>
-                  <CardContent>
-                    <p>Score: {+house.score}</p>
-                    <p>Median Price: {SGD.format(Math.round(house.resale_price))}</p>
-                    <p>Remaining Lease: {+house.remaining_lease} years</p>
-                    <p>Price per Square Meters: {SGD.format(Math.round(house.price_per_sqm))}</p>
-                    <br />
-                    <p>Bus within 500m: {+house['bus_within_0.5']}</p>
-                    <p>School within 2km: {+house['school_within_2.0']}</p>
-                    <p>Mall within 2km: {+house['mall_within_2.0']}</p>
-                    <p>Supermarkets within 500m: {+house['supermarket_within_0.5']}</p>
-                    <p>Distance to CBD: {Math.round((+house['cbd_distance'] + Number.EPSILON)*100)/100} km</p>
-                    <p>Distance to Hawker: {Math.round((+house['hawker_distance'] + Number.EPSILON)*100)/100} km</p>
-                    <p>Distance to Park: {Math.round((+house['park_distance'] + Number.EPSILON)*100)/100} km</p>
-                    <p>Distance to MRT/LRT: {Math.round((+house['mrtlrt_distance'] + Number.EPSILON)*100)/100} km</p>
-                  </CardContent>
-                  <CardFooter>
-                    <Button>More Details</Button>
-                  </CardFooter>
-                </Card>
-              ))}
+              <div className='mx-10'><DiscoveryRadar options={{variables: [], sets:topHouses}} hovered={hovered}/></div>
+              <div>
+                {topHouses.map((house, index) => (
+                  <Card 
+                    key={index} 
+                    className={`${cardColor[index]} my-2 py-2`} 
+                    onMouseEnter={() => setHovered(`${house.address} ${house.town} ${house.flat_type}`)}
+                    onMouseLeave={() => setHovered('')}
+                  >
+                    <CardHeader className='px-4 py-2'>
+                      <CardTitle>#{index + 1} {house.town}</CardTitle>
+                      <CardDescription>{house.flat_type} HDB at {house.address}</CardDescription>
+                    </CardHeader>
+                    <CardContent className='px-4 py-2'>
+                      <Button>
+                        <Dialog>
+                          <DialogTrigger>See More Details</DialogTrigger>
+                          <DialogContent>
+                            <DialogHeader>
+                              <DialogTitle className='text-xl'>#{index + 1} {house.town}</DialogTitle>
+                              <DialogDescription>{house.flat_type} HDB at {house.address}</DialogDescription>
+                              <p><b>Median Price:</b> {SGD.format(Math.round(house.resale_price))}</p>
+                              <p><b>Remaining Lease:</b> {+house.remaining_lease} years</p>
+                              <p><b>Price per Square Meters:</b> {SGD.format(Math.round(house.price_per_sqm))}</p>
+                              <br />
+                              <p><b>Bus within 500m:</b> {+house['bus_within_0.5']}</p>
+                              <p><b>School within 2km:</b> {+house['school_within_2.0']}</p>
+                              <p><b>Mall within 2km:</b> {+house['mall_within_2.0']}</p>
+                              <p><b>Supermarkets within 500m:</b> {+house['supermarket_within_0.5']}</p>
+                              <p><b>Distance to CBD:</b> {Math.round((+house['cbd_distance'] + Number.EPSILON)*100)/100} km</p>
+                              <p><b>Distance to Hawker:</b> {Math.round((+house['hawker_distance'] + Number.EPSILON)*100)/100} km</p>
+                              <p><b>Distance to Park:</b> {Math.round((+house['park_distance'] + Number.EPSILON)*100)/100} km</p>
+                              <p><b>Distance to MRT/LRT:</b> {Math.round((+house['mrtlrt_distance'] + Number.EPSILON)*100)/100} km</p>
+                            </DialogHeader>
+                          </DialogContent>
+                        </Dialog>
+                      </Button>
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
             </>
         }
       </div>
