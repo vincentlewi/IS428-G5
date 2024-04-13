@@ -3,29 +3,27 @@ import * as d3 from 'd3';
 import input_data from "@/assets/datasets/catboost_aggregated.json"
 
 export default function multilineChart() {
-
   const d3Container = useRef(null);
-
   const dataset = Array.from(d3.group(input_data, d => d["Features"]), ([key, value]) => ({ key, value }));
-
 
   useEffect(() => {
     if (dataset.length > 0 && d3Container.current) {
-        const margin = { top: 20, right: 10, bottom: 100, left: 20 };
-        const legendMargin = { top: 20, right: 20, width: 150 };
-        const width = 600 - margin.left - margin.right;
-        const height = 350 - margin.top - margin.bottom;
-        const svgWidth = width + margin.left + margin.right + legendMargin.width + legendMargin.right + 100;
-        const svgHeight = 500;
-        
+      const containerWidth = d3Container.current.getBoundingClientRect().width;
 
+      const margin = { top: 20, right: 10, bottom: 100, left: 20 };
+      const legendMargin = { top: 20, right: 20, width: 150 };
+      const width = containerWidth - margin.left - margin.right
+      const height = 450 - margin.top - margin.bottom;
+      const svgWidth = containerWidth; // Use the container's full width
+      const svgHeight = 500;
+        
       // Remove any previous SVG
       d3.select(d3Container.current).selectAll('*').remove();
 
       // Append SVG object to the ref element
       const svg = d3.select(d3Container.current)
         .append('svg')
-        .attr('width', svgWidth)
+        .attr('width', '100%') // Set svg width to 100% of the container
         .attr('height', svgHeight)
         .append('g')
         .attr('transform', `translate(${margin.left},${margin.top})`);
@@ -79,65 +77,52 @@ export default function multilineChart() {
         })
         .attr('d', d => lineGenerator(d.value));
 
-        // Legend setup
-      const legendRectSize = 10; // Size of the legend marker
-      const legendSpacing = 5; // Space between legend marker and text
-      const legendHeight = legendRectSize + legendSpacing;
+              // Legend setup
+      const legendContainer = svg.append('g')
+      .attr('class', 'legend-container')
+      .attr('transform', `translate(0, ${height + 60})`);
 
-      // Create legend below the chart
-      dataset.forEach((d, i) => {
-        const legend = svg.append('g')
-          .attr('class', 'legend')
-          .attr('transform', `translate(0, ${height + margin.bottom / 2 + (i * legendHeight)})`);
+    let currentX = 0;
+    let currentY = 0;
+    const legendItemHeight = 20;
+    const legendSpacing = 4;
+    const legendRectSize = 10;
+    const legendPadding = 15;
 
-        legend.append('rect')
-          .attr('width', legendRectSize)
-          .attr('height', legendRectSize)
-          .style('fill', color(d.key))
-          .style('stroke', color(d.key));
+    dataset.forEach((d, i) => {
+      const textLength = d.key.length * 6; // Approximation of text length
+      const legendItemWidth = legendRectSize + textLength + legendPadding;
 
-        legend.append('text')
-          .attr('x', legendRectSize + 5)
-          .attr('y', legendRectSize / 2)
-          .text(d.key)
-          .attr('dy', '0.32em') // Vertically center text
-          .attr('text-anchor', 'start')
-          .attr('font-size', '10px')
-          .style('alignment-baseline', 'middle')
-          .style('fill', color(d.key))
+      if (currentX + legendItemWidth > width) {
+        currentX = 0; // Reset X position
+        currentY += legendItemHeight; // Move to next line
+      }
+      
+      const legend = legendContainer.append('g')
+        .attr('class', 'legend')
+        .attr('transform', `translate(${currentX}, ${currentY})`);
+      
+      legend.append('rect')
+        .attr('width', legendRectSize)
+        .attr('height', legendRectSize)
+        .style('fill', color(d.key))
+        .style('stroke', color(d.key));
 
-    
-      });
+      legend.append('text')
+        .attr('x', legendRectSize + legendSpacing)
+        .attr('y', legendRectSize - legendSpacing)
+        .text(d.key)
+        .attr('font-size', '10px')
+        .style('fill', color(d.key));
 
-        svg.attr('viewBox', `0 0 ${svgWidth} ${svgHeight}`)
-        .attr('preserveAspectRatio', 'xMinYMin meet');
-
-        const variablesToLabel = ["floor_area_sqm", "cbd_distance", "remaining_lease"];
-
-        // For each feature group, add labels only for the specified variables
-        dataset.forEach((featureGroup) => {
-        if (variablesToLabel.includes(featureGroup.key)) {
-            featureGroup.value.forEach((d) => {
-            svg.append("text")
-                .attr("x", x(d.year))
-                .attr("y", y(d.Importances))
-                .attr("dy", "-0.6em") // Adjust position above the circle
-                .attr("dx", "0.4em") // Adjust position above the circle
-                .attr("text-anchor", "middle")
-                .text(`${d.Importances.toFixed(2)}`) // Show the feature name and value
-                .attr("font-size", "9px") // Adjust font size as needed
-                .attr("fill", color(featureGroup.key)) // Use the color scale for consistency
-            });
-        }
-        });
-
-
+      currentX += legendItemWidth;
+    });
     }
   }, [dataset]); // Redraw chart if data changes
 
   return (
     <div>
-      <div ref={d3Container} />
+      <div ref={d3Container} style={{width: '100%'}} /> {/* Ensure the container div takes up 100% width */}
     </div>
   );
 };

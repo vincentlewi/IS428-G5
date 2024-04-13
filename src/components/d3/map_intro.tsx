@@ -69,7 +69,7 @@ const MapIntro: React.FC = () => {
     const svgElement = svgRef.current;
     if (!svgElement) return;
 
-    const width = 600;
+    const width = 750;
     const height = 600;
     const maxPrice = Math.max(
       ...geoData.features.map((d) => d.properties.meanPerSqmPrice ?? 0)
@@ -220,7 +220,7 @@ const MapIntro: React.FC = () => {
   // In your component's return statement
   return (
     <div>
-      <svg ref={svgRef} width="800" height="800">
+      <svg ref={svgRef} width="800" height="600">
       <div style={{ textAlign: "center" }}>
         <button onClick={handlePlayPause}>
           {isPlaying ? "Pause" : "Play"}

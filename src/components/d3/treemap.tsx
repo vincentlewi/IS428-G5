@@ -1,4 +1,4 @@
-import { useMemo } from "react";
+import { useMemo, useRef, useEffect, useState } from "react";
 import { Tree, data } from "@/assets/datasets/treemap_data";
 import * as d3 from "d3";
 import styles from "./treemap.module.css"
@@ -6,6 +6,21 @@ import styles from "./treemap.module.css"
 const nTree = 15
 
 const Treemap = () => {
+  const containerRef = useRef(null); // Create a ref for the parent container
+  const [size, setSize] = useState({ width: 0, height: 450 }); // Initial size state
+
+  useEffect(() => {
+    // Function to update size state based on container's clientWidth
+    const updateSize = () => {
+      if (containerRef.current) {
+        setSize({ width: containerRef.current.clientWidth, height: 450 });
+      }
+    };
+    updateSize(); // Update size on mount
+    window.addEventListener('resize', updateSize); // Add resize listener to keep track of size changes.
+    return () => window.removeEventListener('resize', updateSize); // Clean-up the event listener on unmount
+  }, []);
+  
   // Modify data to include an "others" category for everything beyond the top 10 features.
   const modifiedData = useMemo(() => {
     if ('children' in data) {
@@ -28,9 +43,10 @@ const Treemap = () => {
   const height = 450
 
   const root = useMemo(() => {
-    const treeGenerator = d3.treemap<Tree>().size([width, height]).padding(4);
+    // Use dynamic width from size state
+    const treeGenerator = d3.treemap<Tree>().size([size.width, size.height]).padding(4);
     return treeGenerator(hierarchy);
-  }, [hierarchy, width, height]);
+  }, [hierarchy, size.width, size.height]); // Depend on dynamic size
 
   const valueExtent = useMemo(() => {
     return [root.leaves()[0]?.value, root.leaves().slice(-1)[0]?.value];
@@ -81,8 +97,8 @@ const Treemap = () => {
   });
 
   return (
-    <div>
-      <svg width={width} height={height} className={styles.container}>
+    <div ref={containerRef}> {/* Assign ref to the container */}
+      <svg width="100%" height={size.height} className={styles.container}> {/* Set width to "100%" */}
         {allShapes}
       </svg>
     </div>

@@ -34,27 +34,40 @@ const OwnershipTimeChart: React.FC<OwnershipTimeChartProps> = ({
   const chartRef = useRef(null);
   const resizeSVG = () => {
     const container = chartRef.current;
-      if (!container) return;
+    if (!container) return;
 
-      const width = 500;
-      const height = 280;
+    // Dynamically get the container's width
+    const containerWidth = container.clientWidth;
 
-      const svgContainer = d3.select(container);
-      svgContainer.selectAll("*").remove();
+    // Set the height dynamically or keep it fixed based on your design
+    const height = 280;
 
-      const svg = svgContainer
-        .append("svg")
-        .attr("width", width)
-        .attr("height", height)
-        .append("g")
-        .attr("transform", "translate(30,50)");
+    // Clear any existing SVG to redraw
+    const svgContainer = d3.select(container);
+    svgContainer.selectAll("*").remove();
 
-        updateChart(svg, incomeData, hdbData, selectedFilter, width, height);
+    // Create the new SVG with dynamic width and fixed height
+    const svg = svgContainer
+      .append("svg")
+      .attr("width", containerWidth) // Use the container's width
+      .attr("height", height)
+      .append("g")
+      .attr("transform", "translate(30,50)");
+
+    // Update the chart with the new dimensions
+    updateChart(svg, incomeData, hdbData, selectedFilter, containerWidth, height);
   };
-
 
   useEffect(() => {
     resizeSVG();
+
+    // Attach an event listener to resize the chart when the window is resized
+    window.addEventListener('resize', resizeSVG);
+    
+    // Cleanup event listener on component unmount
+    return () => {
+      window.removeEventListener('resize', resizeSVG);
+    };
   }, [incomeData, hdbData, selectedFilter]); // Dependencies to re-run the effect when they change
 
   function calculateRatioIncomePrice(hdbData: MedianPriceData[], incomeData: IncomeData[]) {
@@ -67,7 +80,7 @@ const OwnershipTimeChart: React.FC<OwnershipTimeChartProps> = ({
           ratios.push({
             year: year,
             flat_type: medianPrice.flat_type,
-            ratio: medianPrice.resale_price / d.median_income
+            ratio: medianPrice.resale_price / (d.median_income * 12)
           }))
         ;
       }
@@ -183,11 +196,11 @@ legend.append('text')
     function generateChartTitle(
       selectedFilter: OwnershipTimeChartProps["selectedFilter"]
     ): string {
-      let title = `Years to Pay Off HDB vs. Condominium Flats`;
+      let title = `Years to Pay Off HDB vs. Private Flats`;
       return title;
     }
   }
-  return <div ref={chartRef} ></div>;
+  return <div ref={chartRef} style={{width: '100%'}}></div>;
 };
 
 export default OwnershipTimeChart;
