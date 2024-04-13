@@ -24,30 +24,31 @@ interface ResaleFlatHdbProps {
 const Resale_Flat_Hdb: React.FC<ResaleFlatHdbProps> = ({ data, selectedFilter, }) => {
   const chartRef = useRef(null);
   const resizeSVG = () => {
-    if (data && data.length > 0) {
-      const container = chartRef.current;
-      if (!container) return;
+    const container = chartRef.current;
+    if (!container) return;
 
-      const width = 480;
-      const height = 300;
+    // Dynamically get the container's width
+    const containerWidth = container.clientWidth; // update here
+    const height = 300;
 
-      const svgContainer = d3.select(container);
-      svgContainer.selectAll("*").remove();
+    const svgContainer = d3.select(container);
+    svgContainer.selectAll("*").remove();
 
-      const svg = svgContainer
-        .append("svg")
-        .attr("width", width)
-        .attr("height", height)
-        .append("g")
-        .attr("transform", "translate(85,50)");
+    const svg = svgContainer
+      .append("svg")
+      .attr("width", containerWidth) // Use the container's width
+      .attr("height", height)
+      .append("g")
+      .attr("transform", "translate(85,50)");
 
-      // Assuming you have a function updateChart that draws or updates the graph
-      updateChart(svg, data, selectedFilter, width, height);
-    }
+    // Call the function to update the chart contents now with dynamic width
+    updateChart(svg, data, selectedFilter, containerWidth, height); // Pass containerWidth
   };
-
+  
   useEffect(() => {
     resizeSVG();
+    window.addEventListener('resize', resizeSVG);
+    return () => window.removeEventListener('resize', resizeSVG);
   }, [data, selectedFilter]);
 
   function updateChart(
@@ -194,7 +195,7 @@ const Resale_Flat_Hdb: React.FC<ResaleFlatHdbProps> = ({ data, selectedFilter, }
       function generateChartTitle(
         selectedFilter: ResaleFlatHdbProps["selectedFilter"]
       ): string {
-        let title = `Top 5 Areas with Most ${selectedFilter.flatTypes} Resale Flats Sold`;
+        let title = `Top 5 Towns with Most Resale Flats Sold`;
         if (!selectedFilter.year.includes("All")) {
             title += ` in ${selectedFilter.year}`; // Single year selected
         }
@@ -202,7 +203,7 @@ const Resale_Flat_Hdb: React.FC<ResaleFlatHdbProps> = ({ data, selectedFilter, }
       }
   }
 
-  return <div ref={chartRef} ></div> 
+  return <div ref={chartRef} style={{width: '100%'}}></div>
 };
 
 export default Resale_Flat_Hdb;

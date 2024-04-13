@@ -24,14 +24,19 @@ const MedianMaturityPriceChart: React.FC<Props> = ({ data, selectedFilter }) => 
   useEffect(() => {
     if (data && d3Container.current) {
       const svgElement = d3Container.current;
-      const margin = { top: 70, right: 50, bottom: 70, left: 50 },
-        width = 400 - margin.left - margin.right,
+      
+      // Use the container's dimensions for dynamic resizing
+      const containerWidth = svgElement.parentElement?.offsetWidth ?? 400;
+      
+      const margin = { top: 70, right: 50, bottom: 50, left: 50 },
+        // width = 400 - margin.left - margin.right, // Static width replaced
+        width = containerWidth - margin.left - margin.right, // Dynamic width
         height = 320 - margin.top - margin.bottom;
     
-      // Set the outer dimensions of the SVG
+      // Set the outer dimensions of the SVG using full container width
       const svg = d3
         .select(svgElement)
-        .attr("width", width + margin.left + margin.right)
+        .attr("width", "100%") // Make SVG width 100%
         .attr("height", height + margin.top + margin.bottom);
 
       // Remove any previous graphics
@@ -105,20 +110,13 @@ const MedianMaturityPriceChart: React.FC<Props> = ({ data, selectedFilter }) => 
       g.append("g")
       .attr("transform", `translate(0,${height})`)
       .call(d3.axisBottom(xScale).tickFormat(d3.timeFormat("%Y"))) // Formatting the date
-      .selectAll("text")  
-        .style("text-anchor", "end")
-        .attr("dx", "-.8em")
-        .attr("dy", ".15em")
-        .attr("transform", "rotate(-65)"); // Rotate the text labels
 
       g.append("g").call(d3.axisLeft(yScale));
-
-      
 
       // Legend setup
       const legend = g.append('g')
       .attr('class', 'legend')
-      .attr('transform', `translate(${margin.left}, ${height + 45})`); // Adjust as necessary
+      .attr('transform', `translate(${margin.left}, ${height + 30})`); // Adjust as necessary
 
       // Legend for Mature Price
       legend.append('rect')
@@ -128,8 +126,8 @@ const MedianMaturityPriceChart: React.FC<Props> = ({ data, selectedFilter }) => 
       .style('fill', 'steelblue');
 
       legend.append('text')
-      .attr('x', 20) // Distance from the rectangle
-      .attr('y', 10) // Vertically align with the rectangle
+      .attr('x', 15) // Distance from the rectangle
+      .attr('y', 7) // Vertically align with the rectangle
       .text('Mature')
       .style('font-size', '12px')
       .attr('alignment-baseline', 'middle');
@@ -142,8 +140,8 @@ const MedianMaturityPriceChart: React.FC<Props> = ({ data, selectedFilter }) => 
       .style('fill', 'red');
 
       legend.append('text')
-      .attr('x', 120) // Adjust based on the rectangle's position
-      .attr('y', 10) // Vertically align with the rectangle
+      .attr('x', 115) // Adjust based on the rectangle's position
+      .attr('y', 7) // Vertically align with the rectangle
       .text('Non-Mature')
       .style('font-size', '12px')
       .attr('alignment-baseline', 'middle');
